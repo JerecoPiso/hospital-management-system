@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DoctorsOrderController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -14,3 +15,15 @@ Route::prefix('user')->controller(UserController::class)->group(function () {
     Route::post('/login', [UserController::class, 'login']);
     Route::post('/register', [UserController::class, 'register']);
 });
+
+
+
+Route::prefix('doctors-order')
+    ->middleware('auth:sanctum')
+    ->controller(DoctorsOrderController::class)
+    ->group(function () {
+
+        Route::get('/', 'list');          // list orders
+        Route::post('/', 'store');         // create order
+        // Route::delete('/{pid}', 'destroy'); // delete order
+    });

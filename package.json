@@ -15,10 +15,13 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
+        "@primeuix/themes": "^2.0.3",
         "@vitejs/plugin-vue": "^6.0.3",
         "pinia": "^3.0.4",
+        "primevue": "^4.5.4",
         "typescript": "^5.9.3",
         "vue": "^3.5.27",
+        "vue-icons-plus": "^0.1.9",
         "vue-router": "^4.6.4"
     }
 }

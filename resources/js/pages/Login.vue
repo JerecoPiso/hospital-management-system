@@ -119,6 +119,7 @@
 </template>
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 interface LoginForm {
     email: string,
     password: string
@@ -127,6 +128,7 @@ const loginForm = ref<LoginForm>({
     email: "",
     password: ""
 })
+const router = useRouter()
 const isLoading = ref<boolean>(false)
 const rememberMe = ref<boolean>(false)
 const showPassword = ref<boolean>(false)
@@ -142,6 +144,7 @@ const handleLogin = async () => {
         // Reset form
         loginForm.value.email = ''
         loginForm.value.password = ''
+        router.push({ name: 'Authenticated' })
     }, 1500)
 }
 </script>

@@ -30,7 +30,7 @@ trait UserTrait
                 return api_response([], false, "Invalid data. User ID not found", code: 404);
             }
             $data = $this->userRepo->delete($data);
-            return api_response(["user" => $data], true, "Success", 200);
+            return api_response([], true, "Success", 200);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
         }
@@ -57,7 +57,17 @@ trait UserTrait
     {
         try {
             $validated = $request->validated();
-            $user = User::create($validated);
+            $user = User::create([
+                'email' => $validated["email"],
+                'firstname' => $validated["firstname"],
+                'lastname' => $validated["lastname"],
+                'middlename' => $validated["middlename"],
+                'suffix' => $validated["suffix"],
+                'date_of_birth' => $validated["date_of_birth"],
+                'license_no' => $validated["license_no"],
+                'gender' => $validated["gender"],
+                'password' => Hash::make($validated["password"])
+            ]);
             return api_response(["user" => $user], true, "Success", 200);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);

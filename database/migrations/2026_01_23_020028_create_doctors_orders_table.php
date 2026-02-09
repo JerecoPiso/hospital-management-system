@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')
                 ->constrained('users')
                 ->cascadeOnDelete();
-            $table->text('order');
+            $table->text(column: 'order');
             $table->text('progress_notes')->nullable();
             $table->softDeletes();
             $table->timestamps();
