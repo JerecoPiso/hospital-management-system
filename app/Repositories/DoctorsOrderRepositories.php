@@ -9,7 +9,7 @@ class DoctorsOrderRepositories
 
     public function list($filter = [])
     {
-        $order = DoctorsOrder::query();
+        $order = DoctorsOrder::with(['user']);
         $order = $order->get();
         return $order->toArray();
     }

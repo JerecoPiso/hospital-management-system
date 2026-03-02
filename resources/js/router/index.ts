@@ -17,6 +17,8 @@ const router = createRouter({
                 { path: "patients", name: "Patients", component: () => import("../pages/authenticated/Patients.vue") },
                 { path: "medicines", name: "Medicines", component: () => import("../pages/authenticated/Medicines.vue") },
                 { path: "users", name: "Users", component: () => import("../pages/authenticated/Users.vue") },
+                { path: "supplies", name: "Supplies", component: () => import("../pages/authenticated/Supplies.vue") },
+                { path: "settings", name: "Settings", component: () => import("../pages/authenticated/Settings.vue") },
             ],
         },
         {
@@ -25,10 +27,10 @@ const router = createRouter({
             component: () => import("../pages/authenticated/patientchart/PatientChart.vue"),
             children: [
                 { path: "", name: "PatientInformation", component: () => import("../pages/authenticated/patientchart/PatientInformation.vue") },
-                { path: "doctorsorder", name: "DoctorsOrder", component: () => import("../pages/authenticated/patientchart/DoctorsOrder.vue") },
-                { path: "nursesnotes", name: "NursesNotes", component: () => import("../pages/authenticated/patientchart/NursesNotes.vue") },
+                { path: "doctors-order", name: "DoctorsOrder", component: () => import("../pages/authenticated/patientchart/DoctorsOrder.vue") },
+                { path: "nurses-notes", name: "NursesNotes", component: () => import("../pages/authenticated/patientchart/NursesNotes.vue") },
                 { path: "therapeutic", name: "Therapeutic", component: () => import("../pages/authenticated/patientchart/Therapeutic.vue") },
-
+                { path: "vital-signs", name: "VitalSigns", component: () => import("../pages/authenticated/patientchart/VitalSigns.vue") },
             ]
         },
     ]

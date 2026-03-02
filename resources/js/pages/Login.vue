@@ -16,7 +16,7 @@
                 </div>
 
                 <!-- Form -->
-                <form @submit.prevent="handleLogin" class="space-y-5">
+                <form @submit.prevent="login" class="space-y-5">
                     <!-- Email Field -->
                     <div>
                         <label for="email" class="block text-sm font-semibold text-slate-700 mb-2">
@@ -71,7 +71,7 @@
                             Forgot password?
                         </a>
                     </div>
-
+                    {{ errorMessage }}
                     <!-- Login Button -->
                     <button type="submit" :disabled="isLoading"
                         class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 rounded-lg transition duration-200 flex items-center justify-center gap-2">
@@ -120,10 +120,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAppToast } from '@/composables/toast'
+import axios from 'axios'
 interface LoginForm {
     email: string,
     password: string
 }
+const toast = useAppToast()
 const loginForm = ref<LoginForm>({
     email: "",
     password: ""
@@ -132,20 +135,25 @@ const router = useRouter()
 const isLoading = ref<boolean>(false)
 const rememberMe = ref<boolean>(false)
 const showPassword = ref<boolean>(false)
-const handleLogin = async () => {
+const baseUrl = import.meta.env.VITE_APP_URL;
+const errorMessage = ref<string>("");
+const login = async () => {
     if (!loginForm.value.email || !loginForm.value.password) {
         alert('Please fill in all fields')
         return
     }
     isLoading.value = true
-    setTimeout(() => {
-        isLoading.value = false
-        alert(`Welcome back! Login would process for ${loginForm.value.email}`)
-        // Reset form
-        loginForm.value.email = ''
-        loginForm.value.password = ''
-        router.push({ name: 'Authenticated' })
-    }, 1500)
+
+    try {
+        await axios.get(`${baseUrl}sanctum/csrf-cookie`);
+        const response = await axios.post(`${baseUrl}user/login`, loginForm.value)
+        if (response.status == 200) {
+            router.push({ name: "Dashboard" })
+        }
+    } catch (error: any) {
+        toast.error(error.response.data.message)
+        isLoading.value = false;
+    }
 }
 </script>
 

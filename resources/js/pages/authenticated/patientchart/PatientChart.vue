@@ -189,8 +189,8 @@ import { GiMedicines } from 'vue-icons-plus/gi';
 import { FaBookMedical } from 'vue-icons-plus/fa';
 import { BsJournalMedical } from 'vue-icons-plus/bs';
 import { BiSolidUserAccount } from 'vue-icons-plus/bi';
-
-
+import { FiActivity } from 'vue-icons-plus/fi';
+import axios from 'axios';
 const confirm = useConfirm();
 const toast = useToast();
 const router = useRouter();
@@ -203,6 +203,11 @@ const navItems = [
         "label": "Patient Information",
         "name": "PatientInformation",
         "icon": BiSolidUserAccount
+    },
+    {
+        "name": "VitalSigns",
+        "label": "Vital Signs",
+        "icon": FiActivity
     },
     {
         "label": "Doctors Order",
@@ -218,7 +223,8 @@ const navItems = [
         "name": "Therapeutic",
         "label": "Therapeutic",
         "icon": GiMedicines
-    }
+    },
+
 ]
 
 
@@ -237,8 +243,10 @@ const handleMenuClick = (action) => {
             acceptProps: {
                 label: 'Save'
             },
-            accept: () => {
-                toast.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
+            accept: async () => {
+                const baseUrl = import.meta.env.VITE_APP_URL;
+                await axios.post(`${baseUrl}api/user/logout`)
+                // toast.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
                 router.push({ name: "Login" })
             },
             reject: () => {

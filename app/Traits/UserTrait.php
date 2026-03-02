@@ -41,12 +41,17 @@ trait UserTrait
         try {
             $credentials = $request->validated();
             if (Auth::attempt($credentials)) {
-                $user = Auth::user(); // get authenticated user
-                $tokenInstance = $user->createToken('auth_token');
-                $tokenInstance->accessToken->expires_at = now()->addDays(config('app.token_expiry'));
-                $tokenInstance->accessToken->save();
-                $token = $tokenInstance->plainTextToken;
-                return api_response(["token" => $token], true, "Success", 200);
+                $request->session()->regenerate(); // Prevent session fixation
+                return api_response(
+                    [
+                        "user" => Auth::user(),
+                        "session_id" => session()->getId(),        // 👈 current session ID
+                        "session"    => session()->all(),          // 👈 all session data
+                    ],
+                    true,
+                    "Success",
+                    200
+                );
             }
             return api_response([], false,  "Invalid credentials.", 401);
         } catch (\Exception $e) {
@@ -69,6 +74,21 @@ trait UserTrait
                 'password' => Hash::make($validated["password"])
             ]);
             return api_response(["user" => $user], true, "Success", 200);
+        } catch (\Exception $e) {
+            return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
+        }
+    }
+    public function logout(Request $request)
+    {
+        try {
+            // Auth::guard('web')->logout();           // Log the user out
+            // $request->session()->invalidate();       // Invalidate the session
+            // $request->session()->regenerateToken();  // Regenerate CSRF token
+            Auth::logout();
+            request()->session()->invalidate();
+            request()->session()->regenerateToken();
+
+            return api_response([], true, "Logged out successfully", 200);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
         }

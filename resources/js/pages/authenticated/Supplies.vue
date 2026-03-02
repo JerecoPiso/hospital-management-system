@@ -1,7 +1,7 @@
 <template>
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div class="p-6 border-b border-slate-200">
-            <h3 class="text-lg font-bold text-slate-900">Users</h3>
+            <h3 class="text-lg font-bold text-slate-900">Medicines</h3>
         </div>
         <DataTable v-model:expandedRows="expandedRows" :value="products" dataKey="id" @rowExpand="onRowExpand"
             @rowCollapse="onRowCollapse" tableStyle="min-width: 60rem">

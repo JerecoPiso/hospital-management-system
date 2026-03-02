@@ -7,7 +7,8 @@
             <div class="flex items-center justify-between px-4 md:px-8 py-4">
                 <!-- Logo & Title -->
                 <div class="flex items-center gap-3">
-                    <button @click="sidebarOpen = !sidebarOpen"
+                    <!-- @click="sidebarOpen = !sidebarOpen" -->
+                    <button @click="sidebarExpanded = !sidebarExpanded"
                         class="md:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors">
                         <svg class="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -187,8 +188,11 @@ import { useToast } from "primevue/usetoast";
 import { useRouter } from 'vue-router';
 import { MdDashboard } from 'vue-icons-plus/md';
 import { FiUsers } from 'vue-icons-plus/fi';
-import { GiMedicines } from 'vue-icons-plus/gi';
+import { GiMedicalPack, GiMedicines } from 'vue-icons-plus/gi';
 import { FaUsers } from 'vue-icons-plus/fa';
+import { FiSettings } from 'vue-icons-plus/fi';
+import axios from 'axios';
+
 const confirm = useConfirm();
 const toast = useToast();
 const router = useRouter();
@@ -203,7 +207,7 @@ const navItems = [
         "icon": MdDashboard
     },
     {
-        "name": "Patients",
+        "name": "DoctorsOrder",
         "icon": FiUsers
     },
     {
@@ -213,13 +217,21 @@ const navItems = [
     {
         "name": "Users",
         "icon": FaUsers
+    },
+    {
+        "name": "Supplies",
+        "icon": GiMedicalPack
+    },
+    {
+        "name": "Settings",
+        "icon": FiSettings
     }
 ]
 const handleMenuClick = (action) => {
     profileOpen.value = false
     if (action === 'logout') {
         confirm.require({
-            message: 'Are you sure you want to proceed?',
+            message: 'Are you sure you want to logout?',
             header: 'Confirmation',
             icon: 'pi pi-exclamation-triangle',
             rejectProps: {
@@ -230,8 +242,9 @@ const handleMenuClick = (action) => {
             acceptProps: {
                 label: 'Save'
             },
-            accept: () => {
-                toast.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
+            accept: async () => {
+                const baseUrl = import.meta.env.VITE_APP_URL;
+                await axios.post(`${baseUrl}api/user/logout`)
                 router.push({ name: "Login" })
             },
             reject: () => {
