@@ -28,22 +28,22 @@ class UserRepositories
             throw new \Exception("An error has occured! " . $e->getMessage());
         }
     }
-    // public function update($building_id, $data)
-    // {
-    //     try {
+    public function update($user_id, $data)
+    {
+        try {
 
-    //         if (!$data) {
-    //             return null;
-    //         }
+            if (!$data) {
+                return null;
+            }
 
-    //         $building = User::findOrFail($building_id);
-    //         $building->update($data);
+            $note = User::findOrFail($user_id);
+            $note->update($data);
 
-    //         return $building;
-    //     } catch (\Exception $e) {
-    //         throw new \Exception("An error has occured! " . $e->getMessage());
-    //     }
-    // }
+            return $note;
+        } catch (\Exception $e) {
+            throw new \Exception("An error has occured! " . $e->getMessage());
+        }
+    }
 
     public function delete($data)
     {

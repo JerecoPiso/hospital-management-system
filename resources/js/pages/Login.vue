@@ -148,6 +148,7 @@ const login = async () => {
         await axios.get(`${baseUrl}sanctum/csrf-cookie`);
         const response = await axios.post(`${baseUrl}user/login`, loginForm.value)
         if (response.status == 200) {
+            localStorage.removeItem("isLoggedout");
             router.push({ name: "Dashboard" })
         }
     } catch (error: any) {

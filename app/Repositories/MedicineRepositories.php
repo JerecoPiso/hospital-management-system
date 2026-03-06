@@ -2,28 +2,28 @@
 
 namespace App\Repositories;
 
-use App\Models\DoctorsOrder;
+use App\Models\Medicine;
 
-class DoctorsOrderRepositories
+class MedicineRepositories
 {
 
     public function list($filter = [])
     {
-        $order = DoctorsOrder::with(['user'])->orderBy('id', 'desc');
-        $order = $order->get();
-        return $order->toArray();
+        $med = Medicine::orderBy('id', 'desc');
+        $med = $med->get();
+        return $med->toArray();
     }
     public function searchByPid($pid)
     {
         try {
 
-            $order = DoctorsOrder::where('pid', $pid)->first();
+            $med = Medicine::where('pid', $pid)->first();
 
-            if (!$order) {
+            if (!$med) {
                 return [];
             }
 
-            return $order;
+            return $med;
         } catch (\Exception $e) {
             throw new \Exception("An error has occured! " . $e->getMessage());
         }
@@ -33,14 +33,14 @@ class DoctorsOrderRepositories
     {
         try {
 
-            $order = DoctorsOrder::create($data);
-            return $order;
+            $med = Medicine::create($data);
+            return $med;
         } catch (\Exception $e) {
             throw new \Exception("An error has occured! " . $e->getMessage());
         }
     }
 
-    public function update($order_id, $data)
+    public function update($med_id, $data)
     {
         try {
 
@@ -48,10 +48,10 @@ class DoctorsOrderRepositories
                 return null;
             }
 
-            $order = DoctorsOrder::findOrFail($order_id);
-            $order->update($data);
+            $med = Medicine::findOrFail($med_id);
+            $med->update($data);
 
-            return $order;
+            return $med;
         } catch (\Exception $e) {
             throw new \Exception("An error has occured! " . $e->getMessage());
         }

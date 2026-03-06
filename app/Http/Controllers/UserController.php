@@ -14,7 +14,5 @@ class UserController extends Controller
     public function __construct(UserRepositories $userRepo)
     {
         $this->userRepo = $userRepo;
-    }
-
-    
+    }    
 }

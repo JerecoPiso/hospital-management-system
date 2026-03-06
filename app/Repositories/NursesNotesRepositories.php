@@ -2,28 +2,28 @@
 
 namespace App\Repositories;
 
-use App\Models\DoctorsOrder;
+use App\Models\NursesNote;
 
-class DoctorsOrderRepositories
+class NursesNotesRepositories
 {
 
     public function list($filter = [])
     {
-        $order = DoctorsOrder::with(['user'])->orderBy('id', 'desc');
-        $order = $order->get();
-        return $order->toArray();
+        $note = NursesNote::with(['user'])->orderBy('id', 'desc');
+        $note = $note->get();
+        return $note->toArray();
     }
     public function searchByPid($pid)
     {
         try {
 
-            $order = DoctorsOrder::where('pid', $pid)->first();
+            $note = NursesNote::where('pid', $pid)->first();
 
-            if (!$order) {
+            if (!$note) {
                 return [];
             }
 
-            return $order;
+            return $note;
         } catch (\Exception $e) {
             throw new \Exception("An error has occured! " . $e->getMessage());
         }
@@ -33,14 +33,14 @@ class DoctorsOrderRepositories
     {
         try {
 
-            $order = DoctorsOrder::create($data);
-            return $order;
+            $note = NursesNote::create($data);
+            return $note;
         } catch (\Exception $e) {
             throw new \Exception("An error has occured! " . $e->getMessage());
         }
     }
 
-    public function update($order_id, $data)
+    public function update($note_id, $data)
     {
         try {
 
@@ -48,10 +48,10 @@ class DoctorsOrderRepositories
                 return null;
             }
 
-            $order = DoctorsOrder::findOrFail($order_id);
-            $order->update($data);
+            $note = NursesNote::findOrFail($note_id);
+            $note->update($data);
 
-            return $order;
+            return $note;
         } catch (\Exception $e) {
             throw new \Exception("An error has occured! " . $e->getMessage());
         }

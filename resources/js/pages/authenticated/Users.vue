@@ -1,178 +1,164 @@
 <template>
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div class="p-6 border-b border-slate-200">
-            <h3 class="text-lg font-bold text-slate-900">Users</h3>
+        <Dialog v-model:visible="orderModal" modal header="User" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+            class="w-2/6">
+            <form @submit.prevent="isUpdate ? update() : create()" class="flex flex-col gap-2">
+                <label for="" v-if="!isUpdate">Email</label>
+                <InputText type="email" v-model="userInfo.email" v-if="!isUpdate" />
+                <label for="">Firstname</label>
+                <InputText v-model="userInfo.firstname" />
+                <label for="">Middlename</label>
+                <InputText v-model="userInfo.middlename" />
+                <label for="">Lastname</label>
+                <InputText v-model="userInfo.lastname" />
+
+                <label for="">Suffix</label>
+                <InputText v-model="userInfo.suffix" />
+                <label for="">License No</label>
+                <InputText v-model="userInfo.license_no" />
+                <label for="">Gender</label>
+                <Select v-model="userInfo.gender" :options="genders"> </Select>
+                <label for="">Date of Birth</label>
+                <DatePicker v-model="userInfo.date_of_birth" dateFormat="yy-mm-dd" />
+                <label for="" v-if="!isUpdate">Password</label>
+                <Password v-model="userInfo.password" fluid v-if="!isUpdate">
+                </Password>
+                <Button type="submit" :label="`${isUpdate ? 'Update' : 'Save'}`" fluid />
+            </form>
+        </Dialog>
+        <div class="p-6 border-b border-slate-200 flex justify-between">
+            <h3 class="text-lg font-bold text-slate-900">User</h3>
+            <button type="button" @click="orderModal = true;"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all bg-linear-to-r from-emerald-500 to-teal-600 text-white shadow-md">
+                <BsPlusCircle size="20" /> User
+            </button>
         </div>
-        <DataTable v-model:expandedRows="expandedRows" :value="products" dataKey="id" @rowExpand="onRowExpand"
-            @rowCollapse="onRowCollapse" tableStyle="min-width: 60rem">
-            <template #header>
-                <div class="flex flex-wrap justify-end gap-2">
-                    <Button variant="text" icon="pi pi-plus" label="Expand All" @click="expandAll" />
-                    <Button variant="text" icon="pi pi-minus" label="Collapse All" @click="collapseAll" />
-                </div>
-            </template>
-            <Column expander style="width: 5rem" />
-            <Column field="name" header="Name"></Column>
-            <Column header="Image">
-                <template #body="slotProps">
-                    <img :src="`https://primefaces.org/cdn/primevue/images/product/${slotProps.data.image}`"
-                        :alt="slotProps.data.image" class="shadow-lg" width="64" />
+        <DataTable :value="users" paginator :rows="15" :rowsPerPageOptions="[10, 15, 25, 50, 100, 250, 500]"
+            responsiveLayout="scroll" tableStyle="min-width: 50rem">
+            <Column field="email" header="Email" />
+
+            <Column field="lastname" header="Lastname" />
+            <Column field="firstname" header="Firstname" />
+            <Column field="middlename" header="Middlename" />
+
+            <Column field="suffix" header="Suffix" />
+
+            <Column header="Actions" class="w-28">
+
+                <template #body="{ data }">
+                    <div class="flex gap-1">
+                        <BiEdit @click="view(data.pid)" class="text-teal-600" size="22" />
+                        <BiTrash @click="archive(data.pid)" class="text-red-600" size="22" />
+                    </div>
                 </template>
             </Column>
-            <Column field="price" header="Price">
-                <template #body="slotProps">
-                    {{ formatCurrency(slotProps.data.price) }}
-                </template>
-            </Column>
-            <Column field="category" header="Category"></Column>
-            <Column field="rating" header="Reviews">
-                <template #body="slotProps">
-                    <Rating :modelValue="slotProps.data.rating" readonly />
-                </template>
-            </Column>
-            <Column header="Status">
-                <template #body="slotProps">
-                    <Tag :value="slotProps.data.inventoryStatus" :severity="getSeverity(slotProps.data)" />
-                </template>
-            </Column>
-            <template #expansion="slotProps">
-                <div class="p-4">
-                    <h5>Orders for {{ slotProps.data.name }}</h5>
-                    <DataTable :value="slotProps.data.orders">
-                        <Column field="id" header="Id" sortable></Column>
-                        <Column field="customer" header="Customer" sortable></Column>
-                        <Column field="date" header="Date" sortable></Column>
-                        <Column field="amount" header="Amount" sortable>
-                            <template #body="slotProps">
-                                {{ formatCurrency(slotProps.data.amount) }}
-                            </template>
-                        </Column>
-                        <Column field="status" header="Status" sortable>
-                            <template #body="slotProps">
-                                <Tag :value="slotProps.data.status.toLowerCase()"
-                                    :severity="getOrderSeverity(slotProps.data)" />
-                            </template>
-                        </Column>
-                        <Column headerStyle="width:4rem">
-                            <template #body>
-                                <Button icon="pi pi-search" />
-                            </template>
-                        </Column>
-                    </DataTable>
-                </div>
-            </template>
         </DataTable>
     </div>
 </template>
-<script setup>
-import { ref, onMounted } from 'vue';
-import { useToast } from 'primevue/usetoast';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-const products = ref([{
-    id: '1000',
-    code: 'f230fh0g3',
-    name: 'Bamboo Watch',
-    description: 'Product Description',
-    image: 'bamboo-watch.jpg',
-    price: 65,
-    category: 'Accessories',
-    quantity: 24,
-    inventoryStatus: 'INSTOCK',
-    rating: 5,
-    orders: [
-        {
-            id: '1000-0',
-            productCode: 'f230fh0g3',
-            date: '2020-09-13',
-            amount: 65,
-            quantity: 1,
-            customer: 'David James',
-            status: 'PENDING'
-        },
-        {
-            id: '1000-1',
-            productCode: 'f230fh0g3',
-            date: '2020-05-14',
-            amount: 130,
-            quantity: 2,
-            customer: 'Leon Rodrigues',
-            status: 'DELIVERED'
-        },
-        {
-            id: '1000-2',
-            productCode: 'f230fh0g3',
-            date: '2019-01-04',
-            amount: 65,
-            quantity: 1,
-            customer: 'Juan Alejandro',
-            status: 'RETURNED'
-        },
-        {
-            id: '1000-3',
-            productCode: 'f230fh0g3',
-            date: '2020-09-13',
-            amount: 195,
-            quantity: 3,
-            customer: 'Claire Morrow',
-            status: 'CANCELLED'
+<script setup lang="ts">
+import Password from 'primevue/password';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { BsPlusCircle } from 'vue-icons-plus/bs';
+import { BiEdit, BiTrash } from 'vue-icons-plus/bi';
+import { useUserStore } from '@/store/User';
+import { User } from '@/interface/Interfaces';
+import { useConfirmToast } from '@/composables/confirm';
+import { useAppToast } from "@/composables/toast";
+const { showConfirm } = useConfirmToast();
+const toast = useAppToast();
+const userStore = useUserStore();
+const orderModal = ref<boolean>(false);
+const users = computed<User[]>(() => userStore.users);
+const user = computed<User>(() => userStore.user);
+const genders = computed(() => userStore.genders)
+const userInfo = reactive<User>({
+    pid: '',
+    email: '',
+    firstname: '',
+    middlename: '',
+    lastname: '',
+    suffix: '',
+    license_no: '',
+    gender: '',
+    date_of_birth: new Date(),
+    password: ''
+})
+const isUpdate = ref<boolean>(false);
+
+watch(
+    () => orderModal.value,
+    (newVal) => {
+        if (!newVal) {
+            Object.assign(userInfo, {
+                pid: '',
+                email: '',
+                firstname: '',
+                middlename: '',
+                lastname: '',
+                suffix: '',
+                license_no: '',
+                gender: '',
+                date_of_birth: new Date(),
+                password: ''
+            });
+            isUpdate.value = false;
         }
-    ]
-}]);
-const expandedRows = ref();
-const toast = useToast();
-
-onMounted(() => {
-    // ProductService.getProductsWithOrdersSmall().then((data) => (products.value = data));
-});
-
-const onRowExpand = (event) => {
-    toast.add({ severity: 'info', summary: 'Product Expanded', detail: event.data.name, life: 3000 });
-};
-const onRowCollapse = (event) => {
-    toast.add({ severity: 'success', summary: 'Product Collapsed', detail: event.data.name, life: 3000 });
-};
-const expandAll = () => {
-    expandedRows.value = products.value.reduce((acc, p) => (acc[p.id] = true) && acc, {});
-};
-const collapseAll = () => {
-    expandedRows.value = null;
-};
-const formatCurrency = (value) => {
-    return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-};
-const getSeverity = (product) => {
-    switch (product.inventoryStatus) {
-        case 'INSTOCK':
-            return 'success';
-
-        case 'LOWSTOCK':
-            return 'warn';
-
-        case 'OUTOFSTOCK':
-            return 'danger';
-
-        default:
-            return null;
     }
-};
-const getOrderSeverity = (order) => {
-    switch (order.status) {
-        case 'DELIVERED':
-            return 'success';
-
-        case 'CANCELLED':
-            return 'danger';
-
-        case 'PENDING':
-            return 'warn';
-
-        case 'RETURNED':
-            return 'info';
-
-        default:
-            return null;
+)
+onMounted(async () => {
+    await read();
+})
+const read = async () => {
+    try {
+        await userStore.read();
+    } catch (err: any) {
+        toast.error(err.response?.data?.message || "Failed to retrieve User");
     }
-};
+}
+const create = async () => {
+    try {
+        await userStore.create(userInfo);
+        toast.success("User created successfully");
+        orderModal.value = false;
+    } catch (err: any) {
+        toast.error(err.response?.data?.message || "Failed to create Medicine");
+    }
+}
+const view = async (pid: string) => {
+    try {
+        await userStore.view(pid);
+        Object.assign(userInfo, user.value);
+        isUpdate.value = true;
+        orderModal.value = true;
+    } catch (err: any) {
+        toast.error(err.response?.data?.message || "Failed to retrieve User");
+    }
+}
+const update = async () => {
+    try {
+        await userStore.update(userInfo);
+        toast.success("User updated successfully");
+        orderModal.value = false;
+    } catch (err: any) {
+        toast.error(err.response?.data?.message || "Failed to update Medicine");
+    }
 
+}
+const archive = async (pid: string) => {
+    showConfirm({
+        message: "Are you sure you want to delete this record?",
+        header: "Delete Confirmation",
+        onAccept: async () => {
+            try {
+                await userStore.archive(pid);
+                toast.success("User deleted successfully");
+            } catch (err: any) {
+                toast.error(err.response.data.message || "Failed to delete Medicine");
+            }
+        },
+        onReject: () => {
+            console.log("Delete cancelled");
+        },
+    });
+}   
 </script>

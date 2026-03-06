@@ -192,7 +192,7 @@ import { GiMedicalPack, GiMedicines } from 'vue-icons-plus/gi';
 import { FaUsers } from 'vue-icons-plus/fa';
 import { FiSettings } from 'vue-icons-plus/fi';
 import axios from 'axios';
-
+import { useAuthStore } from '@/store/patientchart/AuthStore';
 const confirm = useConfirm();
 const toast = useToast();
 const router = useRouter();
@@ -243,9 +243,12 @@ const handleMenuClick = (action) => {
                 label: 'Save'
             },
             accept: async () => {
+                const auth = useAuthStore();
                 const baseUrl = import.meta.env.VITE_APP_URL;
-                await axios.post(`${baseUrl}api/user/logout`)
-                router.push({ name: "Login" })
+                await axios.post(`${baseUrl}api/user/logout`);
+                auth.user = null;
+                 localStorage.setItem("isLoggedout", true);
+                router.push({ name: "Login" });
             },
             reject: () => {
                 toast.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });

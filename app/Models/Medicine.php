@@ -3,11 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class NursesNote extends Model
+class Medicine extends Model
 {
     //
     use SoftDeletes;
@@ -15,19 +14,12 @@ class NursesNote extends Model
     protected $guarded = ['id'];
     protected $hidden = ['id', 'deleted_at', 'created_at', 'updated_at'];
 
-
     protected static function boot()
     {
         parent::boot();
 
-        static::creating(function ($notes) {
-            $notes->pid = $notes->pid ?? Str::uuid()->toString();
+        static::creating(function ($med) {
+            $med->pid = $med->pid ?? Str::uuid()->toString();
         });
-    }   
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'user_id');
     }
-
 }
