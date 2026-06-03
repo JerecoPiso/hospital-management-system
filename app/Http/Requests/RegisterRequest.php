@@ -36,12 +36,12 @@ class RegisterRequest extends FormRequest
             'password' => 'required|min:7',
         ];
     }
-    protected function failedValidation(Validator $validator)
-    {
-        throw new HttpResponseException(response()->json([
-            'success' => false,
-            'message' => 'Invalid data.',
-            'errors' => $validator->errors(),
-        ], 422));
-    }
+    // protected function failedValidation(Validator $validator)
+    // {
+    //     throw new HttpResponseException(response()->json([
+    //         'success' => false,
+    //         'message' => $validator->errors(),
+    //         'errors' => $validator->errors(),
+    //     ], 422));
+    // }
 }

@@ -39,6 +39,7 @@ trait UserTrait
     {
         try {
             $validated = $request->validated();
+            $validated["date_of_birth"] = Carbon::parse($validated["date_of_birth"])->format('Y-m-d');
             $user = $this->userRepo->searchByPid($order_pid);
             if (!$user) {
                 return api_response([], false, "User not found", 404);
