@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { DoctorsOrder } from "@/interface/Interfaces";
 import axios from "axios";
 export const useDoctorsOrderStore = defineStore("doctorsOrder", () => {
-    const baseUrl = import.meta.env.VITE_APP_URL;
+    const baseUrl = import.meta.env.VITE_APP_API_URL;
     const doctorsOrders = ref<DoctorsOrder[]>([])
     const doctorsOrder = ref<DoctorsOrder>({
         pid: "",

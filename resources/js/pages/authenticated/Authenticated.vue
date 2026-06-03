@@ -244,7 +244,7 @@ const handleMenuClick = (action) => {
             },
             accept: async () => {
                 const auth = useAuthStore();
-                const baseUrl = import.meta.env.VITE_APP_URL;
+                const baseUrl = import.meta.env.VITE_APP_API_URL;
                 await axios.post(`${baseUrl}api/user/logout`);
                 auth.user = null;
                  localStorage.setItem("isLoggedout", true);

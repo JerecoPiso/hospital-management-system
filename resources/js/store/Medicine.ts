@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { Medicines } from "@/interface/Interfaces";
 import axios from "axios";
 export const useMedicineStore = defineStore("medicine", () => {
-    const baseUrl = import.meta.env.VITE_APP_URL;
+    const baseUrl = import.meta.env.VITE_APP_API_URL;
     const medicines = ref<Medicines[]>([])
     const medicine = ref<Medicines>({
         name: '',

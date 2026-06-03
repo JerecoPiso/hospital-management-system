@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { NursesNotes } from "@/interface/Interfaces";
 import axios from "axios";
 export const useNursesNotesStore = defineStore("nursesNotes", () => {
-    const baseUrl = import.meta.env.VITE_APP_URL;
+    const baseUrl = import.meta.env.VITE_APP_API_URL;
     const nursesNotes = ref<NursesNotes[]>([])
     const nursesNote = ref<NursesNotes>({
         pid: "",

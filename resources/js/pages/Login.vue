@@ -135,7 +135,7 @@ const router = useRouter()
 const isLoading = ref<boolean>(false)
 const rememberMe = ref<boolean>(false)
 const showPassword = ref<boolean>(false)
-const baseUrl = import.meta.env.VITE_APP_URL;
+const baseUrl = import.meta.env.VITE_APP_API_URL;
 const errorMessage = ref<string>("");
 const login = async () => {
     if (!loginForm.value.email || !loginForm.value.password) {
