@@ -244,7 +244,7 @@ const handleMenuClick = (action) => {
                 label: 'Save'
             },
             accept: async () => {
-                const baseUrl = import.meta.env.VITE_APP_URL;
+                const baseUrl = import.meta.env.VITE_APP_API_URL;
                 await axios.post(`${baseUrl}api/user/logout`)
                 // toast.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
                 router.push({ name: "Login" })

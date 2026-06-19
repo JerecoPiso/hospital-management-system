@@ -24,7 +24,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h1 class="text-xl font-bold text-slate-900">HealthBase</h1>
+                            <h1 class="text-xl font-bold text-slate-900">Hospital Management System</h1>
                             <p class="text-xs text-slate-500">Admin Dashboard</p>
                         </div>
                     </div>
