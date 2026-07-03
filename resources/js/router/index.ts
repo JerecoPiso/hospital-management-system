@@ -16,7 +16,8 @@ const router = createRouter({
             meta: { requiresAuth: true },
             children: [
                 { path: "", name: "Dashboard", component: () => import("../pages/authenticated/Dashboard.vue") },
-                { path: "patients", name: "Patients", component: () => import("../pages/authenticated/Patients.vue") },
+                { path: "out-patients", name: "OutPatients", component: () => import("../pages/authenticated/patients/OutPatients.vue") },
+                { path: "in-patients", name: "InPatients", component: () => import("../pages/authenticated/patients/InPatients.vue") },
                 { path: "medicines", name: "Medicines", component: () => import("../pages/authenticated/Medicines.vue") },
                 { path: "users", name: "Users", component: () => import("../pages/authenticated/Users.vue") },
                 { path: "supplies", name: "Supplies", component: () => import("../pages/authenticated/Supplies.vue") },

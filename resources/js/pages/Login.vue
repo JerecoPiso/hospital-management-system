@@ -5,8 +5,8 @@
             <div class="bg-white rounded-2xl shadow-xl p-8">
                 <!-- Header -->
                 <div class="mb-8 text-center">
-                    <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-50 mb-4">
-                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-linear-to-br from-emerald-500 to-teal-600 mb-4 shadow-md">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                         </svg>
@@ -25,7 +25,7 @@
                         <div class="relative">
                             <input id="email" v-model="loginForm.email" type="email" placeholder="name@hospital.com"
                                 required
-                                class="w-full px-4 py-3 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition" />
+                                class="w-full px-4 py-3 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition" />
                             <svg class="absolute right-3 top-3.5 w-5 h-5 text-slate-400" fill="none"
                                 stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -42,7 +42,7 @@
                         <div class="relative">
                             <input id="password" v-model="loginForm.password" :type="showPassword ? 'text' : 'password'"
                                 placeholder="••••••••" required
-                                class="w-full px-4 py-3 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition" />
+                                class="w-full px-4 py-3 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition" />
                             <button type="button" @click="showPassword = !showPassword"
                                 class="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 transition">
                                 <svg v-if="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor"
@@ -64,17 +64,17 @@
                     <div class="flex items-center justify-between">
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input v-model="rememberMe" type="checkbox"
-                                class="w-4 h-4 rounded border-slate-200 text-blue-600 focus:ring-blue-500" />
+                                class="w-4 h-4 rounded border-slate-200 text-emerald-600 focus:ring-emerald-500" />
                             <span class="text-sm text-slate-600">Remember me</span>
                         </label>
-                        <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-700 transition">
+                        <a href="#" class="text-sm font-medium text-emerald-600 hover:text-emerald-700 transition">
                             Forgot password?
                         </a>
                     </div>
                     {{ errorMessage }}
                     <!-- Login Button -->
                     <button type="submit" :disabled="isLoading"
-                        class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                        class="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white font-semibold py-3 rounded-lg transition duration-200 flex items-center justify-center gap-2">
                         <svg v-if="isLoading" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
@@ -93,18 +93,18 @@
                 <div class="mt-6 pt-6 border-t border-slate-100 text-center">
                     <p class="text-sm text-slate-600">
                         Need help?
-                        <a href="#" class="font-medium text-blue-600 hover:text-blue-700 transition">Contact Support</a>
+                        <a href="#" class="font-medium text-emerald-600 hover:text-emerald-700 transition">Contact Support</a>
                     </p>
                 </div>
 
                 <!-- Security Notice -->
-                <div class="mt-4 p-3 bg-blue-50 rounded-lg flex items-start gap-2">
-                    <svg class="w-5 h-5 text-blue-600 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <div class="mt-4 p-3 bg-emerald-50 rounded-lg flex items-start gap-2">
+                    <svg class="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd"
                             d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
                             clip-rule="evenodd" />
                     </svg>
-                    <p class="text-xs text-blue-700">
+                    <p class="text-xs text-emerald-700">
                         This system is for authorized personnel only. All access is monitored and logged.
                     </p>
                 </div>
@@ -160,6 +160,6 @@ const login = async () => {
 
 <style scoped>
 input[type='checkbox'] {
-    accent-color: rgb(37, 99, 235);
+    accent-color: rgb(5, 150, 105);
 }
 </style>

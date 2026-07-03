@@ -152,16 +152,48 @@
                     </button>
                 </div>
                 <nav class="p-4 space-y-2">
-                    <router-link v-for="item in navItems" :key="item.name" :to="{ name: item.name }"
-                        @click="activeNav = item.name; sidebarOpen = false"
-                        class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all" :class="activeNav === item.name
-                            ? 'bg-linear-to-r from-emerald-500 to-teal-600 text-white shadow-md'
-                            : 'text-slate-700 hover:bg-slate-100'
-                            " :title="!sidebarExpanded ? item.icon : ''">
-                        <component :is="item.icon" class="text-xl text-gray-600"
-                            :class="activeNav === item.name ? 'text-white' : 'text-gray-600'" />
-                        <span v-if="sidebarExpanded" class="font-medium">{{ item.label }}</span>
-                    </router-link>
+                    <template v-for="item in navItems" :key="item.name">
+                        <!-- Parent link with submenu -->
+                        <div v-if="item.children">
+                            <button @click="toggleSubmenu(item)"
+                                class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-slate-700 hover:bg-slate-100"
+                                :title="!sidebarExpanded ? item.label : ''">
+                                <component :is="item.icon" class="text-xl text-gray-600" />
+                                <span v-if="sidebarExpanded" class="font-medium flex-1 text-left">{{ item.label }}</span>
+                                <svg v-if="sidebarExpanded" class="w-4 h-4 transition-transform shrink-0"
+                                    :class="{ 'rotate-180': expandedMenu === item.name }" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div v-if="sidebarExpanded && expandedMenu === item.name"
+                                class="mt-1 ml-4 space-y-1 border-l-2 border-slate-200 pl-3">
+                                <router-link v-for="child in item.children" :key="child.name"
+                                    :to="{ name: child.name }" @click="sidebarOpen = false"
+                                    class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all"
+                                    :class="activeNav === child.name
+                                        ? 'bg-emerald-50 text-emerald-700 font-semibold'
+                                        : 'text-slate-600 hover:bg-slate-100'
+                                        ">
+                                    <component :is="child.icon" class="text-base" />
+                                    <span>{{ child.label }}</span>
+                                </router-link>
+                            </div>
+                        </div>
+
+                        <!-- Regular link -->
+                        <router-link v-else :to="{ name: item.name }"
+                            @click="sidebarOpen = false"
+                            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all" :class="activeNav === item.name
+                                ? 'bg-linear-to-r from-emerald-500 to-teal-600 text-white shadow-md'
+                                : 'text-slate-700 hover:bg-slate-100'
+                                " :title="!sidebarExpanded ? item.label : ''">
+                            <component :is="item.icon" class="text-xl text-gray-600"
+                                :class="activeNav === item.name ? 'text-white' : 'text-gray-600'" />
+                            <span v-if="sidebarExpanded" class="font-medium">{{ item.label }}</span>
+                        </router-link>
+                    </template>
 
                 </nav>
                 <!-- Added sidebar footer with additional info -->
@@ -180,25 +212,40 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, watch } from 'vue'
 import ConfirmDialog from 'primevue/confirmdialog';
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
-import { useRouter } from 'vue-router';
-import { GiMedicines } from 'vue-icons-plus/gi';
-import { FaBookMedical } from 'vue-icons-plus/fa';
+import { useRouter, useRoute } from 'vue-router';
+import { GiMedicines, GiMedicalPack } from 'vue-icons-plus/gi';
+import { FaBookMedical, FaUsers } from 'vue-icons-plus/fa';
 import { BsJournalMedical } from 'vue-icons-plus/bs';
 import { BiSolidUserAccount } from 'vue-icons-plus/bi';
-import { FiActivity } from 'vue-icons-plus/fi';
+import { FiActivity, FiSettings } from 'vue-icons-plus/fi';
+import { MdDashboard } from 'vue-icons-plus/md';
 import axios from 'axios';
 const confirm = useConfirm();
 const toast = useToast();
 const router = useRouter();
+const route = useRoute();
 const sidebarOpen = ref(true)
 const profileOpen = ref(false)
-const activeNav = ref('dashboard')
+const activeNav = computed(() => route.name)
 const sidebarExpanded = ref(true)
+const expandedMenu = ref(null)
 const navItems = [
+    {
+        "name": "MainMenu",
+        "label": "Main Menu",
+        "icon": MdDashboard,
+        "children": [
+            { "name": "Dashboard", "label": "Dashboard", "icon": MdDashboard },
+            { "name": "Medicines", "label": "Medicines", "icon": GiMedicines },
+            { "name": "Users", "label": "Users", "icon": FaUsers },
+            { "name": "Supplies", "label": "Supplies", "icon": GiMedicalPack },
+            { "name": "Settings", "label": "Settings", "icon": FiSettings },
+        ]
+    },
     {
         "label": "Patient Information",
         "name": "PatientInformation",
@@ -226,6 +273,23 @@ const navItems = [
     },
 
 ]
+const toggleSubmenu = (item) => {
+    if (!sidebarExpanded.value) {
+        sidebarExpanded.value = true
+    }
+    expandedMenu.value = expandedMenu.value === item.name ? null : item.name
+}
+
+watch(
+    () => route.name,
+    (name) => {
+        const parent = navItems.find((item) => item.children?.some((child) => child.name === name))
+        if (parent) {
+            expandedMenu.value = parent.name
+        }
+    },
+    { immediate: true }
+)
 
 
 const handleMenuClick = (action) => {
