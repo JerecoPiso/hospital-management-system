@@ -10,6 +10,8 @@
 |
 */
 require __DIR__ . '/api/doctorsOrder.php';
+require __DIR__ . '/api/historyAndPhysicalExaminationFormOne.php';
+require __DIR__ . '/api/historyAndPhysicalExaminationFormTwo.php';
 require __DIR__ . '/api/medicine.php';
 require __DIR__ . '/api/nursesNotes.php';
 require __DIR__ . '/api/user.php';

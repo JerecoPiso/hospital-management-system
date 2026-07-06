@@ -35,6 +35,9 @@ const router = createRouter({
                 { path: "nurses-notes", name: "NursesNotes", component: () => import("../pages/authenticated/patientchart/NursesNotes.vue") },
                 { path: "therapeutic", name: "Therapeutic", component: () => import("../pages/authenticated/patientchart/Therapeutic.vue") },
                 { path: "vital-signs", name: "VitalSigns", component: () => import("../pages/authenticated/patientchart/VitalSigns.vue") },
+                { path: "patient-forms", name: "PatientForms", component: () => import("../pages/authenticated/patientchart/PatientForms.vue") },
+                { path: "patient-forms/physical-examination-form-one", name: "HistoryAndPhysicalExaminationFormOne", component: () => import("../pages/authenticated/patientchart/patientforms/HistoryAndPhysicalExaminationFormOne.vue") },
+                { path: "patient-forms/physical-examination-form-two", name: "HistoryAndPhysicalExaminationFormTwo", component: () => import("../pages/authenticated/patientchart/patientforms/HistoryAndPhysicalExaminationFormTwo.vue") },
             ]
         },
     ]
