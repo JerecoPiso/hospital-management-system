@@ -207,7 +207,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import { useRouter, useRoute } from "vue-router";
 import { MdDashboard } from "vue-icons-plus/md";
-import { FiUsers, FiSettings, FiActivity } from "vue-icons-plus/fi";
+import { FiUsers, FiSettings, FiActivity, FiUserPlus } from "vue-icons-plus/fi";
 import { GiMedicalPack, GiMedicines } from "vue-icons-plus/gi";
 import { FaUsers, FaBookMedical } from "vue-icons-plus/fa";
 import { BsJournalMedical } from "vue-icons-plus/bs";
@@ -248,6 +248,7 @@ const navItems = [
     label: "Patients",
     icon: FiUsers,
     children: [
+      { name: "PatientRegistration", label: "Patient Registration", icon: FiUserPlus },
       { name: "OutPatients", label: "Out-Patients", icon: PiUsersThreeFill },
       { name: "InPatients", label: "In-Patients", icon: Fa6BedPulse },
     ],

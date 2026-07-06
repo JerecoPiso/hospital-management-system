@@ -87,6 +87,41 @@ export interface HistoryAndPhysicalExaminationFormTwo {
     remarks?: string;
 }
 
+export interface PatientCase {
+    pid?: string;
+    station_id?: number | null;
+    bed_id?: number | null;
+    patient_type_id?: number | null;
+    case_number?: string;
+    admission_datetime: string;
+    chief_complaint: string;
+    initial_diagnosis?: string;
+    final_diagnosis?: string;
+}
+
+export interface PatientRegistration {
+    pid?: string;
+    medical_record_number?: string;
+    firstname: string;
+    lastname: string;
+    middlename?: string;
+    suffix?: string;
+    birthdate: string;
+    gender?: string;
+    civil_status?: string;
+    contact_number?: string;
+    email_address?: string;
+    religion?: string;
+    birthplace?: string;
+    occupation?: string;
+    spouse_name?: string;
+    admission_datetime: string;
+    chief_complaint: string;
+    initial_diagnosis?: string;
+    final_diagnosis?: string;
+    patientCases?: PatientCase[];
+}
+
 export interface User {
     pid?: string,
     email: string,

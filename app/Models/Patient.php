@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 class Patient extends Model
@@ -19,5 +20,10 @@ class Patient extends Model
         static::creating(function ($patient) {
             $patient->pid = $patient->pid ?? Str::uuid()->toString();
         });
+    }
+
+    public function patientCases(): HasMany
+    {
+        return $this->hasMany(PatientCase::class);
     }
 }
