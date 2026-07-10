@@ -14,5 +14,5 @@ require __DIR__ . '/api/historyAndPhysicalExaminationFormOne.php';
 require __DIR__ . '/api/historyAndPhysicalExaminationFormTwo.php';
 require __DIR__ . '/api/medicine.php';
 require __DIR__ . '/api/nursesNotes.php';
-require __DIR__ . '/api/patientRegistration.php';
+require __DIR__ . '/api/patient.php';
 require __DIR__ . '/api/user.php';

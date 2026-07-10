@@ -2,14 +2,14 @@
 
 namespace App\Traits;
 
-use App\Http\Requests\PatientRegistration\StoreRequest;
+use App\Http\Requests\Patient\StoreRequest;
 
-trait PatientRegistrationTrait
+trait PatientTrait
 {
     public function list()
     {
         try {
-            $patients = $this->patientRegistrationRepo->list([]);
+            $patients = $this->patientRepo->list([]);
             return api_response($patients, true, "Success", 200);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
@@ -19,7 +19,7 @@ trait PatientRegistrationTrait
     {
         try {
             $validated = $request->validated();
-            $patient = $this->patientRegistrationRepo->store($validated);
+            $patient = $this->patientRepo->store($validated);
             return api_response(["patient" => $patient], true, "Success", 201);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
@@ -28,7 +28,7 @@ trait PatientRegistrationTrait
     public function view($patient_pid)
     {
         try {
-            $patient = $this->patientRegistrationRepo->searchByPid($patient_pid);
+            $patient = $this->patientRepo->searchByPid($patient_pid);
             if (!$patient) {
                 return api_response([], false, "Patient not found", 404);
             }
@@ -42,11 +42,11 @@ trait PatientRegistrationTrait
     {
         try {
             $validated = $request->validated();
-            $patient = $this->patientRegistrationRepo->searchByPid($patient_pid);
+            $patient = $this->patientRepo->searchByPid($patient_pid);
             if (!$patient) {
                 return api_response([], false, "Patient not found", 404);
             }
-            $patient = $this->patientRegistrationRepo->update($patient->id, $validated);
+            $patient = $this->patientRepo->update($patient->id, $validated);
             if (!$patient) {
                 return api_response([], false, "Patient not updated", 500);
             }
@@ -59,11 +59,11 @@ trait PatientRegistrationTrait
     public function delete($patient_pid)
     {
         try {
-            $patient = $this->patientRegistrationRepo->searchByPid($patient_pid);
+            $patient = $this->patientRepo->searchByPid($patient_pid);
             if (!$patient) {
                 return api_response([], false, "Patient not found", 404);
             }
-            $delete = $this->patientRegistrationRepo->delete($patient);
+            $delete = $this->patientRepo->delete($patient);
             if (!$delete) {
                 return api_response([], false, "Patient not deleted", 500);
             }

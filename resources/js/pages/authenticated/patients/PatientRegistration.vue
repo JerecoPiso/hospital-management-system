@@ -206,14 +206,14 @@ import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { BsPlusCircle } from 'vue-icons-plus/bs';
 import { FiUserPlus } from 'vue-icons-plus/fi';
 import { BiEdit, BiTrash } from 'vue-icons-plus/bi';
-import { usePatientRegistrationStore } from '@/store/patients/PatientRegistration';
+import { usePatientStore } from '@/store/patients/PatientRegistration';
 import { PatientRegistration } from '@/interface/Interfaces';
 import { useConfirmToast } from '@/composables/confirm';
 import { useAppToast } from '@/composables/toast';
 
 const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
-const patientStore = usePatientRegistrationStore();
+const patientStore = usePatientStore();
 
 const genders = ['Male', 'Female', 'Other'];
 

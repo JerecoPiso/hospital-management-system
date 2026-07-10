@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
-class PatientRegistrationRepositories
+class PatientRepositories
 {
 
     public function list($filter = [])

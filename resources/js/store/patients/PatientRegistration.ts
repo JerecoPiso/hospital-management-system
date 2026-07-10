@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { PatientRegistration } from "@/interface/Interfaces";
 import axios from "axios";
-export const usePatientRegistrationStore = defineStore("patientRegistration", () => {
+export const usePatientStore = defineStore("patient", () => {
     const baseUrl = import.meta.env.VITE_APP_API_URL;
     const patients = ref<PatientRegistration[]>([])
     const patient = ref<PatientRegistration>({
@@ -26,23 +26,23 @@ export const usePatientRegistrationStore = defineStore("patientRegistration", ()
         final_diagnosis: ""
     })
     const create = async (data: PatientRegistration) => {
-        await axios.post(`${baseUrl}api/patient-registration`, data);
+        await axios.post(`${baseUrl}api/patient`, data);
         read();
     }
     const read = async () => {
-        const response = await axios.get(`${baseUrl}api/patient-registration`);
+        const response = await axios.get(`${baseUrl}api/patient`);
         patients.value = response.data.data;
     }
     const view = async (pid: string) => {
-        const response = await axios.get(`${baseUrl}api/patient-registration/${pid}`);
+        const response = await axios.get(`${baseUrl}api/patient/${pid}`);
         patient.value = response.data.data;
     }
     const update = async (data: PatientRegistration) => {
-        await axios.put(`${baseUrl}api/patient-registration/${data.pid}`, data);
+        await axios.put(`${baseUrl}api/patient/${data.pid}`, data);
         read();
     }
     const archive = async (pid: string) => {
-        await axios.delete(`${baseUrl}api/patient-registration/${pid}`);
+        await axios.delete(`${baseUrl}api/patient/${pid}`);
         read();
     }
     return {
