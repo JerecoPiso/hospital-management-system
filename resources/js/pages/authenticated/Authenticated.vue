@@ -16,12 +16,7 @@
           <div class="flex items-center gap-2">
             <div class="w-10 h-10 bg-linear-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
               <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
-                />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14m7-7H5" />
               </svg>
             </div>
             <div>
@@ -188,7 +183,7 @@
         </nav>
         <!-- Added sidebar footer with additional info -->
         <div class="fixed bottom-0 left-0 right-0 p-4 border-t border-slate-200 bg-slate-50">
-          <p class="text-xs text-slate-600 text-center">HealthBase v1.0</p>
+          <p class="text-xs text-slate-600 text-center">Hospital Management System</p>
         </div>
       </aside>
 
