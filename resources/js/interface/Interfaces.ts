@@ -14,10 +14,31 @@ export interface NursesNotes {
 
 export interface VitalSigns {
     pid?: string;
-    temperature: number;
-    pulse_rate: number;
-    respiratory_rate: number;
-    blood_pressure: string;
+    type?: string;
+    measured_at?: Date | null;
+    systolic?: string | null;
+    diastolic?: string | null;
+    temperature?: string | null;
+    heart_rate?: string | null;
+    respiratory_rate?: string | null;
+    oxygen_saturation?: string | null;
+    weight?: string | null;
+    height?: string | null;
+    bmi?: string | null;
+    muac?: string | null;
+    length?: string | null;
+    z_score?: string | null;
+    head_circumference?: string | null;
+    abdominal_circumference?: string | null;
+    chest_circumference?: string | null;
+    eye_response?: string | null;
+    verbal_response?: string | null;
+    motor_response?: string | null;
+    fht?: string | null;
+    lmp?: Date | null;
+    aog?: string | null;
+    edc?: Date | null;
+    remarks?: string;
 }
 
 export interface Medicines {

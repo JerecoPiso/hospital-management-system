@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class NursesNote extends Model
+class VitalSign extends Model
 {
     //
     use SoftDeletes;
@@ -15,19 +15,23 @@ class NursesNote extends Model
     protected $guarded = ['id'];
     protected $hidden = ['id', 'user_id', 'deleted_at', 'created_at', 'updated_at'];
 
+    protected $casts = [
+        'lmp' => 'date',
+        'edc' => 'date',
+        'measured_at' => 'datetime',
+    ];
 
     protected static function boot()
     {
         parent::boot();
 
-        static::creating(function ($notes) {
-            $notes->pid = $notes->pid ?? Str::uuid()->toString();
+        static::creating(function ($vitalSign) {
+            $vitalSign->pid = $vitalSign->pid ?? Str::uuid()->toString();
         });
-    }   
+    }
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
-
 }

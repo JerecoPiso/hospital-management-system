@@ -12,7 +12,7 @@ class Patient extends Model
     use SoftDeletes;
 
     protected $guarded = ['id'];
-    protected $hidden = ['deleted_at', 'created_at', 'updated_at'];
+    protected $hidden = ['id', 'deleted_at', 'created_at', 'updated_at'];
     protected static function boot()
     {
         parent::boot();
