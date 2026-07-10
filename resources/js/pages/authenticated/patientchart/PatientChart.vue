@@ -15,7 +15,7 @@
           <div class="flex items-center gap-2">
             <div class="w-10 h-10 bg-linear-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
               <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14m7-7H5" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M12 5v14m7-7H5" />
               </svg>
             </div>
             <div>
