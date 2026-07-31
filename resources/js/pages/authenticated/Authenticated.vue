@@ -201,14 +201,14 @@ import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import { useRouter, useRoute } from "vue-router";
-import { MdDashboard } from "vue-icons-plus/md";
+import { MdDashboard, MdLayers, MdLocationOn } from "vue-icons-plus/md";
 import { FiUsers, FiSettings, FiActivity, FiUserPlus } from "vue-icons-plus/fi";
 import { GiMedicalPack, GiMedicines } from "vue-icons-plus/gi";
-import { FaUsers, FaBookMedical } from "vue-icons-plus/fa";
-import { BsJournalMedical } from "vue-icons-plus/bs";
-import { BiSolidUserAccount } from "vue-icons-plus/bi";
+import { FaUsers, FaBookMedical, FaBuilding, FaBed } from "vue-icons-plus/fa";
+import { BsJournalMedical, BsFillDoorOpenFill } from "vue-icons-plus/bs";
+import { BiSolidUserAccount, BiCategoryAlt } from "vue-icons-plus/bi";
 import { PiUsersThreeFill } from "vue-icons-plus/pi";
-import { Fa6BedPulse } from "vue-icons-plus/fa6";
+import { Fa6BedPulse, Fa6Hospital } from "vue-icons-plus/fa6";
 import axios from "axios";
 import { useAuthStore } from "@/store/patientchart/AuthStore";
 const confirm = useConfirm();
@@ -267,6 +267,15 @@ const navItems = [
     name: "Settings",
     label: "Settings",
     icon: FiSettings,
+    children: [
+      { name: "Buildings", label: "Buildings", icon: FaBuilding },
+      { name: "Floors", label: "Floors", icon: MdLayers },
+      { name: "Wards", label: "Wards", icon: Fa6Hospital },
+      { name: "Rooms", label: "Rooms", icon: BsFillDoorOpenFill },
+      { name: "Beds", label: "Beds", icon: FaBed },
+      { name: "Stations", label: "Stations", icon: MdLocationOn },
+      { name: "PatientTypes", label: "Patient Types", icon: BiCategoryAlt },
+    ],
   },
 ];
 const toggleSubmenu = (item) => {

@@ -143,6 +143,103 @@ export interface PatientRegistration {
     patientCases?: PatientCase[];
 }
 
+export interface Supply {
+    pid?: string;
+    name: string;
+    unit: string;
+    selling_price?: number | null;
+    is_active?: boolean;
+    supply_stocks_sum_quantity?: number | null;
+}
+
+export interface SupplyStock {
+    pid?: string;
+    supply_pid: string;
+    supply?: Supply;
+    quantity?: number;
+    purchase_price?: number | null;
+    reorder_level?: number;
+    unit_type?: string;
+    units_per_package?: number;
+    expiration_date?: string | null;
+    batch_number?: string | null;
+}
+
+export interface SupplyMovement {
+    pid?: string;
+    supply_stock_pid: string;
+    supplyStock?: SupplyStock;
+    quantity: number;
+    type: 'IN' | 'OUT';
+    used_for?: string | null;
+}
+
+export interface SupplyDistribution {
+    pid?: string;
+    supply_stock_pid: string;
+    supplyStock?: SupplyStock;
+    station_pid: string;
+    station?: Station;
+    quantity: number;
+    distributedBy?: User | null;
+    distributed_at?: string;
+}
+
+export interface Building {
+    pid?: string;
+    code: string;
+    name: string;
+    description?: string | null;
+}
+
+export interface Floor {
+    pid?: string;
+    building_pid: string;
+    building?: Building;
+    floor_number: string;
+    name?: string | null;
+    description?: string | null;
+}
+
+export interface Ward {
+    pid?: string;
+    floor_pid: string;
+    floor?: Floor;
+    code: string;
+    name: string;
+}
+
+export interface Room {
+    pid?: string;
+    ward_pid: string;
+    ward?: Ward;
+    room_number: string;
+    room_type?: string | null;
+}
+
+export interface Bed {
+    pid?: string;
+    room_pid: string;
+    room?: Room;
+    bed_number: string;
+    status?: 'available' | 'occupied' | 'cleaning' | 'maintenance';
+}
+
+export interface Station {
+    pid?: string;
+    ward_pid: string;
+    ward?: Ward;
+    name: string;
+    description?: string | null;
+}
+
+export interface PatientType {
+    pid?: string;
+    code: string;
+    name: string;
+    description?: string | null;
+}
+
 export interface User {
     pid?: string,
     email: string,

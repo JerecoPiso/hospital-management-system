@@ -21,6 +21,12 @@ import FloatLabel from 'primevue/floatlabel';
 import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
 import Select from 'primevue/select';
+import Tab from 'primevue/tab';
+import TabList from 'primevue/tablist';
+import TabPanel from 'primevue/tabpanel';
+import TabPanels from 'primevue/tabpanels';
+import Tabs from 'primevue/tabs';
+import Tag from 'primevue/tag';
 import Textarea from 'primevue/textarea';
 import Toast from 'primevue/toast';
 
@@ -45,6 +51,12 @@ app.component('FloatLabel', FloatLabel)
 app.component('InputText', InputText)
 app.component('InputNumber', InputNumber)
 app.component('Select', Select)
+app.component('Tab', Tab)
+app.component('TabList', TabList)
+app.component('TabPanel', TabPanel)
+app.component('TabPanels', TabPanels)
+app.component('Tabs', Tabs)
+app.component('Tag', Tag)
 app.component('Textarea', Textarea)
 app.component('Toast', Toast)
 
