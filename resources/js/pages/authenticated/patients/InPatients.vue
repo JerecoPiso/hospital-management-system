@@ -7,7 +7,7 @@
       </div>
       <div>
         <p class="text-slate-500 text-xs font-medium uppercase tracking-wide">Total Admitted</p>
-        <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ patients.length }}</p>
+        <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ inpatients.length }}</p>
       </div>
     </div>
     <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center gap-4">
@@ -15,8 +15,8 @@
         <FiActivity class="text-red-500" size="20" />
       </div>
       <div>
-        <p class="text-slate-500 text-xs font-medium uppercase tracking-wide">Critical Cases</p>
-        <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ criticalCount }}</p>
+        <p class="text-slate-500 text-xs font-medium uppercase tracking-wide">Admitted Today</p>
+        <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ admittedTodayCount }}</p>
       </div>
     </div>
     <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center gap-4">
@@ -24,8 +24,8 @@
         <BiBed class="text-teal-600" size="20" />
       </div>
       <div>
-        <p class="text-slate-500 text-xs font-medium uppercase tracking-wide">Stable Patients</p>
-        <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ stableCount }}</p>
+        <p class="text-slate-500 text-xs font-medium uppercase tracking-wide">Admitted This Week</p>
+        <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ admittedThisWeekCount }}</p>
       </div>
     </div>
   </div>
@@ -75,54 +75,37 @@
         <template #body="{ data }">
           <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-full bg-linear-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-xs font-semibold shrink-0">
-              {{ data.name.charAt(0).toUpperCase() }}
+              {{ data.firstname?.charAt(0)?.toUpperCase() ?? '?' }}
             </div>
             <div>
-              <p class="text-slate-800 text-sm font-medium leading-tight">{{ data.name }}</p>
-              <p class="text-slate-400 text-xs mt-0.5">{{ data.patientId }}</p>
+              <p class="text-slate-800 text-sm font-medium leading-tight">{{ `${data.firstname ?? ''} ${data.lastname ?? ''}`.trim() || '—' }}</p>
+              <p class="text-slate-400 text-xs mt-0.5">{{ data.medical_record_number || '—' }}</p>
             </div>
           </div>
         </template>
       </Column>
 
-      <Column header="Room / Bed" class="w-32">
+      <Column header="Case Number" class="w-40">
         <template #body="{ data }">
-          <span class="text-slate-600 text-sm">{{ data.room }}</span>
+          <span class="text-slate-600 text-sm">{{ data.patientCases?.[0]?.case_number || '—' }}</span>
         </template>
       </Column>
 
-      <Column header="Ward" class="w-32">
+      <Column header="Admission Date" class="w-44">
         <template #body="{ data }">
-          <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
-            {{ data.ward }}
-          </span>
+          <span class="text-slate-500 text-sm">{{ formatDate(data.patientCases?.[0]?.admission_datetime) }}</span>
         </template>
       </Column>
 
-      <Column header="Attending Physician">
+      <Column header="Chief Complaint">
         <template #body="{ data }">
-          <span class="text-slate-600 text-sm">{{ data.physician }}</span>
-        </template>
-      </Column>
-
-      <Column header="Admission Date" class="w-36">
-        <template #body="{ data }">
-          <span class="text-slate-500 text-sm">{{ data.admissionDate }}</span>
+          <span class="text-slate-600 text-sm">{{ data.patientCases?.[0]?.chief_complaint || '—' }}</span>
         </template>
       </Column>
 
       <Column header="Diagnosis">
         <template #body="{ data }">
-          <span class="text-slate-600 text-sm">{{ data.diagnosis }}</span>
-        </template>
-      </Column>
-
-      <Column header="Status" class="w-32">
-        <template #body="{ data }">
-          <span :class="['inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium border', statusStyles[data.status]]">
-            <span class="w-1.5 h-1.5 rounded-full" :class="statusDot[data.status]"></span>
-            {{ data.status }}
-          </span>
+          <span class="text-slate-600 text-sm">{{ data.patientCases?.[0]?.final_diagnosis || data.patientCases?.[0]?.initial_diagnosis || '—' }}</span>
         </template>
       </Column>
 
@@ -131,7 +114,7 @@
           <button
             type="button"
             title="View patient chart"
-            @click="viewChart(data)"
+            @click="viewChart()"
             class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
           >
             <FiEye size="18" />
@@ -142,70 +125,61 @@
   </div>
 </template>
 
-<script setup>
-import { computed, ref } from "vue";
+<script setup lang="ts">
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { FaBed } from "vue-icons-plus/fa";
 import { BiBed } from "vue-icons-plus/bi";
 import { FiActivity, FiSearch, FiEye } from "vue-icons-plus/fi";
+import { usePatientStore } from "@/store/patients/PatientRegistration";
+import { PatientRegistration } from "@/interface/Interfaces";
+import { useAppToast } from "@/composables/toast";
 
 const router = useRouter();
+const toast = useAppToast();
+const patientStore = usePatientStore();
 const search = ref("");
 
-const patients = ref([
-  {
-    patientId: "PT-10231",
-    name: "Maria Santos",
-    room: "204-A",
-    ward: "Medical Ward",
-    physician: "Dr. Reyes",
-    admissionDate: "2026-06-28",
-    diagnosis: "Community-acquired pneumonia",
-    status: "Critical",
-  },
-  {
-    patientId: "PT-10245",
-    name: "Juan Dela Cruz",
-    room: "210-B",
-    ward: "Surgical Ward",
-    physician: "Dr. Bautista",
-    admissionDate: "2026-06-30",
-    diagnosis: "Post-appendectomy recovery",
-    status: "Stable",
-  },
-  { patientId: "PT-10267", name: "Ana Lim", room: "112-A", ward: "Pediatric Ward", physician: "Dr. Cruz", admissionDate: "2026-07-01", diagnosis: "Dengue fever", status: "Stable" },
-  { patientId: "PT-10289", name: "Roberto Garcia", room: "ICU-3", ward: "ICU", physician: "Dr. Reyes", admissionDate: "2026-07-02", diagnosis: "Acute myocardial infarction", status: "Critical" },
-  {
-    patientId: "PT-10302",
-    name: "Liza Fernandez",
-    room: "305-C",
-    ward: "Medical Ward",
-    physician: "Dr. Santos",
-    admissionDate: "2026-06-25",
-    diagnosis: "Type 2 diabetes management",
-    status: "Stable",
-  },
-]);
-
-const criticalCount = computed(() => patients.value.filter((p) => p.status === "Critical").length);
-const stableCount = computed(() => patients.value.filter((p) => p.status === "Stable").length);
+const inpatients = computed<PatientRegistration[]>(() => patientStore.patients);
 
 const filteredPatients = computed(() => {
   const query = search.value.trim().toLowerCase();
-  if (!query) return patients.value;
-  return patients.value.filter((p) => p.name.toLowerCase().includes(query) || p.room.toLowerCase().includes(query));
+  if (!query) return inpatients.value;
+  return inpatients.value.filter((p) => `${p.firstname ?? ''} ${p.lastname ?? ''}`.toLowerCase().includes(query) || (p.medical_record_number ?? '').toLowerCase().includes(query));
 });
 
-const statusStyles = {
-  Critical: "bg-red-50 text-red-700 border-red-100",
-  Stable: "bg-emerald-50 text-emerald-700 border-emerald-100",
-};
-const statusDot = {
-  Critical: "bg-red-500",
-  Stable: "bg-emerald-500",
+const formatDate = (value?: string) => (value ? new Date(value).toLocaleString() : '—');
+
+const isSameDay = (value: string | undefined, reference: Date) => {
+  if (!value) return false;
+  const date = new Date(value);
+  return date.toDateString() === reference.toDateString();
 };
 
+const admittedTodayCount = computed(() => {
+  const today = new Date();
+  return inpatients.value.filter((p) => isSameDay(p.patientCases?.[0]?.admission_datetime, today)).length;
+});
+
+const admittedThisWeekCount = computed(() => {
+  const now = Date.now();
+  const weekMs = 7 * 24 * 60 * 60 * 1000;
+  return inpatients.value.filter((p) => {
+    const admittedAt = p.patientCases?.[0]?.admission_datetime;
+    if (!admittedAt) return false;
+    return now - new Date(admittedAt).getTime() <= weekMs;
+  }).length;
+});
+
+onMounted(async () => {
+  try {
+    await patientStore.read("inpatient");
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Failed to retrieve inpatients");
+  }
+});
+
 const viewChart = () => {
-  router.push({ name: "PatientChart" });
+  router.push({ name: "PatientInformation" });
 };
 </script>

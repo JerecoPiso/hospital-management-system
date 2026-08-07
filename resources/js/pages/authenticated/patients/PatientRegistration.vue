@@ -74,10 +74,14 @@
                 <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide pt-2">Case Information</p>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-medium text-slate-700">Patient Type <span class="text-red-400">*</span></label>
+                        <Select v-model="patientInfo.type" :options="patientTypeOptions" optionLabel="label" optionValue="value" placeholder="Select patient type" required fluid class="text-sm" />
+                    </div>
+                    <div class="flex flex-col gap-1.5">
                         <label class="text-sm font-medium text-slate-700">Admission Date/Time <span class="text-red-400">*</span></label>
                         <DatePicker v-model="admissionDatetimeModel" showTime hourFormat="24" dateFormat="yy-mm-dd" placeholder="YYYY-MM-DD HH:mm" fluid class="text-sm" />
                     </div>
-                    <div class="flex flex-col gap-1.5">
+                    <div class="col-span-2 flex flex-col gap-1.5">
                         <label class="text-sm font-medium text-slate-700">Chief Complaint <span class="text-red-400">*</span></label>
                         <InputText v-model="patientInfo.chief_complaint" fluid required class="text-sm" />
                     </div>
@@ -175,9 +179,28 @@
                 </template>
             </Column>
 
-            <Column header="Actions" class="w-24">
+            <Column header="Type" class="w-28">
+                <template #body="{ data }">
+                    <Tag
+                        v-if="data.patientCases?.[0]?.type"
+                        :value="data.patientCases[0].type === 'inpatient' ? 'Inpatient' : 'Outpatient'"
+                        :severity="data.patientCases[0].type === 'inpatient' ? 'info' : 'success'"
+                    />
+                    <span v-else class="text-slate-300 text-sm italic">—</span>
+                </template>
+            </Column>
+
+            <Column header="Actions" class="w-32">
                 <template #body="{ data }">
                     <div class="flex items-center gap-1">
+                        <button
+                            type="button"
+                            title="View patient chart"
+                            @click="viewChart()"
+                            class="p-1.5 rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150 cursor-pointer"
+                        >
+                            <FiEye size="18" />
+                        </button>
                         <button
                             type="button"
                             title="Edit registration"
@@ -203,8 +226,9 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { BsPlusCircle } from 'vue-icons-plus/bs';
-import { FiUserPlus } from 'vue-icons-plus/fi';
+import { FiUserPlus, FiEye } from 'vue-icons-plus/fi';
 import { BiEdit, BiTrash } from 'vue-icons-plus/bi';
 import { usePatientStore } from '@/store/patients/PatientRegistration';
 import { PatientRegistration } from '@/interface/Interfaces';
@@ -214,8 +238,13 @@ import { useAppToast } from '@/composables/toast';
 const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
 const patientStore = usePatientStore();
+const router = useRouter();
 
 const genders = ['Male', 'Female', 'Other'];
+const patientTypeOptions = [
+    { label: 'Inpatient', value: 'inpatient' },
+    { label: 'Outpatient', value: 'outpatient' },
+];
 
 const emptyPatient = (): PatientRegistration => ({
     pid: "",
@@ -235,7 +264,8 @@ const emptyPatient = (): PatientRegistration => ({
     admission_datetime: "",
     chief_complaint: "",
     initial_diagnosis: "",
-    final_diagnosis: ""
+    final_diagnosis: "",
+    type: "outpatient"
 });
 
 const patients = computed<PatientRegistration[]>(() => patientStore.patients);
@@ -292,6 +322,10 @@ const create = async () => {
     }
 };
 
+const viewChart = () => {
+    router.push({ name: "PatientInformation" });
+};
+
 const view = async (pid: string) => {
     try {
         await patientStore.view(pid);
@@ -302,6 +336,7 @@ const view = async (pid: string) => {
             patientInfo.chief_complaint = latestCase.chief_complaint;
             patientInfo.initial_diagnosis = latestCase.initial_diagnosis;
             patientInfo.final_diagnosis = latestCase.final_diagnosis;
+            patientInfo.type = latestCase.type ?? "outpatient";
             admissionDatetimeModel.value = latestCase.admission_datetime ? new Date(latestCase.admission_datetime) : null;
         }
         birthdateModel.value = patient.value.birthdate ? new Date(patient.value.birthdate) : null;

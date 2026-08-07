@@ -13,6 +13,13 @@ class PatientRepositories
     public function list($filter = [])
     {
         $patient = Patient::with(['patientCases'])->orderBy('id', 'desc');
+
+        if (!empty($filter['type'])) {
+            $patient->whereHas('patientCases', function ($q) use ($filter) {
+                $q->where('type', $filter['type']);
+            });
+        }
+
         $patient = $patient->get();
         return $patient->toArray();
     }
@@ -64,6 +71,7 @@ class PatientRepositories
                     'chief_complaint' => $data['chief_complaint'],
                     'initial_diagnosis' => $data['initial_diagnosis'] ?? null,
                     'final_diagnosis' => $data['final_diagnosis'] ?? null,
+                    'type' => $data['type'],
                 ]);
 
                 return $patient;
@@ -107,6 +115,7 @@ class PatientRepositories
                     'chief_complaint' => $data['chief_complaint'],
                     'initial_diagnosis' => $data['initial_diagnosis'] ?? null,
                     'final_diagnosis' => $data['final_diagnosis'] ?? null,
+                    'type' => $data['type'],
                 ]);
             }
 

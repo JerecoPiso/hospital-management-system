@@ -1,0 +1,192 @@
+<template>
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+        <Dialog v-model:visible="modalOpen" modal :style="{ width: '42vw' }" :breakpoints="{ '1199px': '75vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
+            <template #header>
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
+                        <BiBox class="text-white" size="18" />
+                    </div>
+                    <div>
+                        <h2 class="text-base font-semibold text-slate-800">{{ isUpdate ? 'Edit Stock Batch' : 'New Stock Batch' }}</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">{{ isUpdate ? 'Update the stock batch details' : 'Receive a new stock batch for a medicine' }}</p>
+                    </div>
+                </div>
+            </template>
+            <form @submit.prevent="isUpdate ? update() : create()" class="flex flex-col gap-5 pt-2">
+                <div class="grid grid-cols-2 gap-x-4 gap-y-4">
+                    <div class="col-span-2 flex flex-col gap-1.5">
+                        <label class="text-sm font-medium text-slate-700">Medicine <span class="text-red-400">*</span></label>
+                        <Select v-model="info.medicine_pid" :options="medicines" optionLabel="name" optionValue="pid" placeholder="Select medicine" filter fluid class="text-sm" />
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-medium text-slate-700">Quantity</label>
+                        <InputNumber v-model="info.quantity" :useGrouping="false" placeholder="0" fluid class="text-sm" />
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-medium text-slate-700">Purchase Price <span class="text-red-400">*</span></label>
+                        <InputNumber v-model="info.purchase_price" :useGrouping="false" :minFractionDigits="2" placeholder="0.00" required fluid class="text-sm" />
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-medium text-slate-700">Unit Type</label>
+                        <InputText v-model="info.unit_type" placeholder="e.g. box, bottle, vial" fluid class="text-sm" />
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-medium text-slate-700">Units per Package</label>
+                        <InputNumber v-model="info.units_per_package" :useGrouping="false" placeholder="1" fluid class="text-sm" />
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-medium text-slate-700">Reorder Level</label>
+                        <InputNumber v-model="info.reorder_level" :useGrouping="false" placeholder="100" fluid class="text-sm" />
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-medium text-slate-700">Expiration Date</label>
+                        <DatePicker v-model="expirationDate" dateFormat="yy-mm-dd" showIcon fluid class="text-sm" />
+                    </div>
+                    <div class="col-span-2 flex flex-col gap-1.5">
+                        <label class="text-sm font-medium text-slate-700">Batch Number</label>
+                        <InputText v-model="info.batch_number" placeholder="e.g. LOT-2026-001" fluid class="text-sm" />
+                    </div>
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <Button type="button" label="Cancel" severity="secondary" outlined fluid @click="modalOpen = false" />
+                    <Button type="submit" :label="isUpdate ? 'Update Batch' : 'Save Batch'" fluid class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" />
+                </div>
+            </form>
+        </Dialog>
+
+        <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-linear-to-r from-slate-50 to-white">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md">
+                    <BiBox class="text-white" size="20" />
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-800">Medicine Stocks</h3>
+                    <p class="text-xs text-slate-400">Manage medicine stock batches</p>
+                </div>
+            </div>
+            <button type="button" @click="modalOpen = true" class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95">
+                <BsPlusCircle size="16" />
+                Add Stock Batch
+            </button>
+        </div>
+
+        <DataTable :value="medicineStocks" paginator :rows="15" :rowsPerPageOptions="[10, 15, 25, 50, 100]" responsiveLayout="scroll" tableStyle="min-width: 65rem"
+            :pt="{ table: { class: 'text-sm' }, thead: { class: 'bg-slate-50' }, bodyRow: { class: 'hover:bg-slate-50 transition-colors duration-150 border-b border-slate-100' } }">
+            <template #empty>
+                <div class="flex flex-col items-center justify-center py-16 text-slate-400">
+                    <BiBox size="40" class="mb-3 opacity-30" />
+                    <p class="text-sm font-medium">No stock batches found</p>
+                </div>
+            </template>
+            <Column header="Medicine">
+                <template #body="{ data }"><span class="text-slate-800 text-sm font-medium">{{ data.medicine?.name || '—' }}</span></template>
+            </Column>
+            <Column field="batch_number" header="Batch #" class="w-32">
+                <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.batch_number || '—' }}</span></template>
+            </Column>
+            <Column field="quantity" header="Quantity" class="w-24">
+                <template #body="{ data }"><span class="text-slate-700 text-sm font-medium">{{ data.quantity }}</span></template>
+            </Column>
+            <Column field="unit_type" header="Unit Type" class="w-28" />
+            <Column field="units_per_package" header="Units/Pkg" class="w-24" />
+            <Column field="reorder_level" header="Reorder Lvl" class="w-28" />
+            <Column header="Expiration" class="w-32">
+                <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.expiration_date || '—' }}</span></template>
+            </Column>
+            <Column header="Actions" class="w-24">
+                <template #body="{ data }">
+                    <div class="flex items-center gap-1">
+                        <button type="button" title="Edit stock" @click="edit(data.pid)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
+                            <BiEdit size="18" />
+                        </button>
+                        <button type="button" title="Delete stock" @click="archive(data.pid)" class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer">
+                            <BiTrash size="18" />
+                        </button>
+                    </div>
+                </template>
+            </Column>
+        </DataTable>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { BsPlusCircle } from 'vue-icons-plus/bs';
+import { BiEdit, BiTrash, BiBox } from 'vue-icons-plus/bi';
+import { useMedicineStockStore } from '@/store/MedicineStock';
+import { useMedicineStore } from '@/store/Medicine';
+import { MedicineStock } from '@/interface/Interfaces';
+import { useConfirmToast } from '@/composables/confirm';
+import { useAppToast } from '@/composables/toast';
+
+const { showConfirm } = useConfirmToast();
+const toast = useAppToast();
+const medicineStockStore = useMedicineStockStore();
+const medicineStore = useMedicineStore();
+
+const medicineStocks = computed<MedicineStock[]>(() => medicineStockStore.medicineStocks);
+const medicines = computed(() => medicineStore.medicines);
+const modalOpen = ref<boolean>(false);
+const isUpdate = ref<boolean>(false);
+const defaultInfo = (): MedicineStock => ({ pid: '', medicine_pid: '', quantity: 0, purchase_price: null, reorder_level: 100, unit_type: 'box', units_per_package: 1, expiration_date: null, batch_number: '' });
+const info = reactive<MedicineStock>(defaultInfo());
+const expirationDate = ref<Date | null>(null);
+
+watch(modalOpen, (open) => { if (!open) { Object.assign(info, defaultInfo()); expirationDate.value = null; isUpdate.value = false; } });
+watch(expirationDate, (date) => { info.expiration_date = date ? date.toISOString().slice(0, 10) : null; });
+
+onMounted(async () => {
+    try {
+        await Promise.all([medicineStockStore.read(), medicineStore.read()]);
+    } catch (err: any) {
+        toast.error(err.response?.data?.message || 'Failed to retrieve medicine stocks');
+    }
+});
+
+const create = async () => {
+    try {
+        await medicineStockStore.create(info);
+        toast.success('Stock batch created successfully');
+        modalOpen.value = false;
+    } catch (err: any) {
+        toast.error(err.response?.data?.message || 'Failed to create stock batch');
+    }
+};
+
+const edit = async (pid: string) => {
+    try {
+        await medicineStockStore.view(pid);
+        Object.assign(info, medicineStockStore.medicineStock, { medicine_pid: medicineStockStore.medicineStock.medicine?.pid || '' });
+        expirationDate.value = medicineStockStore.medicineStock.expiration_date ? new Date(medicineStockStore.medicineStock.expiration_date) : null;
+        isUpdate.value = true;
+        modalOpen.value = true;
+    } catch (err: any) {
+        toast.error(err.response?.data?.message || 'Failed to retrieve stock batch');
+    }
+};
+
+const update = async () => {
+    try {
+        await medicineStockStore.update(info);
+        toast.success('Stock batch updated successfully');
+        modalOpen.value = false;
+    } catch (err: any) {
+        toast.error(err.response?.data?.message || 'Failed to update stock batch');
+    }
+};
+
+const archive = (pid: string) => {
+    showConfirm({
+        message: 'Are you sure you want to delete this stock batch?',
+        header: 'Delete Confirmation',
+        onAccept: async () => {
+            try {
+                await medicineStockStore.archive(pid);
+                toast.success('Stock batch deleted successfully');
+            } catch (err: any) {
+                toast.error(err.response?.data?.message || 'Failed to delete stock batch');
+            }
+        },
+    });
+};
+</script>

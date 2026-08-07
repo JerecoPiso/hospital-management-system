@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -21,5 +22,15 @@ class Medicine extends Model
         static::creating(function ($med) {
             $med->pid = $med->pid ?? Str::uuid()->toString();
         });
+    }
+
+    public function medicineStocks(): HasMany
+    {
+        return $this->hasMany(MedicineStock::class);
+    }
+
+    public function medicineStockMovements(): HasMany
+    {
+        return $this->hasMany(MedicineStockMovement::class);
     }
 }

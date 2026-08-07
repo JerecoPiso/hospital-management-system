@@ -53,6 +53,40 @@ export interface Medicines {
     price: Number | any
 }
 
+export interface MedicineStock {
+    pid?: string;
+    medicine_pid: string;
+    medicine?: Medicines;
+    quantity?: number;
+    purchase_price: number | null;
+    reorder_level?: number;
+    unit_type?: string;
+    units_per_package?: number;
+    expiration_date?: string | null;
+    batch_number?: string | null;
+}
+
+export interface MedicineStockMovement {
+    pid?: string;
+    medicine_pid: string;
+    medicine?: Medicines;
+    type: 'IN' | 'OUT';
+    quantity: number;
+    reference?: string | null;
+    remarks?: string | null;
+}
+
+export interface MedicineDistribution {
+    pid?: string;
+    medicine_stock_pid: string;
+    medicineStock?: MedicineStock;
+    station_pid: string;
+    station?: Station;
+    quantity: number;
+    distributedBy?: User | null;
+    distributed_at?: string;
+}
+
 export interface HistoryAndPhysicalExaminationFormOne {
     pid?: string;
     chief_complaint: string;
@@ -118,6 +152,7 @@ export interface PatientCase {
     chief_complaint: string;
     initial_diagnosis?: string;
     final_diagnosis?: string;
+    type?: 'inpatient' | 'outpatient';
 }
 
 export interface PatientRegistration {
@@ -140,6 +175,7 @@ export interface PatientRegistration {
     chief_complaint: string;
     initial_diagnosis?: string;
     final_diagnosis?: string;
+    type: 'inpatient' | 'outpatient';
     patientCases?: PatientCase[];
 }
 

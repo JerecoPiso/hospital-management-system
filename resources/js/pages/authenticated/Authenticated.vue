@@ -201,14 +201,14 @@ import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import { useRouter, useRoute } from "vue-router";
-import { MdDashboard, MdLayers, MdLocationOn } from "vue-icons-plus/md";
-import { FiUsers, FiSettings, FiActivity, FiUserPlus } from "vue-icons-plus/fi";
+import { MdDashboard, MdLayers, MdLocationOn, MdSwapVert } from "vue-icons-plus/md";
+import { FiUsers, FiSettings, FiUserPlus } from "vue-icons-plus/fi";
 import { GiMedicalPack, GiMedicines } from "vue-icons-plus/gi";
-import { FaUsers, FaBookMedical, FaBuilding, FaBed } from "vue-icons-plus/fa";
-import { BsJournalMedical, BsFillDoorOpenFill } from "vue-icons-plus/bs";
-import { BiSolidUserAccount, BiCategoryAlt } from "vue-icons-plus/bi";
+import { FaUsers, FaBuilding, FaBed } from "vue-icons-plus/fa";
+import { BsFillDoorOpenFill } from "vue-icons-plus/bs";
+import { BiCategoryAlt, BiBox } from "vue-icons-plus/bi";
 import { PiUsersThreeFill } from "vue-icons-plus/pi";
-import { Fa6BedPulse, Fa6Hospital } from "vue-icons-plus/fa6";
+import { Fa6BedPulse, Fa6Hospital, Fa6TruckFast } from "vue-icons-plus/fa6";
 import axios from "axios";
 import { useAuthStore } from "@/store/patientchart/AuthStore";
 const confirm = useConfirm();
@@ -227,18 +227,6 @@ const navItems = [
     icon: MdDashboard,
   },
   {
-    name: "PatientChart",
-    label: "Patient Chart",
-    icon: FiUsers,
-    children: [
-      { name: "PatientInformation", label: "Patient Information", icon: BiSolidUserAccount },
-      { name: "VitalSigns", label: "Vital Signs", icon: FiActivity },
-      { name: "DoctorsOrder", label: "Doctors Order", icon: FaBookMedical },
-      { name: "NursesNotes", label: "Nurses Notes", icon: BsJournalMedical },
-      { name: "Therapeutic", label: "Therapeutic", icon: GiMedicines },
-    ],
-  },
-  {
     name: "Patients",
     label: "Patients",
     icon: FiUsers,
@@ -252,6 +240,12 @@ const navItems = [
     name: "Medicines",
     label: "Medicines",
     icon: GiMedicines,
+    children: [
+      { name: "Medicines", label: "Items", icon: GiMedicines },
+      { name: "MedicineStocks", label: "Stocks", icon: BiBox },
+      { name: "MedicineStockMovements", label: "Movements", icon: MdSwapVert },
+      { name: "MedicineDistributions", label: "Distributions", icon: Fa6TruckFast },
+    ],
   },
   {
     name: "Users",
@@ -262,6 +256,12 @@ const navItems = [
     name: "Supplies",
     label: "Supplies",
     icon: GiMedicalPack,
+    children: [
+      { name: "Supplies", label: "Items", icon: GiMedicalPack },
+      { name: "SupplyStocks", label: "Stocks", icon: BiBox },
+      { name: "SupplyMovements", label: "Movements", icon: MdSwapVert },
+      { name: "SupplyDistributions", label: "Distributions", icon: Fa6TruckFast },
+    ],
   },
   {
     name: "Settings",

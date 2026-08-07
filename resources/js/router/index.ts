@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory, RouterView } from "vue-router";
 import axios from "axios";
 import { useAuthStore } from "@/store/patientchart/AuthStore";
 const router = createRouter({
@@ -16,19 +16,49 @@ const router = createRouter({
             meta: { requiresAuth: true },
             children: [
                 { path: "", name: "Dashboard", component: () => import("../pages/authenticated/Dashboard.vue") },
-                { path: "out-patients", name: "OutPatients", component: () => import("../pages/authenticated/patients/OutPatients.vue") },
-                { path: "in-patients", name: "InPatients", component: () => import("../pages/authenticated/patients/InPatients.vue") },
-                { path: "patient-registration", name: "PatientRegistration", component: () => import("../pages/authenticated/patients/PatientRegistration.vue") },
-                { path: "medicines", name: "Medicines", component: () => import("../pages/authenticated/Medicines.vue") },
                 { path: "users", name: "Users", component: () => import("../pages/authenticated/Users.vue") },
-                { path: "supplies", name: "Supplies", component: () => import("../pages/authenticated/Supplies.vue") },
-                { path: "settings/buildings", name: "Buildings", component: () => import("../pages/authenticated/settings/Buildings.vue") },
-                { path: "settings/floors", name: "Floors", component: () => import("../pages/authenticated/settings/Floors.vue") },
-                { path: "settings/wards", name: "Wards", component: () => import("../pages/authenticated/settings/Wards.vue") },
-                { path: "settings/rooms", name: "Rooms", component: () => import("../pages/authenticated/settings/Rooms.vue") },
-                { path: "settings/beds", name: "Beds", component: () => import("../pages/authenticated/settings/Beds.vue") },
-                { path: "settings/stations", name: "Stations", component: () => import("../pages/authenticated/settings/Stations.vue") },
-                { path: "settings/patient-types", name: "PatientTypes", component: () => import("../pages/authenticated/settings/PatientTypes.vue") },
+                {
+                    path: "patients",
+                    component: RouterView,
+                    children: [
+                        { path: "registration", name: "PatientRegistration", component: () => import("../pages/authenticated/patients/PatientRegistration.vue") },
+                        { path: "out-patients", name: "OutPatients", component: () => import("../pages/authenticated/patients/OutPatients.vue") },
+                        { path: "in-patients", name: "InPatients", component: () => import("../pages/authenticated/patients/InPatients.vue") },
+                    ],
+                },
+                {
+                    path: "medicines",
+                    component: RouterView,
+                    children: [
+                        { path: "", name: "Medicines", component: () => import("../pages/authenticated/medicines/MedicineItems.vue") },
+                        { path: "stocks", name: "MedicineStocks", component: () => import("../pages/authenticated/medicines/MedicineStocks.vue") },
+                        { path: "movements", name: "MedicineStockMovements", component: () => import("../pages/authenticated/medicines/MedicineStockMovements.vue") },
+                        { path: "distributions", name: "MedicineDistributions", component: () => import("../pages/authenticated/medicines/MedicineDistributions.vue") },
+                    ],
+                },
+                {
+                    path: "supplies",
+                    component: RouterView,
+                    children: [
+                        { path: "", name: "Supplies", component: () => import("../pages/authenticated/supplies/SupplyItems.vue") },
+                        { path: "stocks", name: "SupplyStocks", component: () => import("../pages/authenticated/supplies/SupplyStocks.vue") },
+                        { path: "movements", name: "SupplyMovements", component: () => import("../pages/authenticated/supplies/SupplyMovements.vue") },
+                        { path: "distributions", name: "SupplyDistributions", component: () => import("../pages/authenticated/supplies/SupplyDistributions.vue") },
+                    ],
+                },
+                {
+                    path: "settings",
+                    component: RouterView,
+                    children: [
+                        { path: "buildings", name: "Buildings", component: () => import("../pages/authenticated/settings/Buildings.vue") },
+                        { path: "floors", name: "Floors", component: () => import("../pages/authenticated/settings/Floors.vue") },
+                        { path: "wards", name: "Wards", component: () => import("../pages/authenticated/settings/Wards.vue") },
+                        { path: "rooms", name: "Rooms", component: () => import("../pages/authenticated/settings/Rooms.vue") },
+                        { path: "beds", name: "Beds", component: () => import("../pages/authenticated/settings/Beds.vue") },
+                        { path: "stations", name: "Stations", component: () => import("../pages/authenticated/settings/Stations.vue") },
+                        { path: "patient-types", name: "PatientTypes", component: () => import("../pages/authenticated/settings/PatientTypes.vue") },
+                    ],
+                },
             ],
         },
         {

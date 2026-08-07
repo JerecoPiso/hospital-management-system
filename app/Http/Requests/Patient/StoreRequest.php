@@ -42,6 +42,7 @@ class StoreRequest extends FormRequest
             "chief_complaint" => "required|string",
             "initial_diagnosis" => "nullable|string",
             "final_diagnosis" => "nullable|string",
+            "type" => "required|in:inpatient,outpatient",
         ];
     }
 

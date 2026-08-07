@@ -3,13 +3,14 @@
 namespace App\Traits;
 
 use App\Http\Requests\Patient\StoreRequest;
+use Illuminate\Http\Request;
 
 trait PatientTrait
 {
-    public function list()
+    public function list(Request $request)
     {
         try {
-            $patients = $this->patientRepo->list([]);
+            $patients = $this->patientRepo->list($request->only(['type']));
             return api_response($patients, true, "Success", 200);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);

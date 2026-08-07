@@ -6,8 +6,8 @@
         <FaWalking class="text-emerald-600" size="20" />
       </div>
       <div>
-        <p class="text-slate-500 text-xs font-medium uppercase tracking-wide">Today's Visits</p>
-        <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ patients.length }}</p>
+        <p class="text-slate-500 text-xs font-medium uppercase tracking-wide">Total Outpatients</p>
+        <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ outpatients.length }}</p>
       </div>
     </div>
     <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center gap-4">
@@ -15,8 +15,8 @@
         <FiClock class="text-amber-500" size="20" />
       </div>
       <div>
-        <p class="text-slate-500 text-xs font-medium uppercase tracking-wide">Waiting</p>
-        <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ waitingCount }}</p>
+        <p class="text-slate-500 text-xs font-medium uppercase tracking-wide">Today's Visits</p>
+        <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ visitsTodayCount }}</p>
       </div>
     </div>
     <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center gap-4">
@@ -24,8 +24,8 @@
         <FiCalendar class="text-teal-600" size="20" />
       </div>
       <div>
-        <p class="text-slate-500 text-xs font-medium uppercase tracking-wide">Completed</p>
-        <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ completedCount }}</p>
+        <p class="text-slate-500 text-xs font-medium uppercase tracking-wide">This Week</p>
+        <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ visitsThisWeekCount }}</p>
       </div>
     </div>
   </div>
@@ -75,46 +75,37 @@
         <template #body="{ data }">
           <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-full bg-linear-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-xs font-semibold shrink-0">
-              {{ data.name.charAt(0).toUpperCase() }}
+              {{ data.firstname?.charAt(0)?.toUpperCase() ?? '?' }}
             </div>
             <div>
-              <p class="text-slate-800 text-sm font-medium leading-tight">{{ data.name }}</p>
-              <p class="text-slate-400 text-xs mt-0.5">{{ data.patientId }}</p>
+              <p class="text-slate-800 text-sm font-medium leading-tight">{{ `${data.firstname ?? ''} ${data.lastname ?? ''}`.trim() || '—' }}</p>
+              <p class="text-slate-400 text-xs mt-0.5">{{ data.medical_record_number || '—' }}</p>
             </div>
           </div>
         </template>
       </Column>
 
-      <Column header="Visit Date" class="w-32">
+      <Column header="Case Number" class="w-40">
         <template #body="{ data }">
-          <span class="text-slate-600 text-sm">{{ data.visitDate }}</span>
+          <span class="text-slate-600 text-sm">{{ data.patientCases?.[0]?.case_number || '—' }}</span>
         </template>
       </Column>
 
-      <Column header="Time" class="w-24">
+      <Column header="Visit Date" class="w-44">
         <template #body="{ data }">
-          <span class="text-slate-600 text-sm">{{ data.visitTime }}</span>
-        </template>
-      </Column>
-
-      <Column header="Physician">
-        <template #body="{ data }">
-          <span class="text-slate-600 text-sm">{{ data.physician }}</span>
+          <span class="text-slate-600 text-sm">{{ formatDate(data.patientCases?.[0]?.admission_datetime) }}</span>
         </template>
       </Column>
 
       <Column header="Reason for Visit">
         <template #body="{ data }">
-          <span class="text-slate-600 text-sm">{{ data.reason }}</span>
+          <span class="text-slate-600 text-sm">{{ data.patientCases?.[0]?.chief_complaint || '—' }}</span>
         </template>
       </Column>
 
-      <Column header="Status" class="w-36">
+      <Column header="Diagnosis">
         <template #body="{ data }">
-          <span :class="['inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium border', statusStyles[data.status]]">
-            <span class="w-1.5 h-1.5 rounded-full" :class="statusDot[data.status]"></span>
-            {{ data.status }}
-          </span>
+          <span class="text-slate-600 text-sm">{{ data.patientCases?.[0]?.final_diagnosis || data.patientCases?.[0]?.initial_diagnosis || '—' }}</span>
         </template>
       </Column>
 
@@ -123,7 +114,7 @@
           <button
             type="button"
             title="View patient chart"
-            @click="viewChart(data)"
+            @click="viewChart()"
             class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
           >
             <FiEye size="18" />
@@ -134,44 +125,60 @@
   </div>
 </template>
 
-<script setup>
-import { computed, ref } from "vue";
+<script setup lang="ts">
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { FaWalking } from "vue-icons-plus/fa";
 import { FiClock, FiCalendar, FiSearch, FiEye } from "vue-icons-plus/fi";
+import { usePatientStore } from "@/store/patients/PatientRegistration";
+import { PatientRegistration } from "@/interface/Interfaces";
+import { useAppToast } from "@/composables/toast";
 
 const router = useRouter();
+const toast = useAppToast();
+const patientStore = usePatientStore();
 const search = ref("");
 
-const patients = ref([
-  { patientId: "PT-20114", name: "Carlos Mendoza", visitDate: "2026-07-03", visitTime: "09:00 AM", physician: "Dr. Santos", reason: "Follow-up checkup", status: "Completed" },
-  { patientId: "PT-20128", name: "Elena Cruz", visitDate: "2026-07-03", visitTime: "09:30 AM", physician: "Dr. Reyes", reason: "Fever and cough", status: "In Consultation" },
-  { patientId: "PT-20135", name: "Miguel Torres", visitDate: "2026-07-03", visitTime: "10:00 AM", physician: "Dr. Bautista", reason: "Annual physical exam", status: "Waiting" },
-  { patientId: "PT-20142", name: "Sofia Ramirez", visitDate: "2026-07-03", visitTime: "10:15 AM", physician: "Dr. Cruz", reason: "Skin rash consultation", status: "Waiting" },
-  { patientId: "PT-20150", name: "Diego Villanueva", visitDate: "2026-07-03", visitTime: "08:45 AM", physician: "Dr. Santos", reason: "Blood pressure monitoring", status: "Completed" },
-]);
-
-const waitingCount = computed(() => patients.value.filter((p) => p.status === "Waiting").length);
-const completedCount = computed(() => patients.value.filter((p) => p.status === "Completed").length);
+const outpatients = computed<PatientRegistration[]>(() => patientStore.patients);
 
 const filteredPatients = computed(() => {
   const query = search.value.trim().toLowerCase();
-  if (!query) return patients.value;
-  return patients.value.filter((p) => p.name.toLowerCase().includes(query));
+  if (!query) return outpatients.value;
+  return outpatients.value.filter((p) => `${p.firstname ?? ''} ${p.lastname ?? ''}`.toLowerCase().includes(query) || (p.medical_record_number ?? '').toLowerCase().includes(query));
 });
 
-const statusStyles = {
-  Waiting: "bg-amber-50 text-amber-700 border-amber-100",
-  "In Consultation": "bg-blue-50 text-blue-700 border-blue-100",
-  Completed: "bg-emerald-50 text-emerald-700 border-emerald-100",
-};
-const statusDot = {
-  Waiting: "bg-amber-500",
-  "In Consultation": "bg-blue-500",
-  Completed: "bg-emerald-500",
+const formatDate = (value?: string) => (value ? new Date(value).toLocaleString() : '—');
+
+const isSameDay = (value: string | undefined, reference: Date) => {
+  if (!value) return false;
+  const date = new Date(value);
+  return date.toDateString() === reference.toDateString();
 };
 
+const visitsTodayCount = computed(() => {
+  const today = new Date();
+  return outpatients.value.filter((p) => isSameDay(p.patientCases?.[0]?.admission_datetime, today)).length;
+});
+
+const visitsThisWeekCount = computed(() => {
+  const now = Date.now();
+  const weekMs = 7 * 24 * 60 * 60 * 1000;
+  return outpatients.value.filter((p) => {
+    const visitAt = p.patientCases?.[0]?.admission_datetime;
+    if (!visitAt) return false;
+    return now - new Date(visitAt).getTime() <= weekMs;
+  }).length;
+});
+
+onMounted(async () => {
+  try {
+    await patientStore.read("outpatient");
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Failed to retrieve outpatients");
+  }
+});
+
 const viewChart = () => {
-  router.push({ name: "PatientChart" });
+  router.push({ name: "PatientInformation" });
 };
 </script>

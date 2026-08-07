@@ -23,14 +23,17 @@ export const usePatientStore = defineStore("patient", () => {
         admission_datetime: "",
         chief_complaint: "",
         initial_diagnosis: "",
-        final_diagnosis: ""
+        final_diagnosis: "",
+        type: "outpatient"
     })
     const create = async (data: PatientRegistration) => {
         await axios.post(`${baseUrl}api/patient`, data);
         read();
     }
-    const read = async () => {
-        const response = await axios.get(`${baseUrl}api/patient`);
+    const read = async (type?: 'inpatient' | 'outpatient') => {
+        const response = await axios.get(`${baseUrl}api/patient`, {
+            params: type ? { type } : {}
+        });
         patients.value = response.data.data;
     }
     const view = async (pid: string) => {
