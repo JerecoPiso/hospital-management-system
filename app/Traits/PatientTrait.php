@@ -10,7 +10,7 @@ trait PatientTrait
     public function list(Request $request)
     {
         try {
-            $patients = $this->patientRepo->list($request->only(['type']));
+            $patients = $this->patientRepo->list($request->only(['type', 'search']));
             return api_response($patients, true, "Success", 200);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);

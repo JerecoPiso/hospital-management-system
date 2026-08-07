@@ -20,6 +20,15 @@ class PatientRepositories
             });
         }
 
+        if (!empty($filter['search'])) {
+            $search = $filter['search'];
+            $patient->where(function ($q) use ($search) {
+                $q->where('firstname', 'like', "%{$search}%")
+                    ->orWhere('lastname', 'like', "%{$search}%")
+                    ->orWhere('medical_record_number', 'like', "%{$search}%");
+            });
+        }
+
         $patient = $patient->get();
         return $patient->toArray();
     }

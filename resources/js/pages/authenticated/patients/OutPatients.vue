@@ -51,7 +51,7 @@
 
     <!-- Table -->
     <DataTable
-      :value="filteredPatients"
+      :value="outpatients"
       paginator
       :rows="15"
       :rowsPerPageOptions="[10, 15, 25, 50, 100]"
@@ -75,11 +75,11 @@
         <template #body="{ data }">
           <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-full bg-linear-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-xs font-semibold shrink-0">
-              {{ data.firstname?.charAt(0)?.toUpperCase() ?? '?' }}
+              {{ data.firstname?.charAt(0)?.toUpperCase() ?? "?" }}
             </div>
             <div>
-              <p class="text-slate-800 text-sm font-medium leading-tight">{{ `${data.firstname ?? ''} ${data.lastname ?? ''}`.trim() || '—' }}</p>
-              <p class="text-slate-400 text-xs mt-0.5">{{ data.medical_record_number || '—' }}</p>
+              <p class="text-slate-800 text-sm font-medium leading-tight">{{ `${data.firstname ?? ""} ${data.lastname ?? ""}`.trim() || "—" }}</p>
+              <p class="text-slate-400 text-xs mt-0.5">{{ data.medical_record_number || "—" }}</p>
             </div>
           </div>
         </template>
@@ -87,28 +87,40 @@
 
       <Column header="Case Number" class="w-40">
         <template #body="{ data }">
-          <span class="text-slate-600 text-sm">{{ data.patientCases?.[0]?.case_number || '—' }}</span>
+          <span class="text-slate-600 text-sm">{{ data.patient_cases?.[0]?.case_number || "—" }}</span>
         </template>
       </Column>
 
       <Column header="Visit Date" class="w-44">
         <template #body="{ data }">
-          <span class="text-slate-600 text-sm">{{ formatDate(data.patientCases?.[0]?.admission_datetime) }}</span>
+          <span class="text-slate-600 text-sm">{{ formatDate(data.patient_cases?.[0]?.admission_datetime) }}</span>
         </template>
       </Column>
 
       <Column header="Reason for Visit">
         <template #body="{ data }">
-          <span class="text-slate-600 text-sm">{{ data.patientCases?.[0]?.chief_complaint || '—' }}</span>
+          <span class="text-slate-600 text-sm">{{ data.patient_cases?.[0]?.chief_complaint || "—" }}</span>
         </template>
       </Column>
 
-      <Column header="Diagnosis">
+      <Column header="Chief Complaint">
         <template #body="{ data }">
-          <span class="text-slate-600 text-sm">{{ data.patientCases?.[0]?.final_diagnosis || data.patientCases?.[0]?.initial_diagnosis || '—' }}</span>
+          <span class="text-slate-600 text-sm">{{ data.patient_cases?.[data.patient_cases.length - 1]?.chief_complaint || "—" }}</span>
+        </template>
+      </Column>
+      <Column header="Initial Diagnosis">
+        <template #body="{ data }">
+          <span class="text-slate-600 text-sm">{{ data.patient_cases?.[data.patient_cases.length - 1]?.initial_diagnosis || "—" }}</span>
         </template>
       </Column>
 
+      <Column header="Final Diagnosis">
+        <template #body="{ data }">
+          <span class="text-slate-600 text-sm">{{
+            data.patient_cases?.[data.patient_cases.length - 1]?.final_diagnosis || data.patient_cases?.[data.patient_cases.length - 1]?.final_diagnosis || "—"
+          }}</span>
+        </template>
+      </Column>
       <Column header="Actions" class="w-16">
         <template #body="{ data }">
           <button
@@ -126,7 +138,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { FaWalking } from "vue-icons-plus/fa";
 import { FiClock, FiCalendar, FiSearch, FiEye } from "vue-icons-plus/fi";
@@ -141,13 +153,21 @@ const search = ref("");
 
 const outpatients = computed<PatientRegistration[]>(() => patientStore.patients);
 
-const filteredPatients = computed(() => {
-  const query = search.value.trim().toLowerCase();
-  if (!query) return outpatients.value;
-  return outpatients.value.filter((p) => `${p.firstname ?? ''} ${p.lastname ?? ''}`.toLowerCase().includes(query) || (p.medical_record_number ?? '').toLowerCase().includes(query));
+const read = async (query?: string) => {
+  try {
+    await patientStore.read("outpatient", query);
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Failed to retrieve outpatients");
+  }
+};
+
+let searchTimeout: ReturnType<typeof setTimeout>;
+watch(search, (value) => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => read(value), 400);
 });
 
-const formatDate = (value?: string) => (value ? new Date(value).toLocaleString() : '—');
+const formatDate = (value?: string) => (value ? new Date(value).toLocaleString() : "—");
 
 const isSameDay = (value: string | undefined, reference: Date) => {
   if (!value) return false;
@@ -171,11 +191,7 @@ const visitsThisWeekCount = computed(() => {
 });
 
 onMounted(async () => {
-  try {
-    await patientStore.read("outpatient");
-  } catch (err: any) {
-    toast.error(err.response?.data?.message || "Failed to retrieve outpatients");
-  }
+  await read();
 });
 
 const viewChart = () => {

@@ -21,6 +21,7 @@ require __DIR__ . '/api/medicineStockMovements.php';
 require __DIR__ . '/api/medicineStocks.php';
 require __DIR__ . '/api/nursesNotes.php';
 require __DIR__ . '/api/patient.php';
+require __DIR__ . '/api/patientCase.php';
 require __DIR__ . '/api/patientTypes.php';
 require __DIR__ . '/api/rooms.php';
 require __DIR__ . '/api/stations.php';

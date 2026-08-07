@@ -30,9 +30,12 @@ export const usePatientStore = defineStore("patient", () => {
         await axios.post(`${baseUrl}api/patient`, data);
         read();
     }
-    const read = async (type?: 'inpatient' | 'outpatient') => {
+    const read = async (type?: 'inpatient' | 'outpatient', search?: string) => {
         const response = await axios.get(`${baseUrl}api/patient`, {
-            params: type ? { type } : {}
+            params: {
+                ...(type ? { type } : {}),
+                ...(search ? { search } : {}),
+            }
         });
         patients.value = response.data.data;
     }

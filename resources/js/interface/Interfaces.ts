@@ -144,6 +144,7 @@ export interface HistoryAndPhysicalExaminationFormTwo {
 
 export interface PatientCase {
     pid?: string;
+    patient_pid?: string;
     station_id?: number | null;
     bed_id?: number | null;
     patient_type_id?: number | null;
