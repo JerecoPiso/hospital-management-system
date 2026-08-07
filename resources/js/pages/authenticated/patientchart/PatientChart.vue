@@ -226,7 +226,7 @@ const navItems = [
       { name: "Medicines", label: "Medicines", icon: GiMedicines },
       { name: "Users", label: "Users", icon: FaUsers },
       { name: "Supplies", label: "Supplies", icon: GiMedicalPack },
-      { name: "Settings", label: "Settings", icon: FiSettings },
+      // { name: "Settings", label: "Settings", icon: FiSettings },
     ],
   },
   {
