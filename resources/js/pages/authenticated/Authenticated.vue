@@ -44,10 +44,12 @@
           <!-- User Profile Popover -->
           <div class="relative">
             <button @click="profileOpen = !profileOpen" class="flex items-center gap-2 p-2 hover:bg-slate-100 rounded-lg transition-colors">
-              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin" alt="User" class="w-8 h-8 rounded-full border-2 border-emerald-500" />
+              <div class="w-8 h-8 rounded-full border-2 border-emerald-500 bg-linear-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-xs font-semibold shrink-0">
+                {{ userInitials }}
+              </div>
               <div class="hidden sm:block text-left">
-                <p class="text-sm font-semibold text-slate-900">Dr. Sarah</p>
-                <p class="text-xs text-slate-500">Administrator</p>
+                <p class="text-sm font-semibold text-slate-900">{{ userDisplayName }}</p>
+                <p class="text-xs text-slate-500">{{ userEmail }}</p>
               </div>
               <svg class="w-4 h-4 text-slate-600 transition-transform" :class="{ 'rotate-180': profileOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
@@ -66,9 +68,11 @@
               <div v-if="profileOpen" class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden z-50">
                 <!-- Profile Header -->
                 <div class="bg-linear-to-r from-emerald-500 to-teal-600 px-6 py-4">
-                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin" alt="User" class="w-12 h-12 rounded-full border-3 border-white mb-3" />
-                  <p class="text-white font-semibold">Dr. Sarah Johnson</p>
-                  <p class="text-emerald-100 text-sm">Administrator</p>
+                  <div class="w-12 h-12 rounded-full border-3 border-white mb-3 bg-white/20 flex items-center justify-center text-white font-semibold">
+                    {{ userInitials }}
+                  </div>
+                  <p class="text-white font-semibold">{{ userDisplayName }}</p>
+                  <p class="text-emerald-100 text-sm">{{ userEmail }}</p>
                 </div>
 
                 <!-- Menu Items -->
@@ -215,6 +219,24 @@ const confirm = useConfirm();
 const toast = useToast();
 const router = useRouter();
 const route = useRoute();
+const auth = useAuthStore();
+const userDisplayName = computed(() => {
+  const user = auth.user;
+  if (!user) return "Guest";
+  if (user.name) return user.name;
+  return [user.firstname, user.lastname].filter(Boolean).join(" ") || "Guest";
+});
+const userEmail = computed(() => auth.user?.email || "");
+const userInitials = computed(() => {
+  const name = userDisplayName.value;
+  if (!name || name === "Guest") return "?";
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join("");
+});
 const sidebarOpen = ref(true);
 const profileOpen = ref(false);
 const activeNav = computed(() => route.name);
@@ -312,7 +334,6 @@ const handleMenuClick = (action) => {
         label: "Save",
       },
       accept: async () => {
-        const auth = useAuthStore();
         const baseUrl = import.meta.env.VITE_APP_API_URL;
         await axios.post(`${baseUrl}api/user/logout`);
         auth.user = null;

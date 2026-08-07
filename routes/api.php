@@ -11,6 +11,7 @@
 */
 require __DIR__ . '/api/beds.php';
 require __DIR__ . '/api/buildings.php';
+require __DIR__ . '/api/dashboard.php';
 require __DIR__ . '/api/doctorsOrder.php';
 require __DIR__ . '/api/floors.php';
 require __DIR__ . '/api/historyAndPhysicalExaminationFormOne.php';

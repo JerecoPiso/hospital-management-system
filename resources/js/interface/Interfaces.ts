@@ -289,3 +289,49 @@ export interface User {
     date_of_birth: Date,
     password: string
 }
+
+export interface DashboardStats {
+    total_patients: number;
+    total_patients_change: number;
+    total_admissions: number;
+    total_admissions_change: number;
+    beds_total: number;
+    beds_occupied: number;
+    bed_occupancy_rate: number;
+    low_stock_count: number;
+}
+
+export interface DashboardWeeklyAdmission {
+    day: string;
+    date: string;
+    count: number;
+}
+
+export interface DashboardPatientTypeDistribution {
+    name: string;
+    count: number;
+    percentage: number;
+}
+
+export interface DashboardRecentAdmission {
+    pid: string;
+    case_number: string;
+    patient_name: string;
+    medical_record_number: string | null;
+    chief_complaint: string;
+    admission_datetime: string;
+}
+
+export interface DashboardRecentUser {
+    name: string;
+    email: string;
+    joined_at: string;
+}
+
+export interface DashboardSummary {
+    stats: DashboardStats;
+    weekly_admissions: DashboardWeeklyAdmission[];
+    patient_type_distribution: DashboardPatientTypeDistribution[];
+    recent_admissions: DashboardRecentAdmission[];
+    recent_users: DashboardRecentUser[];
+}

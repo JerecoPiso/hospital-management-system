@@ -1,450 +1,315 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-6">
-    <div class="mx-auto space-y-6">
-      
-      <!-- Header with Actions -->
-      <div class="flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-gray-900">Patient Information</h1>
-        <div class="space-x-3 flex">
-          <button @click="editProfile" class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium text-gray-700 transition">
-            Edit Profile
-          </button>
-          <button @click="printSummary" class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm font-medium transition">
-            Print Summary
-          </button>
-        </div>
+  <div class="space-y-6 mb-12">
+
+    <!-- Header with Actions -->
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900">Patient Information</h1>
+        <p class="text-sm text-slate-500 mt-0.5">Patient profile and current case record</p>
       </div>
-
-      <!-- Patient Header Card -->
-      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div class="bg-linear-to-r from-emerald-500 to-teal-600 h-24 "></div>
-        <div class="px-6 pb-6">
-          <div class="flex flex-col sm:flex-row gap-6 -mt-16 relative z-10">
-            <!-- Patient Avatar -->
-            <div class="shrink-0">
-              <div class="w-32 h-32 rounded-xl border-4 border-white shadow-lg bg-linear-to-br from-teal-400 to-teal-600 flex items-center justify-center">
-                <span class="text-5xl font-bold text-white">{{ patient.initials }}</span>
-              </div>
-            </div>
-            
-            <!-- Patient Basic Info -->
-            <div class="flex-1 pt-2">
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div>
-                  <p class="text-xs font-semibold text-gray-200 uppercase tracking-wider">Full Name</p>
-                  <p class="text-lg font-bold text-white mt-1">{{ patient.firstName }} {{ patient.middleInitial }}. {{ patient.lastName }}</p>
-                </div>
-                <div>
-                  <p class="text-xs font-semibold text-gray-200 uppercase tracking-wider">Patient ID</p>
-                  <p class="text-lg font-mono text-white mt-1">{{ patient.id }}</p>
-                </div>
-                <div>
-                  <p class="text-xs font-semibold text-gray-200 uppercase tracking-wider">Age</p>
-                  <p class="text-lg font-bold text-white mt-1">{{ age }} years</p>
-                </div>
-                <div>
-                  <p class="text-xs font-semibold text-gray-200 uppercase tracking-wider">Status</p>
-                  <p class="text-lg font-bold text-white mt-1 flex items-center gap-2">
-                    <span class="w-2 h-2 bg-white rounded-full"></span>
-                    {{ patient.status }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="flex gap-3">
+        <button @click="editProfile" class="px-4 py-2.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-sm font-medium text-slate-700 transition-colors shadow-sm flex items-center gap-2">
+          <FiEdit2 size="15" />
+          Edit Profile
+        </button>
+        <button @click="printSummary" class="px-4 py-2.5 bg-linear-to-r from-emerald-500 to-teal-600 text-white rounded-lg hover:brightness-105 text-sm font-medium transition-all shadow-sm flex items-center gap-2">
+          <FiPrinter size="15" />
+          Print Summary
+        </button>
       </div>
+    </div>
 
-      <!-- Vital Statistics -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-          <p class="text-xs font-semibold text-gray-500 uppercase">Blood Pressure</p>
-          <p class="text-2xl font-bold text-gray-900 mt-2">{{ vitals.bloodPressure }}</p>
-          <p class="text-xs text-green-600 mt-1">Normal</p>
-        </div>
-        <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-          <p class="text-xs font-semibold text-gray-500 uppercase">Heart Rate</p>
-          <p class="text-2xl font-bold text-gray-900 mt-2">{{ vitals.heartRate }}</p>
-          <p class="text-xs text-green-600 mt-1">bpm</p>
-        </div>
-        <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-          <p class="text-xs font-semibold text-gray-500 uppercase">Temperature</p>
-          <p class="text-2xl font-bold text-gray-900 mt-2">{{ vitals.temperature }}</p>
-          <p class="text-xs text-green-600 mt-1">Normal</p>
-        </div>
-        <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-          <p class="text-xs font-semibold text-gray-500 uppercase">Blood Type</p>
-          <p class="text-2xl font-bold text-red-600 mt-2">{{ patient.bloodType }}</p>
-          <p class="text-xs text-gray-600 mt-1">Critical</p>
-        </div>
-        <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-          <p class="text-xs font-semibold text-gray-500 uppercase">Weight</p>
-          <p class="text-2xl font-bold text-gray-900 mt-2">{{ vitals.weight }} kg</p>
-          <p class="text-xs text-gray-600 mt-1">BMI: {{ vitals.bmi }}</p>
-        </div>
-      </div>
-
-      <!-- Main Content Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <!-- Left Column -->
-        <div class="space-y-6">
-          <!-- Demographics -->
-          <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-            <div class="bg-gray-50 px-5 py-3 border-b border-gray-200">
-              <h3 class="font-bold text-gray-900">Demographics</h3>
-            </div>
-            <div class="p-5 space-y-4">
-              <div class="flex justify-between items-start pb-3 border-b border-gray-100">
-                <span class="text-sm text-gray-600">Date of Birth</span>
-                <span class="text-sm font-medium text-gray-900">{{ formatDate(patient.dateOfBirth) }}</span>
-              </div>
-              <div class="flex justify-between items-start pb-3 border-b border-gray-100">
-                <span class="text-sm text-gray-600">Gender</span>
-                <span class="text-sm font-medium text-gray-900">{{ patient.gender }}</span>
-              </div>
-              <div class="flex justify-between items-start pb-3 border-b border-gray-100">
-                <span class="text-sm text-gray-600">Contact</span>
-                <span class="text-sm font-medium text-gray-900">{{ patient.contact }}</span>
-              </div>
-              <div class="flex justify-between items-start">
-                <span class="text-sm text-gray-600">Email</span>
-                <span class="text-sm font-medium text-gray-900">{{ patient.email }}</span>
-              </div>
+    <!-- Patient Header Card -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="bg-linear-to-r from-emerald-500 to-teal-600 h-24"></div>
+      <div class="px-6 pb-6">
+        <div class="flex flex-col sm:flex-row gap-6 -mt-16 relative z-10">
+          <!-- Patient Avatar -->
+          <div class="shrink-0">
+            <div class="w-32 h-32 rounded-xl border-4 border-white shadow-lg bg-linear-to-br from-teal-400 to-teal-600 flex items-center justify-center">
+              <span class="text-5xl font-bold text-white">{{ initials }}</span>
             </div>
           </div>
 
-          <!-- Emergency Contact -->
-          <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-            <div class="bg-gray-50 px-5 py-3 border-b border-gray-200">
-              <h3 class="font-bold text-gray-900">Emergency Contact</h3>
-            </div>
-            <div class="p-5 space-y-4">
-              <div v-for="contact in emergencyContacts.filter(c => c.isPrimary)" :key="contact.id">
-                <p class="text-xs font-semibold text-gray-500 uppercase">Primary Contact</p>
-                <p class="text-sm font-bold text-gray-900 mt-1">{{ contact.name }}</p>
-                <p class="text-sm text-gray-600 mt-1">{{ contact.relationship }}</p>
-                <p class="text-sm font-mono text-blue-600 mt-2">{{ contact.phone }}</p>
+          <!-- Patient Basic Info -->
+          <div class="flex-1 pt-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <p class="text-xs font-semibold text-emerald-50 uppercase tracking-wider">Full Name</p>
+                <p class="text-lg font-bold text-white mt-1">{{ fullName }}</p>
               </div>
-              <div class="pt-3 border-t border-gray-100">
-                <div v-for="contact in emergencyContacts.filter(c => !c.isPrimary)" :key="contact.id">
-                  <p class="text-xs font-semibold text-gray-500 uppercase">Secondary Contact</p>
-                  <p class="text-sm font-bold text-gray-900 mt-1">{{ contact.name }}</p>
-                  <p class="text-sm text-gray-600 mt-1">{{ contact.relationship }}</p>
-                  <p class="text-sm font-mono text-blue-600 mt-2">{{ contact.phone }}</p>
-                </div>
+              <div>
+                <p class="text-xs font-semibold text-emerald-50 uppercase tracking-wider">Medical Record No.</p>
+                <p class="text-lg font-mono text-white mt-1">{{ patient.medical_record_number }}</p>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Middle Column -->
-        <div class="space-y-6">
-          <!-- Clinical Alerts -->
-          <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-            <div class="bg-red-50 px-5 py-3 border-b border-red-200">
-              <h3 class="font-bold text-red-900">⚠️ Clinical Alerts</h3>
-            </div>
-            <div class="p-5 space-y-3">
-              <div v-for="alert in alerts" :key="alert.id" :class="`p-3 border-l-4 rounded ${
-                alert.severity === 'severe' ? 'bg-red-50 border-red-500' : 
-                alert.severity === 'warning' ? 'bg-amber-50 border-amber-500' :
-                'bg-orange-50 border-orange-500'
-              }`">
-                <p :class="`text-xs font-bold uppercase ${
-                  alert.severity === 'severe' ? 'text-red-700' : 
-                  alert.severity === 'warning' ? 'text-amber-700' :
-                  'text-orange-700'
-                }`">{{ alert.title }}</p>
-                <p :class="`text-sm font-medium mt-1 ${
-                  alert.severity === 'severe' ? 'text-red-900' : 
-                  alert.severity === 'warning' ? 'text-amber-900' :
-                  'text-orange-900'
-                }`">{{ alert.message }}</p>
-                <p :class="`text-xs mt-1 ${
-                  alert.severity === 'severe' ? 'text-red-700' : 
-                  alert.severity === 'warning' ? 'text-amber-700' :
-                  'text-orange-700'
-                }`">{{ alert.description }}</p>
+              <div>
+                <p class="text-xs font-semibold text-emerald-50 uppercase tracking-wider">Age / Gender</p>
+                <p class="text-lg font-bold text-white mt-1">{{ age }} yrs &bull; {{ patient.gender }}</p>
               </div>
-            </div>
-          </div>
-
-          <!-- Primary Physician -->
-          <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-            <div class="bg-gray-50 px-5 py-3 border-b border-gray-200">
-              <h3 class="font-bold text-gray-900">Primary Physician</h3>
-            </div>
-            <div class="p-5">
-              <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-full bg-linear-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold">
-                  {{ primaryPhysician.initials }}
-                </div>
-                <div class="flex-1">
-                  <p class="font-bold text-gray-900">{{ primaryPhysician.name }}, {{ primaryPhysician.title }}</p>
-                  <p class="text-sm text-gray-600 mt-1">{{ primaryPhysician.specialties.join(' & ') }}</p>
-                  <p class="text-sm text-blue-600 mt-2">📞 Ext. {{ primaryPhysician.extension }}</p>
-                  <p class="text-sm text-blue-600">📧 {{ primaryPhysician.email }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Column -->
-        <div class="space-y-6">
-          <!-- Current Medications -->
-          <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-            <div class="bg-gray-50 px-5 py-3 border-b border-gray-200">
-              <h3 class="font-bold text-gray-900">Current Medications</h3>
-            </div>
-            <div class="p-5 space-y-3">
-              <div v-for="med in medications" :key="med.id" :class="{
-                'pb-3 border-b border-gray-100': med.id !== medications.length
-              }">
-                <p class="text-sm font-medium text-gray-900">{{ med.name }} {{ med.dose }}</p>
-                <p class="text-xs text-gray-600 mt-1">{{ med.frequency }} • {{ med.indication }}</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Last Visit -->
-          <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-            <div class="bg-gray-50 px-5 py-3 border-b border-gray-200">
-              <h3 class="font-bold text-gray-900">Last Visit</h3>
-            </div>
-            <div class="p-5 space-y-3">
-              <div class="flex justify-between items-start pb-3 border-b border-gray-100">
-                <span class="text-sm text-gray-600">Date</span>
-                <span class="text-sm font-medium text-gray-900">{{ formatDate(lastVisit.date) }}</span>
-              </div>
-              <div class="flex justify-between items-start pb-3 border-b border-gray-100">
-                <span class="text-sm text-gray-600">Department</span>
-                <span class="text-sm font-medium text-gray-900">{{ lastVisit.department }}</span>
-              </div>
-              <div class="flex justify-between items-start">
-                <span class="text-sm text-gray-600">Status</span>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  {{ lastVisit.status }}
+              <div>
+                <p class="text-xs font-semibold text-emerald-50 uppercase tracking-wider">Patient Type</p>
+                <span class="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">
+                  <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+                  {{ patientCase.patient_type }}
                 </span>
               </div>
             </div>
           </div>
         </div>
-
       </div>
+    </div>
 
-      <!-- Medical History Section -->
-      <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-          <h3 class="font-bold text-gray-900 text-lg">Medical History</h3>
+    <!-- Vital Signs -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div v-for="stat in vitalStats" :key="stat.label" class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200 flex items-start gap-3">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" :style="{ backgroundColor: stat.bgColor }">
+          <component :is="stat.icon" :style="{ color: stat.color }" size="18" />
         </div>
-        <div class="p-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Chronic Conditions -->
-            <div>
-              <h4 class="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
-                <span class="w-1 h-6 bg-blue-600 rounded"></span>
-                Chronic Conditions
-              </h4>
-              <ul class="space-y-2">
-                <li v-for="(condition, index) in medicalHistory.chronicConditions" :key="index" class="flex items-start gap-3">
-                  <span class="text-blue-600 font-bold mt-0.5">•</span>
-                  <span class="text-sm text-gray-700">{{ condition }}</span>
-                </li>
-              </ul>
-            </div>
+        <div class="min-w-0">
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">{{ stat.label }}</p>
+          <p class="text-xl font-bold text-slate-900 mt-1">{{ stat.value }}</p>
+        </div>
+      </div>
+    </div>
+    <p class="text-xs text-slate-400 -mt-3">Last measured {{ formatDateTime(vitals.measured_at) }}</p>
 
-            <!-- Surgical History -->
-            <div>
-              <h4 class="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
-                <span class="w-1 h-6 bg-green-600 rounded"></span>
-                Surgical History
-              </h4>
-              <div class="space-y-3">
-                <div v-for="(surgery, index) in medicalHistory.surgicalHistory" :key="index" :class="{
-                  'pb-3 border-b border-gray-100': index !== medicalHistory.surgicalHistory.length - 1
-                }">
-                  <p class="text-sm font-medium text-gray-900">{{ surgery.procedure }}</p>
-                  <p class="text-xs text-gray-500 mt-1">{{ formatDate(surgery.date) }} • {{ surgery.specialty }}</p>
-                </div>
-              </div>
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Left Column -->
+      <div class="space-y-6">
+        <!-- Personal & Contact Information -->
+        <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <header class="px-5 py-4 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
+              <FiUser class="text-white" size="14" />
+            </div>
+            <h3 class="text-sm font-bold text-slate-800">Personal &amp; Contact Information</h3>
+          </header>
+          <div class="p-5 space-y-3.5">
+            <div v-for="row in personalInfo" :key="row.label" class="flex justify-between items-start gap-4 pb-3.5 border-b border-slate-100 last:border-0 last:pb-0">
+              <span class="text-sm text-slate-500 shrink-0">{{ row.label }}</span>
+              <span class="text-sm font-medium text-slate-800 text-right">{{ row.value }}</span>
             </div>
           </div>
-        </div>
+        </section>
+      </div>
+
+      <!-- Middle Column -->
+      <div class="space-y-6">
+        <!-- Admission Details & Diagnosis -->
+        <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <header class="px-5 py-4 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
+              <FiCalendar class="text-white" size="14" />
+            </div>
+            <h3 class="text-sm font-bold text-slate-800">Admission Details &amp; Diagnosis</h3>
+          </header>
+          <div class="p-5 space-y-3.5">
+            <div class="flex justify-between items-start pb-3.5 border-b border-slate-100">
+              <span class="text-sm text-slate-500">Case Number</span>
+              <span class="text-sm font-mono font-medium text-slate-800">{{ patientCase.case_number }}</span>
+            </div>
+            <div class="flex justify-between items-start pb-3.5 border-b border-slate-100">
+              <span class="text-sm text-slate-500">Admission Date</span>
+              <span class="text-sm font-medium text-slate-800">{{ formatDateTime(patientCase.admission_datetime) }}</span>
+            </div>
+            <div class="pb-3.5 border-b border-slate-100">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Chief Complaint</span>
+              <p class="text-sm font-medium text-slate-800 mt-1">{{ patientCase.chief_complaint }}</p>
+            </div>
+            <div class="pb-3.5 border-b border-slate-100">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Initial Diagnosis</span>
+              <p class="text-sm font-medium text-slate-800 mt-1">{{ patientCase.initial_diagnosis }}</p>
+            </div>
+            <div>
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Final Diagnosis</span>
+              <p class="text-sm font-medium text-slate-800 mt-1">{{ patientCase.final_diagnosis }}</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Column -->
+      <div class="space-y-6">
+        <!-- Family & Background -->
+        <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <header class="px-5 py-4 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
+              <FiUsers class="text-white" size="14" />
+            </div>
+            <h3 class="text-sm font-bold text-slate-800">Family &amp; Background</h3>
+          </header>
+          <div class="p-5 space-y-3.5">
+            <div v-for="row in familyInfo" :key="row.label" class="flex justify-between items-start gap-4 pb-3.5 border-b border-slate-100 last:border-0 last:pb-0">
+              <span class="text-sm text-slate-500 shrink-0">{{ row.label }}</span>
+              <span class="text-sm font-medium text-slate-800 text-right">{{ row.value }}</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Ward Assignment -->
+        <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <header class="px-5 py-4 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
+              <FiMapPin class="text-white" size="14" />
+            </div>
+            <h3 class="text-sm font-bold text-slate-800">Ward Assignment</h3>
+          </header>
+          <div class="p-5 space-y-3.5">
+            <div class="flex justify-between items-start pb-3.5 border-b border-slate-100">
+              <span class="text-sm text-slate-500">Ward</span>
+              <span class="text-sm font-medium text-slate-800">{{ assignment.ward }}</span>
+            </div>
+            <div class="flex justify-between items-start pb-3.5 border-b border-slate-100">
+              <span class="text-sm text-slate-500">Station</span>
+              <span class="text-sm font-medium text-slate-800">{{ assignment.station }}</span>
+            </div>
+            <div class="flex justify-between items-start pb-3.5 border-b border-slate-100">
+              <span class="text-sm text-slate-500">Room</span>
+              <span class="text-sm font-medium text-slate-800">{{ assignment.room }}</span>
+            </div>
+            <div class="flex justify-between items-start">
+              <span class="text-sm text-slate-500">Bed</span>
+              <span class="text-sm font-medium text-slate-800">{{ assignment.bed }}</span>
+            </div>
+          </div>
+        </section>
       </div>
 
     </div>
+
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
+import { FiUser, FiUsers, FiCalendar, FiEdit2, FiPrinter, FiMapPin, FiHeart, FiActivity, FiThermometer, FiDroplet } from 'vue-icons-plus/fi';
+import { FaWeight } from 'vue-icons-plus/fa';
 
-// Patient data
+// Static placeholder data shaped exactly like the `patients` table columns.
 const patient = ref({
-  id: 'PT-2024-0089',
-  firstName: 'Jonathan',
-  lastName: 'Smith',
-  middleInitial: 'R',
-  dateOfBirth: '1985-05-12',
+  medical_record_number: 'MRN-2GX8QK3F',
+  firstname: 'Jonathan',
+  lastname: 'Smith',
+  middlename: 'Reyes',
+  suffix: null,
+  birthdate: '1985-05-12',
   gender: 'Male',
-  bloodType: 'O Negative',
-  contact: '+1 (555) 123-4567',
-  email: 'jonathan.smith@email.com',
-  status: 'Active',
-  initials: 'JS'
+  civil_status: 'Married',
+  contact_number: '+63 917 123 4567',
+  email_address: 'jonathan.smith@email.com',
+  religion: 'Roman Catholic',
+  birthplace: 'Tacloban City, Leyte',
+  occupation: 'Civil Engineer',
+  spouse_name: 'Martha Smith'
 });
 
+// Static placeholder data shaped like the `patient_cases` table columns.
+const patientCase = ref({
+  case_number: 'CASE-8X8L1LKJ',
+  patient_type: 'In-Patient',
+  admission_datetime: '2026-08-04 07:37:00',
+  chief_complaint: 'Persistent chest pain and shortness of breath',
+  initial_diagnosis: 'Suspected Acute Coronary Syndrome',
+  final_diagnosis: 'Stable Angina Pectoris'
+});
+
+// Static placeholder data shaped like the `vital_signs` table columns.
 const vitals = ref({
-  bloodPressure: '120/80',
-  heartRate: 72,
-  temperature: '98.6°F',
+  temperature: 36.8,
+  heart_rate: 78,
+  respiratory_rate: 18,
+  systolic: 120,
+  diastolic: 80,
+  oxygen_saturation: 98,
   weight: 82,
-  bmi: 26.8
+  height: 172,
+  bmi: 27.7,
+  measured_at: '2026-08-07 06:15:00'
 });
 
-const allergies = ref([
-  {
-    id: 1,
-    name: 'Penicillin',
-    severity: 'severe',
-    reaction: 'Can cause Anaphylaxis',
-    type: 'Severe Allergy'
-  }
-]);
-
-const alerts = ref([
-  {
-    id: 1,
-    type: 'allergy',
-    severity: 'severe',
-    title: 'Severe Allergy',
-    message: 'Penicillin',
-    description: 'Can cause Anaphylaxis'
-  },
-  {
-    id: 2,
-    type: 'fall_risk',
-    severity: 'warning',
-    title: 'Fall Risk',
-    message: 'High Risk',
-    description: 'Requires assistance when mobilizing'
-  },
-  {
-    id: 3,
-    type: 'drug_interaction',
-    severity: 'warning',
-    title: 'Drug Interaction',
-    message: 'Warfarin + NSAIDs',
-    description: 'Monitor INR closely'
-  }
-]);
-
-const medications = ref([
-  {
-    id: 1,
-    name: 'Metformin',
-    dose: '1000mg',
-    frequency: 'Twice daily',
-    indication: 'Diabetes'
-  },
-  {
-    id: 2,
-    name: 'Lisinopril',
-    dose: '10mg',
-    frequency: 'Once daily',
-    indication: 'Hypertension'
-  },
-  {
-    id: 3,
-    name: 'Albuterol Inhaler',
-    dose: 'Variable',
-    frequency: 'As needed',
-    indication: 'Asthma'
-  },
-  {
-    id: 4,
-    name: 'Vitamin D3',
-    dose: '2000 IU',
-    frequency: 'Once daily',
-    indication: 'Supplement'
-  }
-]);
-
-const medicalHistory = ref({
-  chronicConditions: [
-    'Type 2 Diabetes Mellitus',
-    'Hypertension (Stage 1)',
-    'Asthma (Exercise Induced)',
-    'Hyperlipidemia'
-  ],
-  surgicalHistory: [
-    {
-      procedure: 'Appendectomy',
-      date: '2018-03-10',
-      specialty: 'General Surgery'
-    },
-    {
-      procedure: 'ACL Repair (Left Knee)',
-      date: '2012-06-15',
-      specialty: 'Orthopedic Surgery'
-    },
-    {
-      procedure: 'Wisdom Teeth Extraction',
-      date: '2008-09-20',
-      specialty: 'Oral Surgery'
-    }
-  ]
+// Static placeholder data shaped like the bed/room/ward/station hierarchy.
+const assignment = ref({
+  ward: 'Medical Ward',
+  station: 'Station A',
+  room: '305A',
+  bed: 'Bed 2'
 });
 
-const emergencyContacts = ref([
-  {
-    id: 1,
-    name: 'Martha Smith',
-    relationship: 'Spouse',
-    phone: '+1 (555) 012-3456',
-    isPrimary: true
-  },
-  {
-    id: 2,
-    name: 'Robert Smith Jr.',
-    relationship: 'Son',
-    phone: '+1 (555) 098-7654',
-    isPrimary: false
-  }
-]);
-
-const primaryPhysician = ref({
-  id: 1,
-  name: 'Dr. Sarah Jenkins',
-  title: 'MD',
-  specialties: ['Cardiology', 'Internal Medicine'],
-  extension: '2456',
-  email: 's.jenkins@hospital.com',
-  initials: 'SJ'
+const fullName = computed(() => {
+  const middle = patient.value.middlename ? `${patient.value.middlename.charAt(0)}.` : '';
+  const suffix = patient.value.suffix ? ` ${patient.value.suffix}` : '';
+  return [patient.value.firstname, middle, `${patient.value.lastname}${suffix}`].filter(Boolean).join(' ');
 });
 
-const lastVisit = ref({
-  date: '2025-01-15',
-  department: 'Cardiology',
-  status: 'Completed',
-  notes: 'Regular checkup completed successfully'
-});
+const initials = computed(() => `${patient.value.firstname.charAt(0)}${patient.value.lastname.charAt(0)}`.toUpperCase());
 
-// Computed property for age
 const age = computed(() => {
   const today = new Date();
-  const birthDate = new Date(patient.value.dateOfBirth);
-  let age = today.getFullYear() - birthDate.getFullYear();
+  const birthDate = new Date(patient.value.birthdate);
+  let years = today.getFullYear() - birthDate.getFullYear();
   const monthDiff = today.getMonth() - birthDate.getMonth();
-  
+
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-    age--;
+    years--;
   }
-  
-  return age;
+
+  return years;
 });
+
+const personalInfo = computed(() => [
+  { label: 'Date of Birth', value: formatDate(patient.value.birthdate) },
+  { label: 'Gender', value: patient.value.gender },
+  { label: 'Civil Status', value: patient.value.civil_status },
+  { label: 'Religion', value: patient.value.religion },
+  { label: 'Birthplace', value: patient.value.birthplace },
+  { label: 'Contact Number', value: patient.value.contact_number },
+  { label: 'Email Address', value: patient.value.email_address }
+]);
+
+const familyInfo = computed(() => [
+  { label: 'Occupation', value: patient.value.occupation },
+  { label: 'Spouse Name', value: patient.value.spouse_name || '—' }
+]);
+
+const vitalStats = computed(() => [
+  {
+    label: 'Blood Pressure',
+    value: `${vitals.value.systolic}/${vitals.value.diastolic}`,
+    icon: FiHeart,
+    bgColor: '#ecfdf5',
+    color: '#059669'
+  },
+  {
+    label: 'Heart Rate',
+    value: `${vitals.value.heart_rate} bpm`,
+    icon: FiActivity,
+    bgColor: '#eff6ff',
+    color: '#3b82f6'
+  },
+  {
+    label: 'Temperature',
+    value: `${vitals.value.temperature}°C`,
+    icon: FiThermometer,
+    bgColor: '#fdf4ff',
+    color: '#a855f7'
+  },
+  {
+    label: 'O2 Saturation',
+    value: `${vitals.value.oxygen_saturation}%`,
+    icon: FiDroplet,
+    bgColor: '#fef2f2',
+    color: '#dc2626'
+  },
+  {
+    label: 'Weight / BMI',
+    value: `${vitals.value.weight}kg (${vitals.value.bmi})`,
+    icon: FaWeight,
+    bgColor: '#fffbeb',
+    color: '#d97706'
+  }
+]);
 
 // Methods
 const editProfile = () => {
@@ -456,28 +321,14 @@ const printSummary = () => {
 };
 
 const formatDate = (dateString) => {
+  if (!dateString) return '—';
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
-const getSeverityColor = (severity) => {
-  const colors = {
-    severe: 'red',
-    warning: 'amber',
-    info: 'teal'
-  };
-  return colors[severity] || 'gray';
+const formatDateTime = (dateString) => {
+  if (!dateString) return '—';
+  const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+  return new Date(dateString).toLocaleString(undefined, options);
 };
 </script>
-
-<style scoped>
-.gradient-header {
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-}
-
-@media print {
-  .hidden-print {
-    display: none;
-  }
-}
-</style>
