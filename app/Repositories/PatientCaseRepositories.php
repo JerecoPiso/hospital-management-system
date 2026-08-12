@@ -3,11 +3,27 @@
 namespace App\Repositories;
 
 use App\Models\Patient;
+use App\Models\PatientCase;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class PatientCaseRepositories
 {
+    public function searchByPid($pid)
+    {
+        try {
+            $patientCase = PatientCase::with(['patient'])->where('pid', $pid)->first();
+
+            if (!$patientCase) {
+                return [];
+            }
+
+            return $patientCase;
+        } catch (\Exception $e) {
+            throw new \Exception("An error has occured! " . $e->getMessage());
+        }
+    }
+
     public function store($data)
     {
         try {

@@ -7,6 +7,7 @@ export const useHistoryAndPhysicalExaminationFormTwoStore = defineStore("history
     const histories = ref<HistoryAndPhysicalExaminationFormTwo[]>([])
     const history = ref<HistoryAndPhysicalExaminationFormTwo>({
         pid: "",
+        patient_case_pid: "",
         general_appearance: "",
         general_appearance_others: "",
         skin: "",
@@ -37,10 +38,12 @@ export const useHistoryAndPhysicalExaminationFormTwoStore = defineStore("history
     })
     const create = async (data: HistoryAndPhysicalExaminationFormTwo) => {
         await axios.post(`${baseUrl}api/history-and-physical-examination-form-two`, data);
-        read();
+        read(data.patient_case_pid);
     }
-    const read = async () => {
-        const response = await axios.get(`${baseUrl}api/history-and-physical-examination-form-two`);
+    const read = async (patient_case_pid?: string) => {
+        const response = await axios.get(`${baseUrl}api/history-and-physical-examination-form-two`, {
+            params: patient_case_pid ? { patient_case_pid } : {}
+        });
         histories.value = response.data.data;
     }
     const view = async (pid: string) => {
@@ -49,11 +52,11 @@ export const useHistoryAndPhysicalExaminationFormTwoStore = defineStore("history
     }
     const update = async (data: HistoryAndPhysicalExaminationFormTwo) => {
         await axios.put(`${baseUrl}api/history-and-physical-examination-form-two/${data.pid}`, data);
-        read();
+        read(data.patient_case_pid);
     }
-    const archive = async (pid: string) => {
+    const archive = async (pid: string, patient_case_pid?: string) => {
         await axios.delete(`${baseUrl}api/history-and-physical-examination-form-two/${pid}`);
-        read();
+        read(patient_case_pid);
     }
     return {
         archive,

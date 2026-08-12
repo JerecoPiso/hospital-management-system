@@ -1,5 +1,11 @@
 <template>
-    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <div v-if="!patientCasePid" class="bg-white rounded-xl border border-slate-200 shadow-sm p-16 flex flex-col items-center justify-center text-slate-400">
+        <BsJournalMedical size="40" class="mb-3 opacity-30" />
+        <p class="text-sm font-medium">No patient selected</p>
+        <p class="text-xs mt-1">Open this page from a patient's chart via the Inpatients or Outpatients list.</p>
+    </div>
+
+    <div v-else class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
         <Dialog v-model:visible="noteModal" modal :style="{ width: '48vw' }"
             :breakpoints="{ '1199px': '75vw', '575px': '95vw' }"
             :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
@@ -185,6 +191,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, reactive, watch, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { BsPlusCircle, BsJournalMedical } from 'vue-icons-plus/bs';
 import { BiEdit, BiTrash } from 'vue-icons-plus/bi';
 import { NursesNotes } from '@/interface/Interfaces';
@@ -192,13 +199,16 @@ import { useNursesNotesStore } from '@/store/patientchart/NursesNotes';
 import { useConfirmToast } from '@/composables/confirm';
 import { useAppToast } from '@/composables/toast';
 
+const route = useRoute();
 const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
 const nursesNotesStore = useNursesNotesStore();
 const nursesNotes = computed<NursesNotes[]>(() => nursesNotesStore.nursesNotes);
 const nurseNote = computed<NursesNotes>(() => nursesNotesStore.nursesNote);
+const patientCasePid = computed(() => route.params.patient_case_pid as string | undefined);
 const nursesNotesInfo = reactive<NursesNotes>({
     pid: "",
+    patient_case_pid: "",
     focus: "",
     data: "",
     action: "",
@@ -214,6 +224,7 @@ watch(
             isUpdate.value = false;
             Object.assign(nursesNotesInfo, {
                 pid: "",
+                patient_case_pid: "",
                 focus: "",
                 data: "",
                 action: "",
@@ -229,8 +240,9 @@ onMounted(async () => {
 });
 
 const read = async () => {
+    if (!patientCasePid.value) return;
     try {
-        await nursesNotesStore.read();
+        await nursesNotesStore.read(patientCasePid.value);
     } catch (err: any) {
         toast.error(err.response?.data?.message || "Failed to retrieve Nurse's Notes");
     }
@@ -238,6 +250,7 @@ const read = async () => {
 
 const create = async () => {
     try {
+        nursesNotesInfo.patient_case_pid = patientCasePid.value || "";
         await nursesNotesStore.create(nursesNotesInfo);
         toast.success("Nurse's Note created successfully");
         noteModal.value = false;
@@ -249,7 +262,7 @@ const create = async () => {
 const view = async (pid: string) => {
     try {
         await nursesNotesStore.view(pid);
-        Object.assign(nursesNotesInfo, nurseNote.value);
+        Object.assign(nursesNotesInfo, nurseNote.value, { patient_case_pid: patientCasePid.value || "" });
         isUpdate.value = true;
         noteModal.value = true;
     } catch (err: any) {
@@ -259,6 +272,7 @@ const view = async (pid: string) => {
 
 const update = async () => {
     try {
+        nursesNotesInfo.patient_case_pid = patientCasePid.value || "";
         await nursesNotesStore.update(nursesNotesInfo);
         toast.success("Nurse's Note updated successfully");
         noteModal.value = false;
@@ -273,7 +287,7 @@ const archive = async (pid: string) => {
         header: "Delete Confirmation",
         onAccept: async () => {
             try {
-                await nursesNotesStore.archive(pid);
+                await nursesNotesStore.archive(pid, patientCasePid.value);
                 toast.success("Nurse's Note deleted successfully");
             } catch (err: any) {
                 toast.error(err.response?.data?.message || "Failed to delete Nurse's Note");

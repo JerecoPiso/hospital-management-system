@@ -3,13 +3,21 @@
 namespace App\Traits;
 
 use App\Http\Requests\NursesNotes\StoreRequest;
+use Illuminate\Http\Request;
 
 trait NursesNotesTrait
 {
-    public function list()
+    public function list(Request $request)
     {
         try {
-            $notes = $this->nurseNotesRepo->list([]);
+            $filters = [];
+            if ($request->has('patient_case_pid') || filled($request->input('patient_case_pid'))) {
+                $note = $this->patientCaseRepo->searchByPid($request->input('patient_case_pid'));
+                if ($note) {
+                    $filters['patient_case_id'] = $note->id;
+                }
+            }
+            $notes = $this->nurseNotesRepo->list($filters);
             return api_response($notes, true, "Success", 200);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);

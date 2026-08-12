@@ -1,11 +1,15 @@
 export interface DoctorsOrder {
     pid?: string;
+    patient_case_pid: string;
+    patientCase?: PatientCase;
     order: string;
     progress_notes: string;
 }
 
 export interface NursesNotes {
     pid?: string;
+    patient_case_pid: string;
+    patientCase?: PatientCase;
     focus: string;
     data: string;
     action: string;
@@ -14,6 +18,8 @@ export interface NursesNotes {
 
 export interface VitalSigns {
     pid?: string;
+    patient_case_pid: string;
+    patientCase?: PatientCase;
     type?: string;
     measured_at?: Date | null;
     systolic?: string | null;
@@ -113,6 +119,8 @@ export interface Prescription {
 
 export interface HistoryAndPhysicalExaminationFormOne {
     pid?: string;
+    patient_case_pid: string;
+    patientCase?: PatientCase;
     chief_complaint: string;
     history_of_present_illness: string;
     past_medical_history?: string;
@@ -137,6 +145,8 @@ export interface HistoryAndPhysicalExaminationFormOne {
 
 export interface HistoryAndPhysicalExaminationFormTwo {
     pid?: string;
+    patient_case_pid: string;
+    patientCase?: PatientCase;
     general_appearance?: string;
     general_appearance_others?: string;
     skin?: string;

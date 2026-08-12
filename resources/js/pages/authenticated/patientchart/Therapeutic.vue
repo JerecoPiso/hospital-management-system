@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!patientPid" class="bg-white rounded-xl border border-slate-200 shadow-sm p-16 flex flex-col items-center justify-center text-slate-400">
+    <div v-if="!patientCasePid" class="bg-white rounded-xl border border-slate-200 shadow-sm p-16 flex flex-col items-center justify-center text-slate-400">
         <GiMedicines size="40" class="mb-3 opacity-30" />
         <p class="text-sm font-medium">No patient selected</p>
         <p class="text-xs mt-1">Open this page from a patient's chart via the Inpatients or Outpatients list.</p>
@@ -183,7 +183,7 @@ import { BsPlusCircle } from 'vue-icons-plus/bs';
 import { BiEdit, BiTrash } from 'vue-icons-plus/bi';
 import { GiMedicines } from 'vue-icons-plus/gi';
 import { usePrescriptionStore } from '@/store/patientchart/Prescriptions';
-import { usePatientStore } from '@/store/patients/PatientRegistration';
+import { usePatientCaseStore } from '@/store/patients/PatientCase';
 import { useMedicineStore } from '@/store/Medicine';
 import { Prescription, PrescriptionItem, Medicines } from '@/interface/Interfaces';
 import { useConfirmToast } from '@/composables/confirm';
@@ -193,19 +193,15 @@ const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
 const route = useRoute();
 const prescriptionStore = usePrescriptionStore();
-const patientStore = usePatientStore();
+const patientCaseStore = usePatientCaseStore();
 const medicineStore = useMedicineStore();
 
-const patientPid = computed(() => route.params.patient_pid as string | undefined);
-const patient = computed(() => patientStore.patient);
+const patientCasePid = computed(() => route.params.patient_case_pid as string | undefined);
+const currentCase = computed(() => patientCaseStore.patientCase);
+const patient = computed(() => currentCase.value?.patient);
 const medicines = computed<Medicines[]>(() => medicineStore.medicines);
 const prescriptions = computed<Prescription[]>(() => prescriptionStore.prescriptions);
 
-const currentCase = computed(() => {
-    const cases = patient.value?.patient_cases;
-    return cases && cases.length ? cases[cases.length - 1] : null;
-});
-const patientCasePid = computed(() => currentCase.value?.pid || '');
 const patientName = computed(() => `${patient.value?.firstname ?? ''} ${patient.value?.lastname ?? ''}`.trim() || '—');
 
 const medicineOptionLabel = (data: Medicines) => `${data.name}${data.dosage ? ' — ' + data.dosage + (data.dosage_unit || '') : ''}`;
@@ -259,10 +255,9 @@ const statusSeverity = (status?: string) => {
 const formatDateTime = (value?: string) => (value ? new Date(value).toLocaleString() : '—');
 
 const loadContext = async () => {
-    if (!patientPid.value) return;
+    if (!patientCasePid.value) return;
     try {
-        await patientStore.view(patientPid.value);
-        console.log("Patient loaded:", patientStore.patient);
+        await patientCaseStore.view(patientCasePid.value);
     } catch (err: any) {
         toast.error(err.response?.data?.message || 'Failed to load patient');
     }
@@ -294,7 +289,7 @@ const openCreate = () => {
 
 const create = async () => {
     try {
-        info.patient_case_pid = patientCasePid.value;
+        info.patient_case_pid = patientCasePid.value || '';
         await prescriptionStore.create(info);
         toast.success('Prescription created successfully');
         modalOpen.value = false;
@@ -309,7 +304,7 @@ const edit = async (pid: string) => {
         await prescriptionStore.view(pid);
         const view = prescriptionStore.prescription;
         Object.assign(info, view, {
-            patient_case_pid: patientCasePid.value,
+            patient_case_pid: patientCasePid.value || '',
             items: (view.items || []).map((item) => ({ ...item, medicine_pid: item.medicine?.pid || item.medicine_pid }))
         });
         prescriptionDateModel.value = info.prescription_date ? new Date(info.prescription_date) : null;

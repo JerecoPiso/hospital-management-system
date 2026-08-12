@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('pid')->unique();
             $table->foreignId('patient_case_id')
                 ->constrained('patient_cases')
-                ->restrictOnDelete();
+                ->cascadeOnDelete();
             $table->foreignId('doctor_id')
                 ->constrained('users')
-                ->restrictOnDelete();
+                ->cascadeOnDelete();
             $table->dateTime('prescription_date');
             $table->text('remarks')->nullable();
             $table->enum('status', [

@@ -214,7 +214,7 @@ const route = useRoute();
 const sidebarOpen = ref(true);
 const profileOpen = ref(false);
 const activeNav = computed(() => route.name);
-const chartParams = computed(() => (route.params.patient_pid ? { patient_pid: route.params.patient_pid } : {}));
+const chartParams = computed(() => (route.params.patient_case_pid ? { patient_case_pid: route.params.patient_case_pid } : {}));
 const sidebarExpanded = ref(true);
 const expandedMenu = ref(null);
 const navItems = [

@@ -62,7 +62,7 @@ const router = createRouter({
             ],
         },
         {
-            path: "/patientchart/:patient_pid?",
+            path: "/patientchart/:patient_case_pid?",
             name: "PatientChart",
             component: () => import("../pages/authenticated/patientchart/PatientChart.vue"),
             meta: { requiresAuth: true },

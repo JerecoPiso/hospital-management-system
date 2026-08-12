@@ -13,7 +13,7 @@ class NursesNote extends Model
     use SoftDeletes;
 
     protected $guarded = ['id'];
-    protected $hidden = ['id', 'user_id', 'deleted_at', 'created_at', 'updated_at'];
+    protected $hidden = ['id', 'user_id', 'patient_case_id', 'deleted_at', 'created_at', 'updated_at'];
 
 
     protected static function boot()
@@ -28,6 +28,11 @@ class NursesNote extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function patientCase(): BelongsTo
+    {
+        return $this->belongsTo(PatientCase::class);
     }
 
 }

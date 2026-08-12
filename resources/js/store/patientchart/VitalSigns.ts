@@ -7,6 +7,7 @@ export const useVitalSignsStore = defineStore("vitalSigns", () => {
     const vitalSigns = ref<VitalSigns[]>([])
     const vitalSign = ref<VitalSigns>({
         pid: "",
+        patient_case_pid: "",
         type: "opr",
         measured_at: null,
         systolic: null,
@@ -35,10 +36,12 @@ export const useVitalSignsStore = defineStore("vitalSigns", () => {
     })
     const create = async (data: VitalSigns) => {
         await axios.post(`${baseUrl}api/vital-signs`, data);
-        read();
+        read(data.patient_case_pid);
     }
-    const read = async () => {
-        const response = await axios.get(`${baseUrl}api/vital-signs`);
+    const read = async (patient_case_pid?: string) => {
+        const response = await axios.get(`${baseUrl}api/vital-signs`, {
+            params: patient_case_pid ? { patient_case_pid } : {}
+        });
         vitalSigns.value = response.data.data;
     }
     const view = async (pid: string) => {
@@ -47,11 +50,11 @@ export const useVitalSignsStore = defineStore("vitalSigns", () => {
     }
     const update = async (data: VitalSigns) => {
         await axios.put(`${baseUrl}api/vital-signs/${data.pid}`, data);
-        read();
+        read(data.patient_case_pid);
     }
-    const archive = async (pid: string) => {
+    const archive = async (pid: string, patient_case_pid?: string) => {
         await axios.delete(`${baseUrl}api/vital-signs/${pid}`);
-        read();
+        read(patient_case_pid);
     }
     return {
         archive,

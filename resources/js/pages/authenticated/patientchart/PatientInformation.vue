@@ -1,5 +1,15 @@
 <template>
-  <div class="space-y-6 mb-12">
+  <div v-if="!patientCasePid" class="bg-white rounded-xl border border-slate-200 shadow-sm p-16 flex flex-col items-center justify-center text-slate-400">
+    <FiUser size="40" class="mb-3 opacity-30" />
+    <p class="text-sm font-medium">No patient selected</p>
+    <p class="text-xs mt-1">Open this page from a patient's chart via the Inpatients or Outpatients list.</p>
+  </div>
+
+  <div v-else-if="!patient" class="bg-white rounded-xl border border-slate-200 shadow-sm p-16 flex flex-col items-center justify-center text-slate-400">
+    <p class="text-sm font-medium">Loading patient information...</p>
+  </div>
+
+  <div v-else class="space-y-6 mb-12">
 
     <!-- Header with Actions -->
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
@@ -50,7 +60,7 @@
                 <p class="text-xs font-semibold text-emerald-50 uppercase tracking-wider">Patient Type</p>
                 <span class="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">
                   <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
-                  {{ patientCase.patient_type }}
+                  {{ patientTypeLabel }}
                 </span>
               </div>
             </div>
@@ -183,36 +193,24 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { FiUser, FiUsers, FiCalendar, FiEdit2, FiPrinter, FiMapPin, FiHeart, FiActivity, FiThermometer, FiDroplet } from 'vue-icons-plus/fi';
 import { FaWeight } from 'vue-icons-plus/fa';
+import { usePatientCaseStore } from '@/store/patients/PatientCase';
+import { useAppToast } from '@/composables/toast';
 
-// Static placeholder data shaped exactly like the `patients` table columns.
-const patient = ref({
-  medical_record_number: 'MRN-2GX8QK3F',
-  firstname: 'Jonathan',
-  lastname: 'Smith',
-  middlename: 'Reyes',
-  suffix: null,
-  birthdate: '1985-05-12',
-  gender: 'Male',
-  civil_status: 'Married',
-  contact_number: '+63 917 123 4567',
-  email_address: 'jonathan.smith@email.com',
-  religion: 'Roman Catholic',
-  birthplace: 'Tacloban City, Leyte',
-  occupation: 'Civil Engineer',
-  spouse_name: 'Martha Smith'
-});
+const route = useRoute();
+const toast = useAppToast();
+const patientCaseStore = usePatientCaseStore();
 
-// Static placeholder data shaped like the `patient_cases` table columns.
-const patientCase = ref({
-  case_number: 'CASE-8X8L1LKJ',
-  patient_type: 'In-Patient',
-  admission_datetime: '2026-08-04 07:37:00',
-  chief_complaint: 'Persistent chest pain and shortness of breath',
-  initial_diagnosis: 'Suspected Acute Coronary Syndrome',
-  final_diagnosis: 'Stable Angina Pectoris'
+const patientCasePid = computed(() => route.params.patient_case_pid);
+const patientCase = computed(() => patientCaseStore.patientCase);
+const patient = computed(() => patientCase.value?.patient);
+
+const patientTypeLabel = computed(() => {
+  const type = patientCase.value?.type;
+  return type ? `${type.charAt(0).toUpperCase()}${type.slice(1)}` : '—';
 });
 
 // Static placeholder data shaped like the `vital_signs` table columns.
@@ -310,6 +308,15 @@ const vitalStats = computed(() => [
     color: '#d97706'
   }
 ]);
+
+onMounted(async () => {
+  if (!patientCasePid.value) return;
+  try {
+    await patientCaseStore.view(patientCasePid.value);
+  } catch (err) {
+    toast.error(err.response?.data?.message || 'Failed to load patient information');
+  }
+});
 
 // Methods
 const editProfile = () => {

@@ -3,13 +3,21 @@
 namespace App\Traits;
 
 use App\Http\Requests\DoctorsOrder\StoreRequest;
+use Illuminate\Http\Request;
 
 trait DoctorsOrderTrait
 {
-    public function list()
+    public function list(Request $request)
     {
         try {
-            $orders = $this->doctorsOrderRepo->list([]);
+            $filters = [];
+            if ($request->has('patient_case_pid') || filled($request->input('patient_case_pid'))) {
+                $order = $this->patientCaseRepo->searchByPid($request->input('patient_case_pid'));
+                if ($order) {
+                    $filters['patient_case_id'] = $order->id;
+                }
+            }
+            $orders = $this->doctorsOrderRepo->list($filters);
             return api_response($orders, true, "Success", 200);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
@@ -33,7 +41,7 @@ trait DoctorsOrderTrait
             if (!$order) {
                 return api_response([], false, "Order not found", 404);
             }
-            return api_response( $order, true, "Success", 200);
+            return api_response($order, true, "Success", 200);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
         }

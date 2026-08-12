@@ -3,13 +3,21 @@
 namespace App\Traits;
 
 use App\Http\Requests\VitalSign\StoreRequest;
+use Illuminate\Http\Request;
 
 trait VitalSignTrait
 {
-    public function list()
+    public function list(Request $request)
     {
         try {
-            $vitalSigns = $this->vitalSignRepo->list([]);
+            $filters = [];
+            if ($request->has('patient_case_pid') || filled($request->input('patient_case_pid'))) {
+                $vitalSign = $this->patientCaseRepo->searchByPid($request->input('patient_case_pid'));
+                if ($vitalSign) {
+                    $filters['patient_case_id'] = $vitalSign->id;
+                }
+            }
+            $vitalSigns = $this->vitalSignRepo->list($filters);
             return api_response($vitalSigns, true, "Success", 200);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);

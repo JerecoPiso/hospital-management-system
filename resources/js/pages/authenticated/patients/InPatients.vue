@@ -121,8 +121,9 @@
           <button
             type="button"
             title="View patient chart"
-            @click="viewChart(data.pid)"
-            class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
+            :disabled="!data.patient_cases?.length"
+            @click="viewChart(data.patient_cases[data.patient_cases.length - 1].pid)"
+            class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <FiEye size="18" />
           </button>
@@ -190,7 +191,7 @@ onMounted(async () => {
   await read();
 });
 
-const viewChart = (pid: string) => {
-  router.push({ name: "PatientInformation", params: { patient_pid: pid } });
+const viewChart = (patientCasePid: string) => {
+  router.push({ name: "PatientInformation", params: { patient_case_pid: patientCasePid } });
 };
 </script>

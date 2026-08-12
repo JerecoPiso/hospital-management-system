@@ -3,13 +3,21 @@
 namespace App\Traits;
 
 use App\Http\Requests\HistoryAndPhysicalExaminationFormTwo\StoreRequest;
+use Illuminate\Http\Request;
 
 trait HistoryAndPhysicalExaminationFormTwoTrait
 {
-    public function list()
+    public function list(Request $request)
     {
         try {
-            $histories = $this->historyFormTwoRepo->list([]);
+            $filters = [];
+            if ($request->has('patient_case_pid') || filled($request->input('patient_case_pid'))) {
+                $history = $this->patientCaseRepo->searchByPid($request->input('patient_case_pid'));
+                if ($history) {
+                    $filters['patient_case_id'] = $history->id;
+                }
+            }
+            $histories = $this->historyFormTwoRepo->list($filters);
             return api_response($histories, true, "Success", 200);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);

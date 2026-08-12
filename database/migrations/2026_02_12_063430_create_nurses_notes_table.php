@@ -11,14 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('doctors_orders', function (Blueprint $table) {
+        Schema::create('nurses_notes', function (Blueprint $table) {
             $table->id();
             $table->string('pid')->unique();
+            $table->foreignId('patient_case_id')
+                ->constrained('patient_cases')
+                ->cascadeOnDelete();
             $table->foreignId('user_id')
                 ->constrained('users')
                 ->cascadeOnDelete();
-            $table->text(column: 'order');
-            $table->text('progress_notes')->nullable();
+            $table->text('focus');
+            $table->text('data');
+            $table->text('action');
+            $table->text('response')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
@@ -29,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('doctors_orders');
+        Schema::dropIfExists('nurses_notes');
     }
 };

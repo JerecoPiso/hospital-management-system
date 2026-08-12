@@ -15,6 +15,9 @@ return new class extends Migration
         Schema::create('vital_signs', function (Blueprint $table) {
             $table->id();
             $table->string('pid')->unique();
+            $table->foreignId('patient_case_id')
+                ->constrained('patient_cases')
+                ->cascadeOnDelete();
             $table->foreignId('user_id')
                 ->constrained('users')
                 ->cascadeOnDelete();

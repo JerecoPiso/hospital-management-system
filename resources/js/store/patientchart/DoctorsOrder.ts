@@ -7,15 +7,18 @@ export const useDoctorsOrderStore = defineStore("doctorsOrder", () => {
     const doctorsOrders = ref<DoctorsOrder[]>([])
     const doctorsOrder = ref<DoctorsOrder>({
         pid: "",
+        patient_case_pid: "",
         order: "",
         progress_notes: ""
     })
     const create = async (data: DoctorsOrder) => {
         await axios.post(`${baseUrl}api/doctors-order`, data);
-        read();
+        read(data.patient_case_pid);
     }
-    const read = async () => {
-        const response = await axios.get(`${baseUrl}api/doctors-order`);
+    const read = async (patient_case_pid?: string) => {
+        const response = await axios.get(`${baseUrl}api/doctors-order`, {
+            params: patient_case_pid ? { patient_case_pid } : {}
+        });
         doctorsOrders.value = response.data.data;
     }
     const view = async (pid: string) => {
@@ -24,11 +27,11 @@ export const useDoctorsOrderStore = defineStore("doctorsOrder", () => {
     }
     const update = async (data: DoctorsOrder) => {
         await axios.put(`${baseUrl}api/doctors-order/${data.pid}`, data);
-        read();
+        read(data.patient_case_pid);
     }
-    const archive = async (pid: string) => {
+    const archive = async (pid: string, patient_case_pid?: string) => {
         await axios.delete(`${baseUrl}api/doctors-order/${pid}`);
-        read();
+        read(patient_case_pid);
     }
     return {
         archive,

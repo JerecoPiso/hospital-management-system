@@ -7,6 +7,7 @@ export const useNursesNotesStore = defineStore("nursesNotes", () => {
     const nursesNotes = ref<NursesNotes[]>([])
     const nursesNote = ref<NursesNotes>({
         pid: "",
+        patient_case_pid: "",
         focus: "",
         data: "",
         action: "",
@@ -14,10 +15,12 @@ export const useNursesNotesStore = defineStore("nursesNotes", () => {
     })
     const create = async (data: NursesNotes) => {
         await axios.post(`${baseUrl}api/nurses-notes`, data);
-        read();
+        read(data.patient_case_pid);
     }
-    const read = async () => {
-        const response = await axios.get(`${baseUrl}api/nurses-notes`);
+    const read = async (patient_case_pid?: string) => {
+        const response = await axios.get(`${baseUrl}api/nurses-notes`, {
+            params: patient_case_pid ? { patient_case_pid } : {}
+        });
         nursesNotes.value = response.data.data;
     }
     const view = async (pid: string) => {
@@ -26,11 +29,11 @@ export const useNursesNotesStore = defineStore("nursesNotes", () => {
     }
     const update = async (data: NursesNotes) => {
         await axios.put(`${baseUrl}api/nurses-notes/${data.pid}`, data);
-        read();
+        read(data.patient_case_pid);
     }
-    const archive = async (pid: string) => {
+    const archive = async (pid: string, patient_case_pid?: string) => {
         await axios.delete(`${baseUrl}api/nurses-notes/${pid}`);
-        read();
+        read(patient_case_pid);
     }
     return {
         archive,

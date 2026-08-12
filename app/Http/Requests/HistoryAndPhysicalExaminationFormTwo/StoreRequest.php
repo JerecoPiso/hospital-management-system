@@ -25,6 +25,7 @@ class StoreRequest extends FormRequest
     {
         return [
             //
+            "patient_case_pid" => "required|string|exists:patient_cases,pid",
             "general_appearance" => "nullable|string",
             "general_appearance_others" => "nullable|string",
             "skin" => "nullable|string",

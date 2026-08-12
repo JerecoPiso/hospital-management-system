@@ -3,13 +3,20 @@
 namespace App\Repositories;
 
 use App\Models\NursesNote;
+use App\Models\PatientCase;
+use Illuminate\Support\Facades\DB;
 
 class NursesNotesRepositories
 {
 
     public function list($filter = [])
     {
-        $note = NursesNote::with(['user'])->orderBy('id', 'desc');
+        $note = NursesNote::with(['user', 'patientCase.patient'])->orderBy('id', 'desc');
+
+        if (!empty($filter['patient_case_id'])) {
+            $note->where('patient_case_id', $filter['patient_case_id']);
+        }
+
         $note = $note->get();
         return $note->toArray();
     }
@@ -32,9 +39,14 @@ class NursesNotesRepositories
     public function store($data)
     {
         try {
+            return DB::transaction(function () use ($data) {
+                $patientCase = PatientCase::where('pid', $data['patient_case_pid'])->firstOrFail();
+                unset($data['patient_case_pid']);
+                $data['patient_case_id'] = $patientCase->id;
 
-            $note = NursesNote::create($data);
-            return $note;
+                $note = NursesNote::create($data);
+                return $note->load(['patientCase.patient']);
+            });
         } catch (\Exception $e) {
             throw new \Exception("An error has occured! " . $e->getMessage());
         }
@@ -49,6 +61,12 @@ class NursesNotesRepositories
             }
 
             $note = NursesNote::findOrFail($note_id);
+
+            if (!empty($data['patient_case_pid'])) {
+                $data['patient_case_id'] = PatientCase::where('pid', $data['patient_case_pid'])->firstOrFail()->id;
+            }
+            unset($data['patient_case_pid']);
+
             $note->update($data);
 
             return $note;

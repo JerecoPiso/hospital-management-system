@@ -1,5 +1,11 @@
 <template>
-    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <div v-if="!patientCasePid" class="bg-white rounded-xl border border-slate-200 shadow-sm p-16 flex flex-col items-center justify-center text-slate-400">
+        <BsJournalMedical size="40" class="mb-3 opacity-30" />
+        <p class="text-sm font-medium">No patient selected</p>
+        <p class="text-xs mt-1">Open this page from a patient's chart via the Inpatients or Outpatients list.</p>
+    </div>
+
+    <div v-else class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
         <Dialog v-model:visible="orderModal" modal :style="{ width: '48vw' }"
             :breakpoints="{ '1199px': '75vw', '575px': '95vw' }"
             :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
@@ -156,6 +162,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { BsPlusCircle, BsJournalMedical } from 'vue-icons-plus/bs';
 import { BiEdit, BiTrash } from 'vue-icons-plus/bi';
 import { useDoctorsOrderStore } from '@/store/patientchart/DoctorsOrder';
@@ -163,14 +170,17 @@ import { DoctorsOrder } from '@/interface/Interfaces';
 import { useConfirmToast } from '@/composables/confirm';
 import { useAppToast } from "@/composables/toast";
 
+const route = useRoute();
 const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
 const doctorsOrderStore = useDoctorsOrderStore();
 const orderModal = ref<boolean>(false);
 const doctorsOrders = computed<DoctorsOrder[]>(() => doctorsOrderStore.doctorsOrders);
 const doctorsOrder = computed<DoctorsOrder>(() => doctorsOrderStore.doctorsOrder);
+const patientCasePid = computed(() => route.params.patient_case_pid as string | undefined);
 const doctorsOrderInfo = reactive<DoctorsOrder>({
     pid: "",
+    patient_case_pid: "",
     order: "",
     progress_notes: ""
 });
@@ -180,7 +190,7 @@ watch(
     () => orderModal.value,
     (newVal) => {
         if (!newVal) {
-            Object.assign(doctorsOrderInfo, { pid: "", order: "", progress_notes: "" });
+            Object.assign(doctorsOrderInfo, { pid: "", patient_case_pid: "", order: "", progress_notes: "" });
             isUpdate.value = false;
         }
     }
@@ -191,8 +201,9 @@ onMounted(async () => {
 });
 
 const read = async () => {
+    if (!patientCasePid.value) return;
     try {
-        await doctorsOrderStore.read();
+        await doctorsOrderStore.read(patientCasePid.value);
     } catch (err: any) {
         toast.error(err.response?.data?.message || "Failed to retrieve Doctor's Orders");
     }
@@ -200,6 +211,7 @@ const read = async () => {
 
 const create = async () => {
     try {
+        doctorsOrderInfo.patient_case_pid = patientCasePid.value || "";
         await doctorsOrderStore.create(doctorsOrderInfo);
         toast.success("Doctor's Order created successfully");
         orderModal.value = false;
@@ -211,7 +223,7 @@ const create = async () => {
 const view = async (pid: string) => {
     try {
         await doctorsOrderStore.view(pid);
-        Object.assign(doctorsOrderInfo, doctorsOrder.value);
+        Object.assign(doctorsOrderInfo, doctorsOrder.value, { patient_case_pid: patientCasePid.value || "" });
         isUpdate.value = true;
         orderModal.value = true;
     } catch (err: any) {
@@ -221,6 +233,7 @@ const view = async (pid: string) => {
 
 const update = async () => {
     try {
+        doctorsOrderInfo.patient_case_pid = patientCasePid.value || "";
         await doctorsOrderStore.update(doctorsOrderInfo);
         toast.success("Doctor's Order updated successfully");
         orderModal.value = false;
@@ -235,7 +248,7 @@ const archive = async (pid: string) => {
         header: "Delete Confirmation",
         onAccept: async () => {
             try {
-                await doctorsOrderStore.archive(pid);
+                await doctorsOrderStore.archive(pid, patientCasePid.value);
                 toast.success("Doctor's Order deleted successfully");
             } catch (err: any) {
                 toast.error(err.response?.data?.message || "Failed to delete Doctor's Order");

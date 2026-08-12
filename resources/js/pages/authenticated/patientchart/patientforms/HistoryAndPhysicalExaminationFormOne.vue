@@ -1,5 +1,11 @@
 <template>
-    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <div v-if="!patientCasePid" class="bg-white rounded-xl border border-slate-200 shadow-sm p-16 flex flex-col items-center justify-center text-slate-400">
+        <FaBookMedical size="40" class="mb-3 opacity-30" />
+        <p class="text-sm font-medium">No patient selected</p>
+        <p class="text-xs mt-1">Open this page from a patient's chart via the Inpatients or Outpatients list.</p>
+    </div>
+
+    <div v-else class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
         <Dialog v-model:visible="historyModal" modal :style="{ width: '64vw' }"
             :breakpoints="{ '1199px': '85vw', '575px': '95vw' }"
             :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
@@ -159,6 +165,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { BsPlusCircle } from 'vue-icons-plus/bs';
 import { FaBookMedical } from 'vue-icons-plus/fa';
 import { BiEdit, BiTrash } from 'vue-icons-plus/bi';
@@ -167,9 +174,11 @@ import { HistoryAndPhysicalExaminationFormOne } from '@/interface/Interfaces';
 import { useConfirmToast } from '@/composables/confirm';
 import { useAppToast } from '@/composables/toast';
 
+const route = useRoute();
 const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
 const historyStore = useHistoryAndPhysicalExaminationFormOneStore();
+const patientCasePid = computed(() => route.params.patient_case_pid as string | undefined);
 
 const historyFields = [
     { key: 'past_medical_history', othersKey: 'past_medical_history_others', label: 'Past Medical History' },
@@ -184,6 +193,7 @@ const historyFields = [
 
 const emptyHistory = (): HistoryAndPhysicalExaminationFormOne => ({
     pid: "",
+    patient_case_pid: "",
     chief_complaint: "",
     history_of_present_illness: "",
     past_medical_history: "",
@@ -231,8 +241,9 @@ watch(
 );
 
 const read = async () => {
+    if (!patientCasePid.value) return;
     try {
-        await historyStore.read();
+        await historyStore.read(patientCasePid.value);
     } catch (err: any) {
         toast.error(err.response?.data?.message || "Failed to retrieve Physical Examination Form 1 entries");
     }
@@ -240,6 +251,7 @@ const read = async () => {
 
 const create = async () => {
     try {
+        historyInfo.patient_case_pid = patientCasePid.value || "";
         await historyStore.create(historyInfo);
         toast.success("Entry created successfully");
         historyModal.value = false;
@@ -252,7 +264,7 @@ const create = async () => {
 const view = async (pid: string) => {
     try {
         await historyStore.view(pid);
-        Object.assign(historyInfo, emptyHistory(), history.value);
+        Object.assign(historyInfo, emptyHistory(), history.value, { patient_case_pid: patientCasePid.value || "" });
         isUpdate.value = true;
         historyModal.value = true;
     } catch (err: any) {
@@ -262,6 +274,7 @@ const view = async (pid: string) => {
 
 const update = async () => {
     try {
+        historyInfo.patient_case_pid = patientCasePid.value || "";
         await historyStore.update(historyInfo);
         toast.success("Entry updated successfully");
         historyModal.value = false;
@@ -277,7 +290,7 @@ const archive = async (pid: string) => {
         header: "Delete Confirmation",
         onAccept: async () => {
             try {
-                await historyStore.archive(pid);
+                await historyStore.archive(pid, patientCasePid.value);
                 toast.success("Entry deleted successfully");
             } catch (err: any) {
                 toast.error(err.response?.data?.message || "Failed to delete entry");

@@ -1,5 +1,11 @@
 <template>
-    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden p-6">
+    <div v-if="!patientCasePid" class="bg-white rounded-xl border border-slate-200 shadow-sm p-16 flex flex-col items-center justify-center text-slate-400">
+        <BsPlusCircle size="40" class="mb-3 opacity-30" />
+        <p class="text-sm font-medium">No patient selected</p>
+        <p class="text-xs mt-1">Open this page from a patient's chart via the Inpatients or Outpatients list.</p>
+    </div>
+
+    <div v-else class="bg-white rounded-xl border border-slate-200 overflow-hidden p-6">
         <Dialog v-model:visible="vitalsModal" modal header="Vital Signs" :style="{ width: '50vw' }"
             :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
             <form @submit.prevent="isUpdate ? update() : create()" class="mt-5">
@@ -193,6 +199,7 @@
 </template>
 <script setup lang="ts">
 import { onMounted, ref, reactive, watch, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { BsPlusCircle } from 'vue-icons-plus/bs';
 import Chart from 'primevue/chart';
 import { VitalSigns } from '@/interface/Interfaces';
@@ -200,13 +207,17 @@ import { useVitalSignsStore } from '@/store/patientchart/VitalSigns';
 import { useAppToast } from '@/composables/toast';
 import { useVitalSignsChart } from '@/composables/vitalSignsChart';
 
+const route = useRoute();
 const toast = useAppToast();
 const vitalSignsStore = useVitalSignsStore();
 const vitalSigns = computed<VitalSigns[]>(() => vitalSignsStore.vitalSigns);
 const { tprChartData, bloodPressureChartData, oxygenSaturationChartData, chartOptions } = useVitalSignsChart(vitalSigns);
 
+const patientCasePid = computed(() => route.params.patient_case_pid as string | undefined);
+
 const defaultVitalSignInfo = (): VitalSigns => ({
     pid: "",
+    patient_case_pid: "",
     type: "opr",
     measured_at: null,
     systolic: null,
@@ -255,8 +266,9 @@ watch(
 );
 
 onMounted(async () => {
+    if (!patientCasePid.value) return;
     try {
-        await vitalSignsStore.read();
+        await vitalSignsStore.read(patientCasePid.value);
     } catch (err: any) {
         toast.error(err.response?.data?.message || "Failed to retrieve Vital Signs");
     }
@@ -264,6 +276,7 @@ onMounted(async () => {
 
 const create = async () => {
     try {
+        vitalSignInfo.patient_case_pid = patientCasePid.value || "";
         await vitalSignsStore.create(vitalSignInfo);
         toast.success("Vital Sign recorded successfully");
         vitalsModal.value = false;
@@ -274,6 +287,7 @@ const create = async () => {
 
 const update = async () => {
     try {
+        vitalSignInfo.patient_case_pid = patientCasePid.value || "";
         await vitalSignsStore.update(vitalSignInfo);
         toast.success("Vital Sign updated successfully");
         vitalsModal.value = false;
