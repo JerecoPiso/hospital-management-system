@@ -25,9 +25,9 @@ class DoctorsOrder extends Model
         });
     }
 
-    public function user(): BelongsTo
+    public function doctor(): BelongsTo
     {
-        return  $this->belongsTo(User::class);
+        return  $this->belongsTo(User::class, 'doctor_id');
     }
 
     public function patientCase(): BelongsTo

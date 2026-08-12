@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('pid')->unique();
               $table->foreignId('patient_case_id')
                 ->constrained('patient_cases');
-            $table->foreignId('user_id')
+            $table->foreignId('doctor_id')
                 ->constrained('users')
                 ->cascadeOnDelete();
             $table->text(column: 'order');

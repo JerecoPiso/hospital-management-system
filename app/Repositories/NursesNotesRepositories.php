@@ -11,7 +11,7 @@ class NursesNotesRepositories
 
     public function list($filter = [])
     {
-        $note = NursesNote::with(['user', 'patientCase.patient'])->orderBy('id', 'desc');
+        $note = NursesNote::with(['nurse', 'patientCase.patient'])->orderBy('id', 'desc');
 
         if (!empty($filter['patient_case_id'])) {
             $note->where('patient_case_id', $filter['patient_case_id']);

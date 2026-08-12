@@ -112,10 +112,10 @@
                 <template #body="{ data }">
                     <div class="flex items-center gap-2.5">
                         <div class="w-7 h-7 rounded-full bg-linear-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-xs font-semibold shrink-0">
-                            {{ data.user?.firstname?.charAt(0) ?? '?' }}
+                            {{ data.doctor?.firstname?.charAt(0) ?? '?' }}
                         </div>
                         <span class="text-slate-700 text-sm font-medium leading-tight">
-                            {{ `${data.user?.firstname ?? ''} ${data.user?.middlename ? data.user.middlename + ' ' : ''}${data.user?.lastname ?? ''}`.trim() || '—' }}
+                            {{ `${data.doctor?.firstname ?? ''} ${data.doctor?.middlename ? data.doctor.middlename + ' ' : ''}${data.doctor?.lastname ?? ''}`.trim() || '—' }}
                         </span>
                     </div>
                 </template>

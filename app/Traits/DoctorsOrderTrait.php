@@ -27,7 +27,7 @@ trait DoctorsOrderTrait
     {
         try {
             $validated = $request->validated();
-            $validated["user_id"] = auth()->id();
+            $validated["doctor_id"] = auth()->id();
             $order = $this->doctorsOrderRepo->store($validated);
             return api_response(["order" => $order], true, "Success", 201);
         } catch (\Exception $e) {

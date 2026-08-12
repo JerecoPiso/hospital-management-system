@@ -11,7 +11,7 @@ class DoctorsOrderRepositories
 
     public function list($filter = [])
     {
-        $order = DoctorsOrder::with(['user', 'patientCase.patient'])->orderBy('id', 'desc');
+        $order = DoctorsOrder::with(['doctor', 'patientCase.patient'])->orderBy('id', 'desc');
 
         if (!empty($filter['patient_case_id'])) {
             $order->where('patient_case_id', $filter['patient_case_id']);

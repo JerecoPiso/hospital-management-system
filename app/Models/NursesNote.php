@@ -25,9 +25,9 @@ class NursesNote extends Model
         });
     }   
 
-    public function user(): BelongsTo
+    public function nurse(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'nurse_id');
     }
 
     public function patientCase(): BelongsTo

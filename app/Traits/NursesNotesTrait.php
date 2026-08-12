@@ -27,7 +27,7 @@ trait NursesNotesTrait
     {
         try {
             $validated = $request->validated();
-            $validated["user_id"] = auth()->id();
+            $validated["nurse_id"] = auth()->id();
             $note = $this->nurseNotesRepo->store($validated);
             return api_response(["note" => $note], true, "Success", 201);
         } catch (\Exception $e) {

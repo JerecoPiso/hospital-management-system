@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('patient_case_id')
                 ->constrained('patient_cases')
                 ->cascadeOnDelete();
-            $table->foreignId('user_id')
+            $table->foreignId('nurse_id')
                 ->constrained('users')
                 ->cascadeOnDelete();
             $table->text('focus');
