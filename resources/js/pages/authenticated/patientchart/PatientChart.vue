@@ -155,7 +155,7 @@
                 <router-link
                   v-for="child in item.children"
                   :key="child.name"
-                  :to="{ name: child.name }"
+                  :to="{ name: child.name, params: chartParams }"
                   @click="sidebarOpen = false"
                   class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all"
                   :class="activeNav === child.name ? 'bg-emerald-50 text-emerald-700 font-semibold' : 'text-slate-600 hover:bg-slate-100'"
@@ -169,7 +169,7 @@
             <!-- Regular link -->
             <router-link
               v-else
-              :to="{ name: item.name }"
+              :to="{ name: item.name, params: chartParams }"
               @click="sidebarOpen = false"
               class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all"
               :class="activeNav === item.name ? 'bg-linear-to-r from-emerald-500 to-teal-600 text-white shadow-md' : 'text-slate-700 hover:bg-slate-100'"
@@ -214,6 +214,7 @@ const route = useRoute();
 const sidebarOpen = ref(true);
 const profileOpen = ref(false);
 const activeNav = computed(() => route.name);
+const chartParams = computed(() => (route.params.patient_pid ? { patient_pid: route.params.patient_pid } : {}));
 const sidebarExpanded = ref(true);
 const expandedMenu = ref(null);
 const navItems = [

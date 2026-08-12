@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('history_and_physical_examination_form_twos', function (Blueprint $table) {
             $table->id();
             $table->string('pid')->unique();
-            $table->foreignId('user_id')
+            $table->foreignId('doctor_id')
                 ->constrained('users')
                 ->cascadeOnDelete();
             $table->string('general_appearance')->nullable();

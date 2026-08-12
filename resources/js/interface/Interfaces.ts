@@ -87,6 +87,30 @@ export interface MedicineDistribution {
     distributed_at?: string;
 }
 
+export interface PrescriptionItem {
+    pid?: string;
+    medicine_pid: string;
+    medicine?: Medicines;
+    frequency?: string | null;
+    duration?: number | null;
+    duration_unit?: string | null;
+    quantity?: number | null;
+    instructions?: string | null;
+    remarks?: string | null;
+    status?: string;
+}
+
+export interface Prescription {
+    pid?: string;
+    patient_case_pid: string;
+    patientCase?: PatientCase;
+    doctor?: User;
+    prescription_date: string;
+    remarks?: string | null;
+    status?: 'requested' | 'done' | 'picked-up' | 'cancelled';
+    items: PrescriptionItem[];
+}
+
 export interface HistoryAndPhysicalExaminationFormOne {
     pid?: string;
     chief_complaint: string;
@@ -145,6 +169,7 @@ export interface HistoryAndPhysicalExaminationFormTwo {
 export interface PatientCase {
     pid?: string;
     patient_pid?: string;
+    patient?: PatientRegistration;
     station_id?: number | null;
     bed_id?: number | null;
     patient_type_id?: number | null;
@@ -177,7 +202,9 @@ export interface PatientRegistration {
     initial_diagnosis?: string;
     final_diagnosis?: string;
     type: 'inpatient' | 'outpatient';
-    patientCases?: PatientCase[];
+    // patientCases?: PatientCase[];
+    patient_cases?: PatientCase[];
+
 }
 
 export interface Supply {

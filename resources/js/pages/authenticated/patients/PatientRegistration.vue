@@ -423,7 +423,7 @@ const view = async (pid: string) => {
   try {
     await patientStore.view(pid);
     Object.assign(patientInfo, emptyPatient(), patient.value);
-    const latestCase = patient.value.patientCases?.[0];
+    const latestCase = patient.value.patient_cases?.[0];
     if (latestCase) {
       patientInfo.admission_datetime = latestCase.admission_datetime;
       patientInfo.chief_complaint = latestCase.chief_complaint;

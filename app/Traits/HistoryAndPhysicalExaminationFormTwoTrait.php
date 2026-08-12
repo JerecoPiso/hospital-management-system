@@ -19,7 +19,7 @@ trait HistoryAndPhysicalExaminationFormTwoTrait
     {
         try {
             $validated = $request->validated();
-            $validated["user_id"] = auth()->id();
+            $validated["doctor_id"] = auth()->id();
             $history = $this->historyFormTwoRepo->store($validated);
             return api_response(["history" => $history], true, "Success", 201);
         } catch (\Exception $e) {

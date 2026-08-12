@@ -121,7 +121,7 @@
           <button
             type="button"
             title="View patient chart"
-            @click="viewChart()"
+            @click="viewChart(data.pid)"
             class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
           >
             <FiEye size="18" />
@@ -173,14 +173,14 @@ const isSameDay = (value: string | undefined, reference: Date) => {
 
 const admittedTodayCount = computed(() => {
   const today = new Date();
-  return inpatients.value.filter((p) => isSameDay(p.patientCases?.[0]?.admission_datetime, today)).length;
+  return inpatients.value.filter((p) => isSameDay(p.patient_cases?.[0]?.admission_datetime, today)).length;
 });
 
 const admittedThisWeekCount = computed(() => {
   const now = Date.now();
   const weekMs = 7 * 24 * 60 * 60 * 1000;
   return inpatients.value.filter((p) => {
-    const admittedAt = p.patientCases?.[0]?.admission_datetime;
+    const admittedAt = p.patient_cases?.[0]?.admission_datetime;
     if (!admittedAt) return false;
     return now - new Date(admittedAt).getTime() <= weekMs;
   }).length;
@@ -190,7 +190,7 @@ onMounted(async () => {
   await read();
 });
 
-const viewChart = () => {
-  router.push({ name: "PatientInformation" });
+const viewChart = (pid: string) => {
+  router.push({ name: "PatientInformation", params: { patient_pid: pid } });
 };
 </script>

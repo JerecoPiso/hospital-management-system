@@ -24,7 +24,8 @@ export const usePatientStore = defineStore("patient", () => {
         chief_complaint: "",
         initial_diagnosis: "",
         final_diagnosis: "",
-        type: "outpatient"
+        type: "outpatient",
+        
     })
     const create = async (data: PatientRegistration) => {
         await axios.post(`${baseUrl}api/patient`, data);
