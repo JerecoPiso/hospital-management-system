@@ -3,16 +3,26 @@
 namespace App\Repositories;
 
 use App\Models\Patient;
+use App\Models\PatientType;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class PatientRepositories
 {
+    private function resolvePatientTypeId($data)
+    {
+        if (empty($data['patient_type_pid'])) {
+            return null;
+        }
+
+        return PatientType::where('pid', $data['patient_type_pid'])->value('id');
+    }
+
 
     public function list($filter = [])
     {
-        $patient = Patient::with(['patientCases'])->orderBy('id', 'desc');
+        $patient = Patient::with(['patientCases.patientType'])->orderBy('id', 'desc');
 
         if (!empty($filter['type'])) {
             $patient->whereHas('patientCases', function ($q) use ($filter) {
@@ -33,7 +43,7 @@ class PatientRepositories
     {
         try {
 
-            $patient = Patient::with(['patientCases'])->where('pid', $pid)->first();
+            $patient = Patient::with(['patientCases.patientType'])->where('pid', $pid)->first();
 
             if (!$patient) {
                 return [];
@@ -71,7 +81,7 @@ class PatientRepositories
                     'pid' => Str::uuid()->toString(),
                     'station_id' => null,
                     'bed_id' => null,
-                    'patient_type_id' => null,
+                    'patient_type_id' => $this->resolvePatientTypeId($data),
                     'case_number' => 'CASE-' . strtoupper(Str::random(8)),
                     'admission_datetime' => Carbon::parse($data['admission_datetime'])->toDateTimeString(),
                     'chief_complaint' => $data['chief_complaint'],
@@ -103,7 +113,7 @@ class PatientRepositories
                 'lastname' => $data['lastname'],
                 'middlename' => $data['middlename'] ?? null,
                 'suffix' => $data['suffix'] ?? null,
-                'birthdate' => $data['birthdate'],
+                'birthdate' => Carbon::parse($data['birthdate'])->toDateString(),
                 'gender' => $data['gender'] ?? null,
                 'civil_status' => $data['civil_status'] ?? null,
                 'contact_number' => $data['contact_number'] ?? null,
@@ -117,11 +127,12 @@ class PatientRepositories
             $patientCase = $patient->patientCases()->latest('id')->first();
             if ($patientCase) {
                 $patientCase->update([
-                    'admission_datetime' => $data['admission_datetime'],
+                    'admission_datetime' => Carbon::parse($data['admission_datetime'])->toDateTimeString(),
                     'chief_complaint' => $data['chief_complaint'],
                     'initial_diagnosis' => $data['initial_diagnosis'] ?? null,
                     'final_diagnosis' => $data['final_diagnosis'] ?? null,
                     'type' => $data['type'],
+                    'patient_type_id' => $this->resolvePatientTypeId($data),
                 ]);
             }
 

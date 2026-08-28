@@ -28,4 +28,9 @@ class PatientCase extends Model
     {
         return $this->belongsTo(Patient::class);
     }
+
+    public function patientType(): BelongsTo
+    {
+        return $this->belongsTo(PatientType::class);
+    }
 }

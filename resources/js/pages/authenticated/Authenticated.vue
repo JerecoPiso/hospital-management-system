@@ -206,7 +206,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import { useRouter, useRoute } from "vue-router";
 import { MdDashboard, MdLayers, MdLocationOn, MdSwapVert } from "vue-icons-plus/md";
-import { FiUsers, FiSettings, FiUserPlus } from "vue-icons-plus/fi";
+import { FiUsers, FiSettings, FiUserPlus, FiActivity } from "vue-icons-plus/fi";
 import { GiMedicalPack, GiMedicines } from "vue-icons-plus/gi";
 import { FaUsers, FaBuilding, FaBed, FaUtensils, FaCapsules } from "vue-icons-plus/fa";
 import { BsFillDoorOpenFill } from "vue-icons-plus/bs";
@@ -311,6 +311,7 @@ const navItems = [
       { name: "Beds", label: "Beds", icon: FaBed },
       { name: "Stations", label: "Stations", icon: MdLocationOn },
       { name: "PatientTypes", label: "Patient Types", icon: BiCategoryAlt },
+      { name: "PertinentSignsAndSymptoms", label: "Signs & Symptoms", icon: FiActivity },
     ],
   },
 ];

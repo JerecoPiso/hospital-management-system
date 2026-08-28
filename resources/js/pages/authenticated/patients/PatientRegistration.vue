@@ -72,8 +72,12 @@
         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide pt-2">Case Information</p>
         <div class="grid grid-cols-2 gap-4">
           <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-medium text-slate-700">Patient Type <span class="text-red-400">*</span></label>
-            <Select v-model="patientInfo.type" :options="patientTypeOptions" optionLabel="label" optionValue="value" placeholder="Select patient type" required fluid class="text-sm" />
+            <label class="text-sm font-medium text-slate-700">Admission Type <span class="text-red-400">*</span></label>
+            <Select v-model="patientInfo.type" :options="admissionTypeOptions" optionLabel="label" optionValue="value" placeholder="Select admission type" required fluid class="text-sm" />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Patient Type</label>
+            <Select v-model="patientInfo.patient_type_pid" :options="patientTypes" optionLabel="name" optionValue="pid" placeholder="Select patient type" filter showClear fluid class="text-sm" />
           </div>
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Admission Date/Time <span class="text-red-400">*</span></label>
@@ -134,8 +138,12 @@
 
         <div class="grid grid-cols-2 gap-4">
           <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-medium text-slate-700">Patient Type <span class="text-red-400">*</span></label>
-            <Select v-model="caseInfo.type" :options="patientTypeOptions" optionLabel="label" optionValue="value" placeholder="Select patient type" required fluid class="text-sm" />
+            <label class="text-sm font-medium text-slate-700">Admission Type <span class="text-red-400">*</span></label>
+            <Select v-model="caseInfo.type" :options="admissionTypeOptions" optionLabel="label" optionValue="value" placeholder="Select admission type" required fluid class="text-sm" />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Patient Type</label>
+            <Select v-model="caseInfo.patient_type_pid" :options="patientTypes" optionLabel="name" optionValue="pid" placeholder="Select patient type" filter showClear fluid class="text-sm" />
           </div>
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Admission Date/Time <span class="text-red-400">*</span></label>
@@ -260,7 +268,13 @@
         </template>
       </Column>
 
-      <Column header="Type" class="w-28">
+      <Column header="Patient Type" class="w-40">
+        <template #body="{ data }">
+          <span class="text-slate-600 text-sm">{{ data.patient_cases?.[data.patient_cases.length - 1]?.patient_type?.name || "—" }}</span>
+        </template>
+      </Column>
+
+      <Column header="Admission Type" class="w-32">
         <template #body="{ data }">
           <Tag
             v-if="data.patient_cases?.[data.patient_cases.length - 1]?.type"
@@ -315,14 +329,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { BsPlusCircle } from "vue-icons-plus/bs";
 import { FiUserPlus, FiEye, FiSearch, FiFilePlus } from "vue-icons-plus/fi";
 import { BiEdit, BiTrash } from "vue-icons-plus/bi";
 import { usePatientStore } from "@/store/patients/PatientRegistration";
 import { usePatientCaseStore } from "@/store/patients/PatientCase";
-import { PatientRegistration, PatientCase } from "@/interface/Interfaces";
+import { usePatientTypeStore } from "@/store/PatientType";
+import { PatientRegistration, PatientCase, PatientType } from "@/interface/Interfaces";
 import { useApiTable } from "@/composables/apiTable";
 import { useConfirmToast } from "@/composables/confirm";
 import { useAppToast } from "@/composables/toast";
@@ -331,13 +346,19 @@ const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
 const patientStore = usePatientStore();
 const patientCaseStore = usePatientCaseStore();
+const patientTypeStore = usePatientTypeStore();
 const router = useRouter();
 
 const genders = ["Male", "Female", "Other"];
-const patientTypeOptions = [
+const admissionTypeOptions = [
   { label: "Inpatient", value: "inpatient" },
   { label: "Outpatient", value: "outpatient" },
 ];
+const patientTypes = computed<PatientType[]>(() => patientTypeStore.patientTypes);
+
+onMounted(() => {
+  patientTypeStore.read().catch(() => {});
+});
 
 const emptyPatient = (): PatientRegistration => ({
   pid: "",
@@ -359,6 +380,7 @@ const emptyPatient = (): PatientRegistration => ({
   initial_diagnosis: "",
   final_diagnosis: "",
   type: "outpatient",
+  patient_type_pid: "",
 });
 
 const patients = computed<PatientRegistration[]>(() => patientStore.patients);
@@ -423,13 +445,15 @@ const view = async (pid: string) => {
   try {
     await patientStore.view(pid);
     Object.assign(patientInfo, emptyPatient(), patient.value);
-    const latestCase = patient.value.patient_cases?.[0];
+    const cases = patient.value.patient_cases ?? [];
+    const latestCase = cases[cases.length - 1] ?? cases[0];
     if (latestCase) {
       patientInfo.admission_datetime = latestCase.admission_datetime;
       patientInfo.chief_complaint = latestCase.chief_complaint;
       patientInfo.initial_diagnosis = latestCase.initial_diagnosis;
       patientInfo.final_diagnosis = latestCase.final_diagnosis;
       patientInfo.type = latestCase.type ?? "outpatient";
+      patientInfo.patient_type_pid = latestCase.patient_type?.pid ?? "";
       admissionDatetimeModel.value = latestCase.admission_datetime ? new Date(latestCase.admission_datetime) : null;
     }
     birthdateModel.value = patient.value.birthdate ? new Date(patient.value.birthdate) : null;
@@ -472,7 +496,7 @@ const archive = async (pid: string) => {
 /* ---------------- ADD CASE ---------------- */
 const caseModal = ref<boolean>(false);
 const selectedPatient = ref<PatientRegistration | null>(null);
-const defaultCaseInfo = (): PatientCase => ({ patient_pid: "", type: "outpatient", admission_datetime: "", chief_complaint: "", initial_diagnosis: "", final_diagnosis: "" });
+const defaultCaseInfo = (): PatientCase => ({ patient_pid: "", type: "outpatient", admission_datetime: "", chief_complaint: "", initial_diagnosis: "", final_diagnosis: "", patient_type_pid: "" });
 const caseInfo = reactive<PatientCase>(defaultCaseInfo());
 const caseAdmissionDatetimeModel = ref<Date | null>(null);
 

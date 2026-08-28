@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name', 100);
             $table->string('code', 10)->index('pertinent_signs_and_symptoms_lists_code_idx');
             $table->boolean('status')->default(true);
-            $table->string('others')->nullable;
+            $table->string('others')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

@@ -66,6 +66,7 @@ const router = createRouter({
                         { path: "beds", name: "Beds", component: () => import("../pages/authenticated/settings/Beds.vue") },
                         { path: "stations", name: "Stations", component: () => import("../pages/authenticated/settings/Stations.vue") },
                         { path: "patient-types", name: "PatientTypes", component: () => import("../pages/authenticated/settings/PatientTypes.vue") },
+                        { path: "pertinent-signs-and-symptoms", name: "PertinentSignsAndSymptoms", component: () => import("../pages/authenticated/settings/PertinentSignsAndSymptoms.vue") },
                     ],
                 },
             ],
@@ -85,6 +86,7 @@ const router = createRouter({
                 { path: "patient-forms", name: "PatientForms", component: () => import("../pages/authenticated/patientchart/PatientForms.vue") },
                 { path: "patient-forms/physical-examination-form-one", name: "HistoryAndPhysicalExaminationFormOne", component: () => import("../pages/authenticated/patientchart/patientforms/HistoryAndPhysicalExaminationFormOne.vue") },
                 { path: "patient-forms/physical-examination-form-two", name: "HistoryAndPhysicalExaminationFormTwo", component: () => import("../pages/authenticated/patientchart/patientforms/HistoryAndPhysicalExaminationFormTwo.vue") },
+                { path: "patient-forms/pertinent-signs-and-symptoms", name: "PertinentSignsAndSymptomsForm", component: () => import("../pages/authenticated/patientchart/patientforms/PertinentSignsAndSymptoms.vue") },
             ]
         },
     ]

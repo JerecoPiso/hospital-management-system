@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Patient;
 use App\Models\PatientCase;
+use App\Models\PatientType;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
@@ -12,7 +13,7 @@ class PatientCaseRepositories
     public function searchByPid($pid)
     {
         try {
-            $patientCase = PatientCase::with(['patient'])->where('pid', $pid)->first();
+            $patientCase = PatientCase::with(['patient', 'patientType'])->where('pid', $pid)->first();
 
             if (!$patientCase) {
                 return [];
@@ -29,11 +30,15 @@ class PatientCaseRepositories
         try {
             $patient = Patient::where('pid', $data['patient_pid'])->firstOrFail();
 
+            $patientTypeId = !empty($data['patient_type_pid'])
+                ? PatientType::where('pid', $data['patient_type_pid'])->value('id')
+                : null;
+
             $patientCase = $patient->patientCases()->create([
                 'pid' => Str::uuid()->toString(),
                 'station_id' => null,
                 'bed_id' => null,
-                'patient_type_id' => null,
+                'patient_type_id' => $patientTypeId,
                 'case_number' => 'CASE-' . strtoupper(Str::random(8)),
                 'admission_datetime' => Carbon::parse($data['admission_datetime'])->toDateTimeString(),
                 'chief_complaint' => $data['chief_complaint'],
@@ -42,7 +47,7 @@ class PatientCaseRepositories
                 'type' => $data['type'],
             ]);
 
-            return $patientCase->load('patient');
+            return $patientCase->load(['patient', 'patientType']);
         } catch (\Exception $e) {
             throw new \Exception("An error has occured! " . $e->getMessage());
         }
