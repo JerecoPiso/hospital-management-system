@@ -3,14 +3,15 @@
 namespace App\Traits;
 
 use App\Http\Requests\Building\StoreRequest;
+use Illuminate\Http\Request;
 
 trait BuildingTrait
 {
-    public function list()
+    public function list(Request $request)
     {
         try {
-            $buildings = $this->buildingRepo->list([]);
-            return api_response($buildings, true, "Success", 200);
+            $buildings = $this->buildingRepo->list($request->only(['search', 'per_page', 'page']));
+            return api_list_response($buildings['items'], $buildings['meta']);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $e->getCode() ?: 500);
         }

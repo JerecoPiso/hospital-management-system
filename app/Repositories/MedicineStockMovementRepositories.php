@@ -17,8 +17,7 @@ class MedicineStockMovementRepositories
             });
         }
 
-        $medicineStockMovement = $medicineStockMovement->get();
-        return $medicineStockMovement->toArray();
+        return api_list($medicineStockMovement, $filter, ['type', 'reference', 'remarks', 'medicine.name']);
     }
 
     public function searchByPid($pid)

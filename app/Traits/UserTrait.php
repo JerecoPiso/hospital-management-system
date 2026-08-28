@@ -13,11 +13,11 @@ use App\Models\User;
 
 trait UserTrait
 {
-    public function list()
+    public function list(Request $request)
     {
         try {
-            $users = $this->userRepo->list([]);
-            return api_response($users, true, "Success", 200);
+            $users = $this->userRepo->list($request->only(['search', 'per_page', 'page']));
+            return api_list_response($users['items'], $users['meta']);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
         }

@@ -17,8 +17,7 @@ class WardRepositories
             });
         }
 
-        $ward = $ward->get();
-        return $ward->toArray();
+        return api_list($ward, $filter, ['code', 'name', 'floor.name', 'floor.floor_number']);
     }
 
     public function searchByPid($pid)

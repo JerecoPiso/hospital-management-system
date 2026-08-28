@@ -17,8 +17,7 @@ class MedicineStockRepositories
             });
         }
 
-        $medicineStock = $medicineStock->get();
-        return $medicineStock->toArray();
+        return api_list($medicineStock, $filter, ['batch_number', 'unit_type', 'medicine.name', 'medicine.brand_name']);
     }
 
     public function searchByPid($pid)

@@ -12,5 +12,15 @@ export const useAuthStore = defineStore('auth', () => {
             user.value = null;
         }
     }
-    return { user, getUser }
+    const logout = async () => {
+        try {
+            await axios.post(`${baseUrl}api/user/logout`, {}, { withCredentials: true });
+        } catch (err) {
+            // Session may already be gone (401/419) — clear client state anyway.
+        } finally {
+            user.value = null;
+            localStorage.setItem("isLoggedout", "true");
+        }
+    }
+    return { user, getUser, logout }
 })

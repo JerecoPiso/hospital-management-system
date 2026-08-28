@@ -17,8 +17,7 @@ class RoomRepositories
             });
         }
 
-        $room = $room->get();
-        return $room->toArray();
+        return api_list($room, $filter, ['room_number', 'room_type', 'ward.name', 'ward.code']);
     }
 
     public function searchByPid($pid)

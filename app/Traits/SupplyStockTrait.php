@@ -10,8 +10,8 @@ trait SupplyStockTrait
     public function list(Request $request)
     {
         try {
-            $supplyStocks = $this->supplyStockRepo->list($request->only(['supply_pid']));
-            return api_response($supplyStocks, true, "Success", 200);
+            $supplyStocks = $this->supplyStockRepo->list($request->only(['supply_pid', 'search', 'per_page', 'page']));
+            return api_list_response($supplyStocks['items'], $supplyStocks['meta']);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
         }

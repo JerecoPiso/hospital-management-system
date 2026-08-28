@@ -110,11 +110,43 @@ export interface Prescription {
     pid?: string;
     patient_case_pid: string;
     patientCase?: PatientCase;
+    // Laravel serializes the `patientCase` relation as snake_case.
+    patient_case?: PatientCase;
     doctor?: User;
     prescription_date: string;
     remarks?: string | null;
     status?: 'requested' | 'done' | 'picked-up' | 'cancelled';
     items: PrescriptionItem[];
+    created_at?: string;
+}
+
+export interface Diet {
+    pid?: string;
+    name: string;
+    description?: string | null;
+}
+
+export interface DietServed {
+    pid?: string;
+    patient_case_diet_pid?: string;
+    user?: User;
+    served_at?: string | null;
+    remarks?: string | null;
+    created_at?: string;
+}
+
+export interface PatientCaseDiet {
+    pid?: string;
+    patient_case_pid: string;
+    // Laravel serializes the `patientCase` relation as snake_case.
+    patient_case?: PatientCase;
+    diet_pid: string;
+    diet?: Diet;
+    user?: User;
+    remarks?: string | null;
+    diets_served?: DietServed[];
+    diets_served_count?: number;
+    created_at?: string;
 }
 
 export interface HistoryAndPhysicalExaminationFormOne {

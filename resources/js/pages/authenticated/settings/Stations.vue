@@ -34,7 +34,7 @@
             </form>
         </Dialog>
 
-        <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-linear-to-r from-slate-50 to-white">
+        <div class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-linear-to-r from-slate-50 to-white">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md">
                     <MdLocationOn class="text-white" size="18" />
@@ -44,13 +44,19 @@
                     <p class="text-xs text-slate-400">Manage nursing/service stations within each ward</p>
                 </div>
             </div>
-            <button type="button" @click="modalOpen = true" class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95">
-                <BsPlusCircle size="16" />
-                Add Station
-            </button>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <div class="relative flex-1 sm:w-64">
+                    <FiSearch class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10" size="16" />
+                    <InputText v-model="search" @input="onSearch" placeholder="Search . . ." class="w-full text-sm pl-8!" />
+                </div>
+                <button type="button" @click="modalOpen = true" class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 shrink-0">
+                    <BsPlusCircle size="16" />
+                    Add Station
+                </button>
+            </div>
         </div>
 
-        <DataTable :value="stations" paginator :rows="15" :rowsPerPageOptions="[10, 15, 25, 50, 100]" responsiveLayout="scroll" tableStyle="min-width: 50rem"
+        <DataTable :value="stations" lazy paginator :rows="rows" :first="first" :totalRecords="total" :loading="loading" @page="onPage" :rowsPerPageOptions="[10, 15, 25, 50, 100]" responsiveLayout="scroll" tableStyle="min-width: 50rem"
             :pt="{ table: { class: 'text-sm' }, thead: { class: 'bg-slate-50' }, bodyRow: { class: 'hover:bg-slate-50 transition-colors duration-150 border-b border-slate-100' } }">
             <template #empty>
                 <div class="flex flex-col items-center justify-center py-16 text-slate-400">
@@ -87,10 +93,12 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { BsPlusCircle } from 'vue-icons-plus/bs';
 import { BiEdit, BiTrash } from 'vue-icons-plus/bi';
+import { FiSearch } from 'vue-icons-plus/fi';
 import { MdLocationOn } from 'vue-icons-plus/md';
 import { useStationStore } from '@/store/Station';
 import { useWardStore } from '@/store/Ward';
 import { Station, Ward } from '@/interface/Interfaces';
+import { useApiTable } from '@/composables/apiTable';
 import { useConfirmToast } from '@/composables/confirm';
 import { useAppToast } from '@/composables/toast';
 
@@ -109,23 +117,27 @@ const info = reactive<Station>(defaultInfo());
 
 watch(modalOpen, (open) => { if (!open) { Object.assign(info, defaultInfo()); isUpdate.value = false; } });
 
-onMounted(async () => {
-    await Promise.all([read(), wardStore.read()]);
+onMounted(() => {
+    wardStore.read();
 });
 
-const read = async () => {
-    try {
-        await stationStore.read();
-    } catch (err: any) {
-        toast.error(err.response?.data?.message || 'Failed to retrieve stations');
-    }
-};
+const { search, rows, first, total, loading, onPage, onSearch, reload } = useApiTable(
+    async (params) => {
+        try {
+            await stationStore.read(params);
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || 'Failed to retrieve stations');
+        }
+    },
+    () => stationStore.meta,
+);
 
 const create = async () => {
     try {
         await stationStore.create(info);
         toast.success('Station created successfully');
         modalOpen.value = false;
+        await reload();
     } catch (err: any) {
         toast.error(err.response?.data?.message || 'Failed to create station');
     }
@@ -147,6 +159,7 @@ const update = async () => {
         await stationStore.update(info);
         toast.success('Station updated successfully');
         modalOpen.value = false;
+        await reload();
     } catch (err: any) {
         toast.error(err.response?.data?.message || 'Failed to update station');
     }
@@ -160,6 +173,7 @@ const archive = (pid: string) => {
             try {
                 await stationStore.archive(pid);
                 toast.success('Station deleted successfully');
+                await reload();
             } catch (err: any) {
                 toast.error(err.response?.data?.message || 'Failed to delete station');
             }

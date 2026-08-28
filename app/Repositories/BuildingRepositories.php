@@ -8,9 +8,9 @@ class BuildingRepositories
 {
     public function list($filter = [])
     {
-        $building = Building::orderBy('id', 'desc');
-        $building = $building->get();
-        return $building->toArray();
+        $query = Building::orderBy('id', 'desc');
+
+        return api_list($query, $filter, ['code', 'name', 'description']);
     }
 
     public function searchByPid($pid)

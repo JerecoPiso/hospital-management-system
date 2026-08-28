@@ -20,8 +20,7 @@ class SupplyDistributionRepositories
             });
         }
 
-        $supplyDistribution = $supplyDistribution->get();
-        return $supplyDistribution->toArray();
+        return api_list($supplyDistribution, $filter, ['supplyStock.supply.name', 'station.name']);
     }
 
     public function searchByPid($pid)

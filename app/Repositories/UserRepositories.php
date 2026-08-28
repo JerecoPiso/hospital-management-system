@@ -9,9 +9,9 @@ class UserRepositories
 
     public function list($filter = [])
     {
-        $user = User::query();
-        $user = $user->get();
-        return $user->toArray();
+        $query = User::query()->orderBy('id', 'desc');
+
+        return api_list($query, $filter, ['firstname', 'lastname', 'middlename', 'email', 'license_no']);
     }
     public function searchByPid($pid)
     {

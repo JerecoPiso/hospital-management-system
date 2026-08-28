@@ -8,9 +8,9 @@ class SupplyRepositories
 {
     public function list($filter = [])
     {
-        $supply = Supply::withSum('supplyStocks', 'quantity')->orderBy('id', 'desc');
-        $supply = $supply->get();
-        return $supply->toArray();
+        $query = Supply::withSum('supplyStocks', 'quantity')->orderBy('id', 'desc');
+
+        return api_list($query, $filter, ['name', 'unit']);
     }
 
     public function searchByPid($pid)

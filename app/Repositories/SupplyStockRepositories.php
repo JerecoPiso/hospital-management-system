@@ -17,8 +17,7 @@ class SupplyStockRepositories
             });
         }
 
-        $supplyStock = $supplyStock->get();
-        return $supplyStock->toArray();
+        return api_list($supplyStock, $filter, ['batch_number', 'unit_type', 'supply.name']);
     }
 
     public function searchByPid($pid)

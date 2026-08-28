@@ -10,8 +10,8 @@ trait MedicineStockTrait
     public function list(Request $request)
     {
         try {
-            $medicineStocks = $this->medicineStockRepo->list($request->only(['medicine_pid']));
-            return api_response($medicineStocks, true, "Success", 200);
+            $medicineStocks = $this->medicineStockRepo->list($request->only(['medicine_pid', 'search', 'per_page', 'page']));
+            return api_list_response($medicineStocks['items'], $medicineStocks['meta']);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
         }

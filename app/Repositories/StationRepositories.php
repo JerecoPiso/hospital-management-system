@@ -17,8 +17,7 @@ class StationRepositories
             });
         }
 
-        $station = $station->get();
-        return $station->toArray();
+        return api_list($station, $filter, ['name', 'description', 'ward.name']);
     }
 
     public function searchByPid($pid)

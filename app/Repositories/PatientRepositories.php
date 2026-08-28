@@ -20,17 +20,14 @@ class PatientRepositories
             });
         }
 
-        if (!empty($filter['search'])) {
-            $search = $filter['search'];
-            $patient->where(function ($q) use ($search) {
-                $q->where('firstname', 'like', "%{$search}%")
-                    ->orWhere('lastname', 'like', "%{$search}%")
-                    ->orWhere('medical_record_number', 'like', "%{$search}%");
-            });
-        }
-
-        $patient = $patient->get();
-        return $patient->toArray();
+        return api_list($patient, $filter, [
+            'firstname',
+            'lastname',
+            'middlename',
+            'medical_record_number',
+            'contact_number',
+            'email_address',
+        ]);
     }
     public function searchByPid($pid)
     {

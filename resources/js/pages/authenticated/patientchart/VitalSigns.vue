@@ -181,18 +181,42 @@
             </button>
         </div>
         <div class="grid grid-cols-2 gap-4">
-            <div class="md:col-span-2 col-span-2 border border-slate-200 rounded-lg p-4">
-                <p class="font-semibold">TPR</p>
+            <div class="md:col-span-2 col-span-2 border border-slate-200 rounded-xl p-5 bg-white">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="flex items-center justify-center w-9 h-9 rounded-lg" style="background:#eff6ff;color:#2a78d6;">
+                        <FiThermometer size="18" />
+                    </span>
+                    <div>
+                        <p class="font-semibold text-slate-900 leading-tight">Temperature, Pulse &amp; Respiration</p>
+                        <p class="text-xs text-slate-400">TPR trend over time</p>
+                    </div>
+                </div>
                 <Chart type="line" :data="tprChartData" :options="chartOptions" class="h-80" />
             </div>
-            <div class="md:col-span-1 col-span-2 border border-slate-200 rounded-lg p-4">
-                <p class="font-semibold">Blood Pressure</p>
+            <div class="md:col-span-1 col-span-2 border border-slate-200 rounded-xl p-5 bg-white">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="flex items-center justify-center w-9 h-9 rounded-lg" style="background:#fdf1ed;color:#eb6834;">
+                        <FiHeart size="18" />
+                    </span>
+                    <div>
+                        <p class="font-semibold text-slate-900 leading-tight">Blood Pressure</p>
+                        <p class="text-xs text-slate-400">Systolic / diastolic trend</p>
+                    </div>
+                </div>
                 <Chart type="line" :data="bloodPressureChartData" :options="chartOptions" class="h-80" />
             </div>
 
-            <div class="md:col-span-1 col-span-2 border border-slate-200 rounded-lg p-4">
-                <p class="font-semibold">Oxygen Saturation</p>
-                <Chart type="line" :data="oxygenSaturationChartData" :options="chartOptions" class="h-80" />
+            <div class="md:col-span-1 col-span-2 border border-slate-200 rounded-xl p-5 bg-white">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="flex items-center justify-center w-9 h-9 rounded-lg" style="background:#e9f7f1;color:#1baf7a;">
+                        <FiDroplet size="18" />
+                    </span>
+                    <div>
+                        <p class="font-semibold text-slate-900 leading-tight">Oxygen Saturation</p>
+                        <p class="text-xs text-slate-400">SpO2 trend over time</p>
+                    </div>
+                </div>
+                <Chart type="line" :data="oxygenSaturationChartData" :options="singleSeriesChartOptions" class="h-80" />
             </div>
         </div>
     </div>
@@ -201,6 +225,7 @@
 import { onMounted, ref, reactive, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { BsPlusCircle } from 'vue-icons-plus/bs';
+import { FiThermometer, FiHeart, FiDroplet } from 'vue-icons-plus/fi';
 import Chart from 'primevue/chart';
 import { VitalSigns } from '@/interface/Interfaces';
 import { useVitalSignsStore } from '@/store/patientchart/VitalSigns';
@@ -211,7 +236,7 @@ const route = useRoute();
 const toast = useAppToast();
 const vitalSignsStore = useVitalSignsStore();
 const vitalSigns = computed<VitalSigns[]>(() => vitalSignsStore.vitalSigns);
-const { tprChartData, bloodPressureChartData, oxygenSaturationChartData, chartOptions } = useVitalSignsChart(vitalSigns);
+const { tprChartData, bloodPressureChartData, oxygenSaturationChartData, chartOptions, singleSeriesChartOptions } = useVitalSignsChart(vitalSigns);
 
 const patientCasePid = computed(() => route.params.patient_case_pid as string | undefined);
 

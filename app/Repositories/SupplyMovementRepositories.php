@@ -18,8 +18,7 @@ class SupplyMovementRepositories
             });
         }
 
-        $supplyMovement = $supplyMovement->get();
-        return $supplyMovement->toArray();
+        return api_list($supplyMovement, $filter, ['type', 'used_for', 'supplyStock.supply.name']);
     }
 
     public function searchByPid($pid)

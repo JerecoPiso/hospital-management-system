@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { Station } from "@/interface/Interfaces";
+import { emptyMeta, type ApiTableMeta } from "@/composables/apiTable";
 import axios from "axios";
 export const useStationStore = defineStore("station", () => {
     const baseUrl = import.meta.env.VITE_APP_API_URL;
@@ -10,15 +11,14 @@ export const useStationStore = defineStore("station", () => {
         name: '',
         description: ''
     })
+    const meta = ref<ApiTableMeta>(emptyMeta())
     const create = async (data: Station) => {
         await axios.post(`${baseUrl}api/stations`, data);
-        read();
     }
-    const read = async (ward_pid?: string) => {
-        const response = await axios.get(`${baseUrl}api/stations`, {
-            params: ward_pid ? { ward_pid } : {}
-        });
+    const read = async (params: Record<string, any> = {}) => {
+        const response = await axios.get(`${baseUrl}api/stations`, { params });
         stations.value = response.data.data;
+        if (response.data.meta) meta.value = response.data.meta;
     }
     const view = async (pid: string) => {
         const response = await axios.get(`${baseUrl}api/stations/${pid}`);
@@ -26,11 +26,9 @@ export const useStationStore = defineStore("station", () => {
     }
     const update = async (data: Station) => {
         await axios.put(`${baseUrl}api/stations/${data.pid}`, data);
-        read();
     }
     const archive = async (pid: string) => {
         await axios.delete(`${baseUrl}api/stations/${pid}`);
-        read();
     }
     return {
         archive,
@@ -39,6 +37,7 @@ export const useStationStore = defineStore("station", () => {
         view,
         update,
         stations,
-        station
+        station,
+        meta
     }
 })

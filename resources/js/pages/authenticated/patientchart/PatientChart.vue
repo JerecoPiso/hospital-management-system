@@ -201,14 +201,16 @@ import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import { useRouter, useRoute } from "vue-router";
 import { GiMedicines, GiMedicalPack } from "vue-icons-plus/gi";
-import { FaBookMedical, FaUsers, FaFileMedicalAlt } from "vue-icons-plus/fa";
+import { FaBookMedical, FaUsers, FaFileMedicalAlt, FaUtensils } from "vue-icons-plus/fa";
 import { BsJournalMedical } from "vue-icons-plus/bs";
 import { BiSolidUserAccount } from "vue-icons-plus/bi";
 import { FiActivity, FiSettings } from "vue-icons-plus/fi";
 import { MdDashboard } from "vue-icons-plus/md";
 import axios from "axios";
+import { useAuthStore } from "@/store/patientchart/AuthStore";
 const confirm = useConfirm();
 const toast = useToast();
+const auth = useAuthStore();
 const router = useRouter();
 const route = useRoute();
 const sidebarOpen = ref(true);
@@ -244,6 +246,11 @@ const navItems = [
     name: "VitalSigns",
     label: "Vital Signs",
     icon: FiActivity,
+  },
+  {
+    name: "PatientDiet",
+    label: "Diet",
+    icon: FaUtensils,
   },
   {
     label: "Doctors Order",
@@ -295,9 +302,7 @@ const handleMenuClick = (action) => {
         label: "Save",
       },
       accept: async () => {
-        const baseUrl = import.meta.env.VITE_APP_API_URL;
-        await axios.post(`${baseUrl}api/user/logout`);
-        // toast.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
+        await auth.logout();
         router.push({ name: "Login" });
       },
       reject: () => {

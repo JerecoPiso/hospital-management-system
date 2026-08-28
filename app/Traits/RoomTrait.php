@@ -10,8 +10,8 @@ trait RoomTrait
     public function list(Request $request)
     {
         try {
-            $rooms = $this->roomRepo->list($request->only(['ward_pid']));
-            return api_response($rooms, true, "Success", 200);
+            $rooms = $this->roomRepo->list($request->only(['ward_pid', 'search', 'per_page', 'page']));
+            return api_list_response($rooms['items'], $rooms['meta']);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $e->getCode() ?: 500);
         }

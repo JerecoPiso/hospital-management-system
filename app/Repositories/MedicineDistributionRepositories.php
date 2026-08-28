@@ -20,8 +20,7 @@ class MedicineDistributionRepositories
             });
         }
 
-        $medicineDistribution = $medicineDistribution->get();
-        return $medicineDistribution->toArray();
+        return api_list($medicineDistribution, $filter, ['medicineStock.medicine.name', 'station.name']);
     }
 
     public function searchByPid($pid)

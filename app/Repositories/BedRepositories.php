@@ -17,8 +17,7 @@ class BedRepositories
             });
         }
 
-        $bed = $bed->get();
-        return $bed->toArray();
+        return api_list($bed, $filter, ['bed_number', 'status', 'room.room_number']);
     }
 
     public function searchByPid($pid)

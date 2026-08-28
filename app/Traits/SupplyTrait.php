@@ -3,14 +3,15 @@
 namespace App\Traits;
 
 use App\Http\Requests\Supply\StoreRequest;
+use Illuminate\Http\Request;
 
 trait SupplyTrait
 {
-    public function list()
+    public function list(Request $request)
     {
         try {
-            $supplies = $this->supplyRepo->list([]);
-            return api_response($supplies, true, "Success", 200);
+            $supplies = $this->supplyRepo->list($request->only(['search', 'per_page', 'page']));
+            return api_list_response($supplies['items'], $supplies['meta']);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
         }

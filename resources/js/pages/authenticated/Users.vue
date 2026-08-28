@@ -82,7 +82,7 @@
         </Dialog>
 
         <!-- Header -->
-        <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-linear-to-r from-slate-50 to-white">
+        <div class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-linear-to-r from-slate-50 to-white">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md">
                     <FiUsers class="text-white" size="20" />
@@ -92,21 +92,32 @@
                     <p class="text-xs text-slate-400">Manage system user accounts</p>
                 </div>
             </div>
-            <button
-                type="button"
-                @click="orderModal = true"
-                class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95"
-            >
-                <BsPlusCircle size="16" />
-                Add User
-            </button>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <div class="relative flex-1 sm:w-64">
+                    <FiSearch class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10" size="16" />
+                    <InputText v-model="search" @input="onSearch" placeholder="Search . . ." class="w-full text-sm pl-8!" />
+                </div>
+                <button
+                    type="button"
+                    @click="orderModal = true"
+                    class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 shrink-0"
+                >
+                    <BsPlusCircle size="16" />
+                    Add User
+                </button>
+            </div>
         </div>
 
         <!-- Table -->
         <DataTable
             :value="users"
+            lazy
             paginator
-            :rows="15"
+            :rows="rows"
+            :first="first"
+            :totalRecords="total"
+            :loading="loading"
+            @page="onPage"
             :rowsPerPageOptions="[10, 15, 25, 50, 100]"
             responsiveLayout="scroll"
             tableStyle="min-width: 50rem"
@@ -198,10 +209,11 @@
 
 <script setup lang="ts">
 import Password from 'primevue/password';
-import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { BsPlusCircle } from 'vue-icons-plus/bs';
 import { BiEdit, BiTrash } from 'vue-icons-plus/bi';
-import { FiUsers } from 'vue-icons-plus/fi';
+import { FiUsers, FiSearch } from 'vue-icons-plus/fi';
+import { useApiTable } from '@/composables/apiTable';
 import { useUserStore } from '@/store/User';
 import { User } from '@/interface/Interfaces';
 import { useConfirmToast } from '@/composables/confirm';
@@ -249,23 +261,23 @@ watch(
     }
 );
 
-onMounted(async () => {
-    await read();
-});
-
-const read = async () => {
-    try {
-        await userStore.read();
-    } catch (err: any) {
-        toast.error(err.response?.data?.message || "Failed to retrieve Users");
-    }
-};
+const { search, rows, first, total, loading, onPage, onSearch, reload } = useApiTable(
+    async (params) => {
+        try {
+            await userStore.read(params);
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || "Failed to retrieve Users");
+        }
+    },
+    () => userStore.meta,
+);
 
 const create = async () => {
     try {
         await userStore.create(userInfo);
         toast.success("User created successfully");
         orderModal.value = false;
+        await reload();
     } catch (err: any) {
         toast.error(err.response?.data?.message || "Failed to create User");
     }
@@ -287,6 +299,7 @@ const update = async () => {
         await userStore.update(userInfo);
         toast.success("User updated successfully");
         orderModal.value = false;
+        await reload();
     } catch (err: any) {
         toast.error(err.response?.data?.message || "Failed to update User");
     }
@@ -300,6 +313,7 @@ const archive = async (pid: string) => {
             try {
                 await userStore.archive(pid);
                 toast.success("User deleted successfully");
+                await reload();
             } catch (err: any) {
                 toast.error(err.response?.data?.message || "Failed to delete User");
             }

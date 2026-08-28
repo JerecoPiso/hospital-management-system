@@ -3,14 +3,15 @@
 namespace App\Traits;
 
 use App\Http\Requests\PatientType\StoreRequest;
+use Illuminate\Http\Request;
 
 trait PatientTypeTrait
 {
-    public function list()
+    public function list(Request $request)
     {
         try {
-            $patientTypes = $this->patientTypeRepo->list([]);
-            return api_response($patientTypes, true, "Success", 200);
+            $patientTypes = $this->patientTypeRepo->list($request->only(['search', 'per_page', 'page']));
+            return api_list_response($patientTypes['items'], $patientTypes['meta']);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $e->getCode() ?: 500);
         }

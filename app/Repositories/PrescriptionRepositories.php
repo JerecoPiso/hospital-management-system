@@ -19,8 +19,20 @@ class PrescriptionRepositories
             });
         }
 
-        $prescription = $prescription->get();
-        return $prescription->toArray();
+        if (!empty($filter['status'])) {
+            $prescription->where('status', $filter['status']);
+        }
+
+        return api_list($prescription, $filter, [
+            'status',
+            'remarks',
+            'doctor.firstname',
+            'doctor.lastname',
+            'patientCase.case_number',
+            'patientCase.patient.firstname',
+            'patientCase.patient.lastname',
+            'items.medicine.name',
+        ]);
     }
 
     public function searchByPid($pid)
@@ -92,6 +104,22 @@ class PrescriptionRepositories
             });
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
+        }
+    }
+
+    public function updateStatus($prescription_id, $data)
+    {
+        try {
+            $prescription = Prescription::findOrFail($prescription_id);
+
+            $prescription->update([
+                'status' => $data['status'],
+                'remarks' => $data['remarks'] ?? $prescription->remarks,
+            ]);
+
+            return $prescription->load(['patientCase.patient', 'doctor', 'items.medicine']);
+        } catch (\Exception $e) {
+            throw new \Exception("An error has occured! " . $e->getMessage());
         }
     }
 

@@ -10,8 +10,8 @@ trait BedTrait
     public function list(Request $request)
     {
         try {
-            $beds = $this->bedRepo->list($request->only(['room_pid']));
-            return api_response($beds, true, "Success", 200);
+            $beds = $this->bedRepo->list($request->only(['room_pid', 'search', 'per_page', 'page']));
+            return api_list_response($beds['items'], $beds['meta']);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $e->getCode() ?: 500);
         }

@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { MedicineStockMovement } from "@/interface/Interfaces";
+import { emptyMeta, type ApiTableMeta } from "@/composables/apiTable";
 import axios from "axios";
 export const useMedicineStockMovementStore = defineStore("medicineStockMovement", () => {
     const baseUrl = import.meta.env.VITE_APP_API_URL;
@@ -12,15 +13,14 @@ export const useMedicineStockMovementStore = defineStore("medicineStockMovement"
         reference: '',
         remarks: ''
     })
+    const meta = ref<ApiTableMeta>(emptyMeta())
     const create = async (data: MedicineStockMovement) => {
         await axios.post(`${baseUrl}api/medicine-stock-movements`, data);
-        read();
     }
-    const read = async (medicine_pid?: string) => {
-        const response = await axios.get(`${baseUrl}api/medicine-stock-movements`, {
-            params: medicine_pid ? { medicine_pid } : {}
-        });
+    const read = async (params: Record<string, any> = {}) => {
+        const response = await axios.get(`${baseUrl}api/medicine-stock-movements`, { params });
         medicineStockMovements.value = response.data.data;
+        if (response.data.meta) meta.value = response.data.meta;
     }
     const view = async (pid: string) => {
         const response = await axios.get(`${baseUrl}api/medicine-stock-movements/${pid}`);
@@ -31,6 +31,7 @@ export const useMedicineStockMovementStore = defineStore("medicineStockMovement"
         read,
         view,
         medicineStockMovements,
-        medicineStockMovement
+        medicineStockMovement,
+        meta
     }
 })

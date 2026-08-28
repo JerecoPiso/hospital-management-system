@@ -208,9 +208,9 @@ import { useRouter, useRoute } from "vue-router";
 import { MdDashboard, MdLayers, MdLocationOn, MdSwapVert } from "vue-icons-plus/md";
 import { FiUsers, FiSettings, FiUserPlus } from "vue-icons-plus/fi";
 import { GiMedicalPack, GiMedicines } from "vue-icons-plus/gi";
-import { FaUsers, FaBuilding, FaBed } from "vue-icons-plus/fa";
+import { FaUsers, FaBuilding, FaBed, FaUtensils, FaCapsules } from "vue-icons-plus/fa";
 import { BsFillDoorOpenFill } from "vue-icons-plus/bs";
-import { BiCategoryAlt, BiBox } from "vue-icons-plus/bi";
+import { BiCategoryAlt, BiBox, BiFoodMenu } from "vue-icons-plus/bi";
 import { PiUsersThreeFill } from "vue-icons-plus/pi";
 import { Fa6BedPulse, Fa6Hospital, Fa6TruckFast } from "vue-icons-plus/fa6";
 import axios from "axios";
@@ -270,6 +270,11 @@ const navItems = [
     ],
   },
   {
+    name: "Pharmacy",
+    label: "Pharmacy",
+    icon: FaCapsules,
+  },
+  {
     name: "Users",
     label: "Users",
     icon: FaUsers,
@@ -283,6 +288,15 @@ const navItems = [
       { name: "SupplyStocks", label: "Stocks", icon: BiBox },
       { name: "SupplyMovements", label: "Movements", icon: MdSwapVert },
       { name: "SupplyDistributions", label: "Distributions", icon: Fa6TruckFast },
+    ],
+  },
+  {
+    name: "Dietary",
+    label: "Dietary",
+    icon: FaUtensils,
+    children: [
+      { name: "Diets", label: "Diets", icon: FaUtensils },
+      { name: "DietaryList", label: "Dietary List", icon: BiFoodMenu },
     ],
   },
   {
@@ -334,10 +348,7 @@ const handleMenuClick = (action) => {
         label: "Save",
       },
       accept: async () => {
-        const baseUrl = import.meta.env.VITE_APP_API_URL;
-        await axios.post(`${baseUrl}api/user/logout`);
-        auth.user = null;
-        localStorage.setItem("isLoggedout", true);
+        await auth.logout();
         router.push({ name: "Login" });
       },
       reject: () => {

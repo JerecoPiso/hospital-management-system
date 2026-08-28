@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { SupplyMovement } from "@/interface/Interfaces";
+import { emptyMeta, type ApiTableMeta } from "@/composables/apiTable";
 import axios from "axios";
 export const useSupplyMovementStore = defineStore("supplyMovement", () => {
     const baseUrl = import.meta.env.VITE_APP_API_URL;
@@ -11,15 +12,14 @@ export const useSupplyMovementStore = defineStore("supplyMovement", () => {
         type: 'IN',
         used_for: ''
     })
+    const meta = ref<ApiTableMeta>(emptyMeta())
     const create = async (data: SupplyMovement) => {
         await axios.post(`${baseUrl}api/supply-movements`, data);
-        read();
     }
-    const read = async (supply_stock_pid?: string) => {
-        const response = await axios.get(`${baseUrl}api/supply-movements`, {
-            params: supply_stock_pid ? { supply_stock_pid } : {}
-        });
+    const read = async (params: Record<string, any> = {}) => {
+        const response = await axios.get(`${baseUrl}api/supply-movements`, { params });
         supplyMovements.value = response.data.data;
+        if (response.data.meta) meta.value = response.data.meta;
     }
     const view = async (pid: string) => {
         const response = await axios.get(`${baseUrl}api/supply-movements/${pid}`);
@@ -30,6 +30,7 @@ export const useSupplyMovementStore = defineStore("supplyMovement", () => {
         read,
         view,
         supplyMovements,
-        supplyMovement
+        supplyMovement,
+        meta
     }
 })

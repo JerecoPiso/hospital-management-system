@@ -9,9 +9,9 @@ class MedicineRepositories
 
     public function list($filter = [])
     {
-        $med = Medicine::orderBy('id', 'desc');
-        $med = $med->get();
-        return $med->toArray();
+        $query = Medicine::orderBy('id', 'desc');
+
+        return api_list($query, $filter, ['name', 'generic_name', 'brand_name', 'dosage_unit', 'form', 'administration_route']);
     }
     public function searchByPid($pid)
     {

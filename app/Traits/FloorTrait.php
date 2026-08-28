@@ -10,8 +10,8 @@ trait FloorTrait
     public function list(Request $request)
     {
         try {
-            $floors = $this->floorRepo->list($request->only(['building_pid']));
-            return api_response($floors, true, "Success", 200);
+            $floors = $this->floorRepo->list($request->only(['building_pid', 'search', 'per_page', 'page']));
+            return api_list_response($floors['items'], $floors['meta']);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $e->getCode() ?: 500);
         }

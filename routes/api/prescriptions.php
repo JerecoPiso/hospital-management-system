@@ -11,6 +11,7 @@ Route::middleware(['auth:sanctum'])->prefix('prescriptions')
         Route::post('/', 'store');
         Route::get('/{pid}', 'view');
         Route::put('/{pid}', 'update');
+        Route::patch('/{pid}/status', 'updateStatus');
         Route::delete('/{pid}', 'delete');
     });
 

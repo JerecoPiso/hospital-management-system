@@ -176,7 +176,7 @@
       <div class="flex items-center gap-3">
         <div class="relative w-full sm:w-64">
           <FiSearch class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10" size="16" />
-          <InputText v-model="search" placeholder="Search . . ." class="w-full text-sm pl-8!" />
+          <InputText v-model="search" @input="onSearch" placeholder="Search . . ." class="w-full text-sm pl-8!" />
         </div>
         <button
           type="button"
@@ -192,8 +192,13 @@
     <!-- Table -->
     <DataTable
       :value="patients"
+      lazy
       paginator
-      :rows="15"
+      :rows="rows"
+      :first="first"
+      :totalRecords="total"
+      :loading="loading"
+      @page="onPage"
       :rowsPerPageOptions="[10, 15, 25, 50, 100]"
       responsiveLayout="scroll"
       tableStyle="min-width: 55rem"
@@ -272,8 +277,9 @@
             <button
               type="button"
               title="View patient chart"
-              @click="viewChart()"
-              class="p-1.5 rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150 cursor-pointer"
+              :disabled="!data.patient_cases?.length"
+              @click="viewChart(data.patient_cases[data.patient_cases.length - 1].pid)"
+              class="p-1.5 rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <FiEye size="18" />
             </button>
@@ -309,7 +315,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { BsPlusCircle } from "vue-icons-plus/bs";
 import { FiUserPlus, FiEye, FiSearch, FiFilePlus } from "vue-icons-plus/fi";
@@ -317,6 +323,7 @@ import { BiEdit, BiTrash } from "vue-icons-plus/bi";
 import { usePatientStore } from "@/store/patients/PatientRegistration";
 import { usePatientCaseStore } from "@/store/patients/PatientCase";
 import { PatientRegistration, PatientCase } from "@/interface/Interfaces";
+import { useApiTable } from "@/composables/apiTable";
 import { useConfirmToast } from "@/composables/confirm";
 import { useAppToast } from "@/composables/toast";
 
@@ -361,23 +368,23 @@ const patientModal = ref<boolean>(false);
 const isUpdate = ref<boolean>(false);
 const birthdateModel = ref<Date | null>(null);
 const admissionDatetimeModel = ref<Date | null>(null);
-const search = ref<string>("");
 
-let searchTimeout: ReturnType<typeof setTimeout>;
-watch(search, (value) => {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => read(value), 400);
-});
+const { search, rows, first, total, loading, onPage, onSearch, reload } = useApiTable(
+  async (params) => {
+    try {
+      await patientStore.read(params);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to retrieve registered patients");
+    }
+  },
+  () => patientStore.meta,
+);
 
 watch(birthdateModel, (val) => {
   patientInfo.birthdate = val ? val.toISOString() : "";
 });
 watch(admissionDatetimeModel, (val) => {
   patientInfo.admission_datetime = val ? val.toISOString() : "";
-});
-
-onMounted(async () => {
-  await read();
 });
 
 const resetForm = () => {
@@ -396,27 +403,20 @@ watch(
   }
 );
 
-const read = async (query?: string) => {
-  try {
-    await patientStore.read(undefined, query);
-  } catch (err: any) {
-    toast.error(err.response?.data?.message || "Failed to retrieve registered patients");
-  }
-};
-
 const create = async () => {
   try {
     await patientStore.create(patientInfo);
     toast.success("Patient registered successfully");
     patientModal.value = false;
     resetForm();
+    await reload();
   } catch (err: any) {
     toast.error(err.response?.data?.message || "Failed to register patient");
   }
 };
 
-const viewChart = () => {
-  router.push({ name: "PatientInformation" });
+const viewChart = (patientCasePid: string) => {
+  router.push({ name: "PatientInformation", params: { patient_case_pid: patientCasePid } });
 };
 
 const view = async (pid: string) => {
@@ -446,6 +446,7 @@ const update = async () => {
     toast.success("Registration updated successfully");
     patientModal.value = false;
     resetForm();
+    await reload();
   } catch (err: any) {
     toast.error(err.response?.data?.message || "Failed to update registration");
   }
@@ -459,6 +460,7 @@ const archive = async (pid: string) => {
       try {
         await patientStore.archive(pid);
         toast.success("Patient registration deleted successfully");
+        await reload();
       } catch (err: any) {
         toast.error(err.response?.data?.message || "Failed to delete registration");
       }
@@ -497,7 +499,7 @@ const createCase = async () => {
     await patientCaseStore.create(caseInfo);
     toast.success("Case added successfully");
     caseModal.value = false;
-    await read(search.value);
+    await reload();
   } catch (err: any) {
     toast.error(err.response?.data?.message || "Failed to add case");
   }

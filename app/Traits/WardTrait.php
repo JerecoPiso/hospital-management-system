@@ -10,8 +10,8 @@ trait WardTrait
     public function list(Request $request)
     {
         try {
-            $wards = $this->wardRepo->list($request->only(['floor_pid']));
-            return api_response($wards, true, "Success", 200);
+            $wards = $this->wardRepo->list($request->only(['floor_pid', 'search', 'per_page', 'page']));
+            return api_list_response($wards['items'], $wards['meta']);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $e->getCode() ?: 500);
         }

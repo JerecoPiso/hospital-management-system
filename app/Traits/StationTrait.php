@@ -10,8 +10,8 @@ trait StationTrait
     public function list(Request $request)
     {
         try {
-            $stations = $this->stationRepo->list($request->only(['ward_pid']));
-            return api_response($stations, true, "Success", 200);
+            $stations = $this->stationRepo->list($request->only(['ward_pid', 'search', 'per_page', 'page']));
+            return api_list_response($stations['items'], $stations['meta']);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $e->getCode() ?: 500);
         }

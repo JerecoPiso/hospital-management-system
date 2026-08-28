@@ -7,7 +7,7 @@
       </div>
       <div>
         <p class="text-slate-500 text-xs font-medium uppercase tracking-wide">Total Outpatients</p>
-        <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ outpatients.length }}</p>
+        <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ total }}</p>
       </div>
     </div>
     <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center gap-4">
@@ -45,15 +45,20 @@
       <div class="relative w-full sm:w-64">
         <FiSearch class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10" size="16" />
 
-        <InputText v-model="search" placeholder="Search . . ." class="w-full text-sm pl-8!" />
+        <InputText v-model="search" @input="onSearch" placeholder="Search . . ." class="w-full text-sm pl-8!" />
       </div>
     </div>
 
     <!-- Table -->
     <DataTable
       :value="outpatients"
+      lazy
       paginator
-      :rows="15"
+      :rows="rows"
+      :first="first"
+      :totalRecords="total"
+      :loading="loading"
+      @page="onPage"
       :rowsPerPageOptions="[10, 15, 25, 50, 100]"
       responsiveLayout="scroll"
       tableStyle="min-width: 60rem"
@@ -139,34 +144,31 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { FaWalking } from "vue-icons-plus/fa";
 import { FiClock, FiCalendar, FiSearch, FiEye } from "vue-icons-plus/fi";
 import { usePatientStore } from "@/store/patients/PatientRegistration";
 import { PatientRegistration } from "@/interface/Interfaces";
+import { useApiTable } from "@/composables/apiTable";
 import { useAppToast } from "@/composables/toast";
 
 const router = useRouter();
 const toast = useAppToast();
 const patientStore = usePatientStore();
-const search = ref("");
 
 const outpatients = computed<PatientRegistration[]>(() => patientStore.patients);
 
-const read = async (query?: string) => {
-  try {
-    await patientStore.read("outpatient", query);
-  } catch (err: any) {
-    toast.error(err.response?.data?.message || "Failed to retrieve outpatients");
-  }
-};
-
-let searchTimeout: ReturnType<typeof setTimeout>;
-watch(search, (value) => {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => read(value), 400);
-});
+const { search, rows, first, total, loading, onPage, onSearch } = useApiTable(
+  async (params) => {
+    try {
+      await patientStore.read({ ...params, type: "outpatient" });
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to retrieve outpatients");
+    }
+  },
+  () => patientStore.meta,
+);
 
 const formatDate = (value?: string) => (value ? new Date(value).toLocaleString() : "—");
 
@@ -189,10 +191,6 @@ const visitsThisWeekCount = computed(() => {
     if (!visitAt) return false;
     return now - new Date(visitAt).getTime() <= weekMs;
   }).length;
-});
-
-onMounted(async () => {
-  await read();
 });
 
 const viewChart = (patientCasePid: string) => {

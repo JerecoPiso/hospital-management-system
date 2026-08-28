@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { SupplyDistribution } from "@/interface/Interfaces";
+import { emptyMeta, type ApiTableMeta } from "@/composables/apiTable";
 import axios from "axios";
 export const useSupplyDistributionStore = defineStore("supplyDistribution", () => {
     const baseUrl = import.meta.env.VITE_APP_API_URL;
@@ -10,15 +11,14 @@ export const useSupplyDistributionStore = defineStore("supplyDistribution", () =
         station_pid: '',
         quantity: 0
     })
+    const meta = ref<ApiTableMeta>(emptyMeta())
     const create = async (data: SupplyDistribution) => {
         await axios.post(`${baseUrl}api/supply-distributions`, data);
-        read();
     }
-    const read = async (supply_stock_pid?: string) => {
-        const response = await axios.get(`${baseUrl}api/supply-distributions`, {
-            params: supply_stock_pid ? { supply_stock_pid } : {}
-        });
+    const read = async (params: Record<string, any> = {}) => {
+        const response = await axios.get(`${baseUrl}api/supply-distributions`, { params });
         supplyDistributions.value = response.data.data;
+        if (response.data.meta) meta.value = response.data.meta;
     }
     const view = async (pid: string) => {
         const response = await axios.get(`${baseUrl}api/supply-distributions/${pid}`);
@@ -29,6 +29,7 @@ export const useSupplyDistributionStore = defineStore("supplyDistribution", () =
         read,
         view,
         supplyDistributions,
-        supplyDistribution
+        supplyDistribution,
+        meta
     }
 })

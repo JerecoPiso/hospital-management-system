@@ -96,6 +96,22 @@
             </form>
         </Dialog>
 
+        <!-- Rx paper dialog -->
+        <Dialog v-model:visible="rxModalOpen" modal :style="{ width: '52vw' }" :breakpoints="{ '1199px': '80vw', '575px': '96vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
+            <template #header>
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
+                        <FaFilePrescription class="text-white" size="15" />
+                    </div>
+                    <div>
+                        <h2 class="text-base font-semibold text-slate-800">Prescription</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Rx view &bull; {{ formatDateTime(rxPrescription?.prescription_date) }}</p>
+                    </div>
+                </div>
+            </template>
+            <PrescriptionPaper :prescription="rxPrescription" />
+        </Dialog>
+
         <!-- Header -->
         <div class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-linear-to-r from-slate-50 to-white">
             <div class="flex items-center gap-3">
@@ -163,6 +179,9 @@
             <Column header="Actions" class="w-24">
                 <template #body="{ data }">
                     <div class="flex items-center gap-1">
+                        <button type="button" title="View as prescription (Rx)" @click="openRx(data)" class="p-1.5 rounded-md text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors duration-150 cursor-pointer">
+                            <FaFilePrescription size="18" />
+                        </button>
                         <button type="button" title="Edit prescription" @click="edit(data.pid)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
                             <BiEdit size="18" />
                         </button>
@@ -182,6 +201,8 @@ import { useRoute } from 'vue-router';
 import { BsPlusCircle } from 'vue-icons-plus/bs';
 import { BiEdit, BiTrash } from 'vue-icons-plus/bi';
 import { GiMedicines } from 'vue-icons-plus/gi';
+import { FaFilePrescription } from 'vue-icons-plus/fa';
+import PrescriptionPaper from '@/components/PrescriptionPaper.vue';
 import { usePrescriptionStore } from '@/store/patientchart/Prescriptions';
 import { usePatientCaseStore } from '@/store/patients/PatientCase';
 import { useMedicineStore } from '@/store/Medicine';
@@ -211,6 +232,13 @@ const itemStatusOptions = ['continue', 'discontinue', 'hold'];
 const modalOpen = ref<boolean>(false);
 const isUpdate = ref<boolean>(false);
 const prescriptionDateModel = ref<Date | null>(null);
+
+const rxModalOpen = ref<boolean>(false);
+const rxPrescription = ref<Prescription | null>(null);
+const openRx = (row: Prescription) => {
+    rxPrescription.value = row;
+    rxModalOpen.value = true;
+};
 
 const defaultItem = (): PrescriptionItem => ({
     medicine_pid: '',

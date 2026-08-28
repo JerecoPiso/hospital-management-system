@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { Medicines } from "@/interface/Interfaces";
+import { emptyMeta, type ApiTableMeta } from "@/composables/apiTable";
 import axios from "axios";
 export const useMedicineStore = defineStore("medicine", () => {
     const baseUrl = import.meta.env.VITE_APP_API_URL;
@@ -15,13 +16,14 @@ export const useMedicineStore = defineStore("medicine", () => {
         administration_route: '',
         price: 0
     })
+    const meta = ref<ApiTableMeta>(emptyMeta())
     const create = async (data: Medicines) => {
         await axios.post(`${baseUrl}api/medicine`, data);
-        read();
     }
-    const read = async () => {
-        const response = await axios.get(`${baseUrl}api/medicine`);
+    const read = async (params: Record<string, any> = {}) => {
+        const response = await axios.get(`${baseUrl}api/medicine`, { params });
         medicines.value = response.data.data;
+        if (response.data.meta) meta.value = response.data.meta;
     }
     const view = async (pid: string) => {
         const response = await axios.get(`${baseUrl}api/medicine/${pid}`);
@@ -29,11 +31,9 @@ export const useMedicineStore = defineStore("medicine", () => {
     }
     const update = async (data: Medicines) => {
         await axios.put(`${baseUrl}api/medicine/${data.pid}`, data);
-        read();
     }
     const archive = async (pid: string) => {
         await axios.delete(`${baseUrl}api/medicine/${pid}`);
-        read();
     }
     return {
         archive,
@@ -42,6 +42,7 @@ export const useMedicineStore = defineStore("medicine", () => {
         view,
         update,
         medicines,
-        medicine
+        medicine,
+        meta
     }
 })

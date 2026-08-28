@@ -8,9 +8,9 @@ class PatientTypeRepositories
 {
     public function list($filter = [])
     {
-        $patientType = PatientType::orderBy('id', 'desc');
-        $patientType = $patientType->get();
-        return $patientType->toArray();
+        $query = PatientType::orderBy('id', 'desc');
+
+        return api_list($query, $filter, ['code', 'name', 'description']);
     }
 
     public function searchByPid($pid)

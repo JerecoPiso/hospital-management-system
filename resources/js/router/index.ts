@@ -17,6 +17,7 @@ const router = createRouter({
             children: [
                 { path: "", name: "Dashboard", component: () => import("../pages/authenticated/Dashboard.vue") },
                 { path: "users", name: "Users", component: () => import("../pages/authenticated/Users.vue") },
+                { path: "pharmacy", name: "Pharmacy", component: () => import("../pages/authenticated/pharmacy/Pharmacy.vue") },
                 {
                     path: "patients",
                     component: RouterView,
@@ -47,6 +48,14 @@ const router = createRouter({
                     ],
                 },
                 {
+                    path: "dietary",
+                    component: RouterView,
+                    children: [
+                        { path: "", name: "Diets", component: () => import("../pages/authenticated/dietary/Diets.vue") },
+                        { path: "patients", name: "DietaryList", component: () => import("../pages/authenticated/dietary/DietaryList.vue") },
+                    ],
+                },
+                {
                     path: "settings",
                     component: RouterView,
                     children: [
@@ -72,6 +81,7 @@ const router = createRouter({
                 { path: "nurses-notes", name: "NursesNotes", component: () => import("../pages/authenticated/patientchart/NursesNotes.vue") },
                 { path: "therapeutic", name: "Therapeutic", component: () => import("../pages/authenticated/patientchart/Therapeutic.vue") },
                 { path: "vital-signs", name: "VitalSigns", component: () => import("../pages/authenticated/patientchart/VitalSigns.vue") },
+                { path: "diet", name: "PatientDiet", component: () => import("../pages/authenticated/patientchart/Diet.vue") },
                 { path: "patient-forms", name: "PatientForms", component: () => import("../pages/authenticated/patientchart/PatientForms.vue") },
                 { path: "patient-forms/physical-examination-form-one", name: "HistoryAndPhysicalExaminationFormOne", component: () => import("../pages/authenticated/patientchart/patientforms/HistoryAndPhysicalExaminationFormOne.vue") },
                 { path: "patient-forms/physical-examination-form-two", name: "HistoryAndPhysicalExaminationFormTwo", component: () => import("../pages/authenticated/patientchart/patientforms/HistoryAndPhysicalExaminationFormTwo.vue") },

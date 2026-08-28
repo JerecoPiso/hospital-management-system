@@ -17,8 +17,7 @@ class FloorRepositories
             });
         }
 
-        $floor = $floor->get();
-        return $floor->toArray();
+        return api_list($floor, $filter, ['floor_number', 'name', 'description', 'building.name', 'building.code']);
     }
 
     public function searchByPid($pid)

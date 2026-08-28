@@ -3,14 +3,15 @@
 namespace App\Traits;
 
 use App\Http\Requests\Medicine\StoreRequest;
+use Illuminate\Http\Request;
 
 trait MedicineTrait
 {
-    public function list()
+    public function list(Request $request)
     {
         try {
-            $meds = $this->medicineRepo->list([]);
-            return api_response($meds, true, "Success", 200);
+            $meds = $this->medicineRepo->list($request->only(['search', 'per_page', 'page']));
+            return api_list_response($meds['items'], $meds['meta']);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
         }
