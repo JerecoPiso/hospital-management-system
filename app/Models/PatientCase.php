@@ -33,4 +33,14 @@ class PatientCase extends Model
     {
         return $this->belongsTo(PatientType::class);
     }
+
+    public function station(): BelongsTo
+    {
+        return $this->belongsTo(Station::class);
+    }
+
+    public function bed(): BelongsTo
+    {
+        return $this->belongsTo(Bed::class);
+    }
 }

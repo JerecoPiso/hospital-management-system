@@ -44,6 +44,8 @@ class StoreRequest extends FormRequest
             "final_diagnosis" => "nullable|string",
             "type" => "required|in:inpatient,outpatient",
             "patient_type_pid" => "nullable|string|exists:patient_types,pid",
+            "station_pid" => "nullable|string|exists:stations,pid",
+            "bed_pid" => "nullable|string|exists:beds,pid",
         ];
     }
 

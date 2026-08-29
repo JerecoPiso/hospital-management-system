@@ -67,6 +67,7 @@ const router = createRouter({
                         { path: "stations", name: "Stations", component: () => import("../pages/authenticated/settings/Stations.vue") },
                         { path: "patient-types", name: "PatientTypes", component: () => import("../pages/authenticated/settings/PatientTypes.vue") },
                         { path: "pertinent-signs-and-symptoms", name: "PertinentSignsAndSymptoms", component: () => import("../pages/authenticated/settings/PertinentSignsAndSymptoms.vue") },
+                        { path: "icds", name: "Icds", component: () => import("../pages/authenticated/settings/Icds.vue") },
                     ],
                 },
             ],
@@ -87,6 +88,7 @@ const router = createRouter({
                 { path: "patient-forms/physical-examination-form-one", name: "HistoryAndPhysicalExaminationFormOne", component: () => import("../pages/authenticated/patientchart/patientforms/HistoryAndPhysicalExaminationFormOne.vue") },
                 { path: "patient-forms/physical-examination-form-two", name: "HistoryAndPhysicalExaminationFormTwo", component: () => import("../pages/authenticated/patientchart/patientforms/HistoryAndPhysicalExaminationFormTwo.vue") },
                 { path: "patient-forms/pertinent-signs-and-symptoms", name: "PertinentSignsAndSymptomsForm", component: () => import("../pages/authenticated/patientchart/patientforms/PertinentSignsAndSymptoms.vue") },
+                { path: "patient-forms/soap", name: "SoapForm", component: () => import("../pages/authenticated/patientchart/patientforms/Soap.vue") },
             ]
         },
     ]

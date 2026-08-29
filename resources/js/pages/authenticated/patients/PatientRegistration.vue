@@ -83,6 +83,16 @@
             <label class="text-sm font-medium text-slate-700">Admission Date/Time <span class="text-red-400">*</span></label>
             <DatePicker v-model="admissionDatetimeModel" showTime hourFormat="24" dateFormat="yy-mm-dd" placeholder="YYYY-MM-DD HH:mm" fluid class="text-sm" />
           </div>
+          <template v-if="patientInfo.type === 'inpatient'">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-slate-700">Station</label>
+              <Select v-model="patientInfo.station_pid" :options="stations" :optionLabel="stationOptionLabel" optionValue="pid" placeholder="Select station" filter showClear fluid class="text-sm" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-slate-700">Bed</label>
+              <Select v-model="patientInfo.bed_pid" :options="beds" :optionLabel="bedOptionLabel" optionValue="pid" placeholder="Select bed" filter showClear fluid class="text-sm" />
+            </div>
+          </template>
           <div class="col-span-2 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Chief Complaint <span class="text-red-400">*</span></label>
             <InputText v-model="patientInfo.chief_complaint" fluid required class="text-sm" />
@@ -149,6 +159,16 @@
             <label class="text-sm font-medium text-slate-700">Admission Date/Time <span class="text-red-400">*</span></label>
             <DatePicker v-model="caseAdmissionDatetimeModel" showTime hourFormat="24" dateFormat="yy-mm-dd" placeholder="YYYY-MM-DD HH:mm" fluid class="text-sm" />
           </div>
+          <template v-if="caseInfo.type === 'inpatient'">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-slate-700">Station</label>
+              <Select v-model="caseInfo.station_pid" :options="stations" :optionLabel="stationOptionLabel" optionValue="pid" placeholder="Select station" filter showClear fluid class="text-sm" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-slate-700">Bed</label>
+              <Select v-model="caseInfo.bed_pid" :options="beds" :optionLabel="bedOptionLabel" optionValue="pid" placeholder="Select bed" filter showClear fluid class="text-sm" />
+            </div>
+          </template>
           <div class="col-span-2 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Chief Complaint <span class="text-red-400">*</span></label>
             <InputText v-model="caseInfo.chief_complaint" fluid required class="text-sm" />
@@ -245,7 +265,6 @@
           <span class="text-slate-600 text-sm">{{ data.patient_cases?.[data.patient_cases.length - 1]?.case_number || "—" }}</span>
         </template>
       </Column>
-
       <Column header="Admission Date" class="w-40">
         <template #body="{ data }">
           <span class="text-slate-500 text-sm">{{ data.patient_cases?.[data.patient_cases.length - 1]?.admission_datetime || "—" }}</span>
@@ -281,6 +300,16 @@
             :value="data.patient_cases[data.patient_cases.length - 1].type === 'inpatient' ? 'Inpatient' : 'Outpatient'"
             :severity="data.patient_cases[data.patient_cases.length - 1].type === 'inpatient' ? 'info' : 'success'"
           />
+          <span v-else class="text-slate-300 text-sm italic">—</span>
+        </template>
+      </Column>
+
+      <Column header="Station / Bed" class="w-44">
+        <template #body="{ data }">
+          <span v-if="data.patient_cases?.[data.patient_cases.length - 1]?.type === 'inpatient'" class="text-slate-600 text-sm">
+            {{ data.patient_cases[data.patient_cases.length - 1]?.station?.name || "—" }}
+            <span v-if="data.patient_cases[data.patient_cases.length - 1]?.bed?.bed_number" class="text-slate-400"> · Bed {{ data.patient_cases[data.patient_cases.length - 1].bed.bed_number }}</span>
+          </span>
           <span v-else class="text-slate-300 text-sm italic">—</span>
         </template>
       </Column>
@@ -337,7 +366,9 @@ import { BiEdit, BiTrash } from "vue-icons-plus/bi";
 import { usePatientStore } from "@/store/patients/PatientRegistration";
 import { usePatientCaseStore } from "@/store/patients/PatientCase";
 import { usePatientTypeStore } from "@/store/PatientType";
-import { PatientRegistration, PatientCase, PatientType } from "@/interface/Interfaces";
+import { useStationStore } from "@/store/Station";
+import { useBedStore } from "@/store/Bed";
+import { PatientRegistration, PatientCase, PatientType, Station, Bed } from "@/interface/Interfaces";
 import { useApiTable } from "@/composables/apiTable";
 import { useConfirmToast } from "@/composables/confirm";
 import { useAppToast } from "@/composables/toast";
@@ -347,6 +378,8 @@ const toast = useAppToast();
 const patientStore = usePatientStore();
 const patientCaseStore = usePatientCaseStore();
 const patientTypeStore = usePatientTypeStore();
+const stationStore = useStationStore();
+const bedStore = useBedStore();
 const router = useRouter();
 
 const genders = ["Male", "Female", "Other"];
@@ -355,9 +388,16 @@ const admissionTypeOptions = [
   { label: "Outpatient", value: "outpatient" },
 ];
 const patientTypes = computed<PatientType[]>(() => patientTypeStore.patientTypes);
+const stations = computed<Station[]>(() => stationStore.stations);
+const beds = computed<Bed[]>(() => bedStore.beds);
+const stationOptionLabel = (data: Station) => `${data.name}${data.ward?.name ? " — " + data.ward.name : ""}`;
+const bedOptionLabel = (data: Bed) =>
+  `${data.room?.room_number ? "Room " + data.room.room_number + " — " : ""}Bed ${data.bed_number}${data.status && data.status !== "available" ? ` (${data.status})` : ""}`;
 
 onMounted(() => {
   patientTypeStore.read().catch(() => {});
+  stationStore.read().catch(() => {});
+  bedStore.read().catch(() => {});
 });
 
 const emptyPatient = (): PatientRegistration => ({
@@ -381,6 +421,8 @@ const emptyPatient = (): PatientRegistration => ({
   final_diagnosis: "",
   type: "outpatient",
   patient_type_pid: "",
+  station_pid: "",
+  bed_pid: "",
 });
 
 const patients = computed<PatientRegistration[]>(() => patientStore.patients);
@@ -399,12 +441,21 @@ const { search, rows, first, total, loading, onPage, onSearch, reload } = useApi
       toast.error(err.response?.data?.message || "Failed to retrieve registered patients");
     }
   },
-  () => patientStore.meta,
+  () => patientStore.meta
 );
 
 watch(birthdateModel, (val) => {
   patientInfo.birthdate = val ? val.toISOString() : "";
 });
+watch(
+  () => patientInfo.type,
+  (type) => {
+    if (type !== "inpatient") {
+      patientInfo.station_pid = "";
+      patientInfo.bed_pid = "";
+    }
+  }
+);
 watch(admissionDatetimeModel, (val) => {
   patientInfo.admission_datetime = val ? val.toISOString() : "";
 });
@@ -454,6 +505,8 @@ const view = async (pid: string) => {
       patientInfo.final_diagnosis = latestCase.final_diagnosis;
       patientInfo.type = latestCase.type ?? "outpatient";
       patientInfo.patient_type_pid = latestCase.patient_type?.pid ?? "";
+      patientInfo.station_pid = latestCase.station?.pid ?? "";
+      patientInfo.bed_pid = latestCase.bed?.pid ?? "";
       admissionDatetimeModel.value = latestCase.admission_datetime ? new Date(latestCase.admission_datetime) : null;
     }
     birthdateModel.value = patient.value.birthdate ? new Date(patient.value.birthdate) : null;
@@ -496,13 +549,32 @@ const archive = async (pid: string) => {
 /* ---------------- ADD CASE ---------------- */
 const caseModal = ref<boolean>(false);
 const selectedPatient = ref<PatientRegistration | null>(null);
-const defaultCaseInfo = (): PatientCase => ({ patient_pid: "", type: "outpatient", admission_datetime: "", chief_complaint: "", initial_diagnosis: "", final_diagnosis: "", patient_type_pid: "" });
+const defaultCaseInfo = (): PatientCase => ({
+  patient_pid: "",
+  type: "outpatient",
+  admission_datetime: "",
+  chief_complaint: "",
+  initial_diagnosis: "",
+  final_diagnosis: "",
+  patient_type_pid: "",
+  station_pid: "",
+  bed_pid: "",
+});
 const caseInfo = reactive<PatientCase>(defaultCaseInfo());
 const caseAdmissionDatetimeModel = ref<Date | null>(null);
 
 watch(caseAdmissionDatetimeModel, (val) => {
   caseInfo.admission_datetime = val ? val.toISOString() : "";
 });
+watch(
+  () => caseInfo.type,
+  (type) => {
+    if (type !== "inpatient") {
+      caseInfo.station_pid = "";
+      caseInfo.bed_pid = "";
+    }
+  }
+);
 
 watch(caseModal, (open) => {
   if (!open) {

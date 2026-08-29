@@ -2,8 +2,10 @@
 
 namespace App\Repositories;
 
+use App\Models\Bed;
 use App\Models\Patient;
 use App\Models\PatientType;
+use App\Models\Station;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
@@ -19,10 +21,28 @@ class PatientRepositories
         return PatientType::where('pid', $data['patient_type_pid'])->value('id');
     }
 
+    private function resolveStationId($data)
+    {
+        if (($data['type'] ?? null) !== 'inpatient' || empty($data['station_pid'])) {
+            return null;
+        }
+
+        return Station::where('pid', $data['station_pid'])->value('id');
+    }
+
+    private function resolveBedId($data)
+    {
+        if (($data['type'] ?? null) !== 'inpatient' || empty($data['bed_pid'])) {
+            return null;
+        }
+
+        return Bed::where('pid', $data['bed_pid'])->value('id');
+    }
+
 
     public function list($filter = [])
     {
-        $patient = Patient::with(['patientCases.patientType'])->orderBy('id', 'desc');
+        $patient = Patient::with(['patientCases.patientType', 'patientCases.station', 'patientCases.bed'])->orderBy('id', 'desc');
 
         if (!empty($filter['type'])) {
             $patient->whereHas('patientCases', function ($q) use ($filter) {
@@ -43,7 +63,7 @@ class PatientRepositories
     {
         try {
 
-            $patient = Patient::with(['patientCases.patientType'])->where('pid', $pid)->first();
+            $patient = Patient::with(['patientCases.patientType', 'patientCases.station', 'patientCases.bed'])->where('pid', $pid)->first();
 
             if (!$patient) {
                 return [];
@@ -79,8 +99,8 @@ class PatientRepositories
 
                 $patient->patientCases()->create([
                     'pid' => Str::uuid()->toString(),
-                    'station_id' => null,
-                    'bed_id' => null,
+                    'station_id' => $this->resolveStationId($data),
+                    'bed_id' => $this->resolveBedId($data),
                     'patient_type_id' => $this->resolvePatientTypeId($data),
                     'case_number' => 'CASE-' . strtoupper(Str::random(8)),
                     'admission_datetime' => Carbon::parse($data['admission_datetime'])->toDateTimeString(),
@@ -133,6 +153,8 @@ class PatientRepositories
                     'final_diagnosis' => $data['final_diagnosis'] ?? null,
                     'type' => $data['type'],
                     'patient_type_id' => $this->resolvePatientTypeId($data),
+                    'station_id' => $this->resolveStationId($data),
+                    'bed_id' => $this->resolveBedId($data),
                 ]);
             }
 

@@ -3,12 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class PertinentSignsAndSymptomsList extends Model
+class Icd extends Model
 {
-    //
     use SoftDeletes;
 
     protected $guarded = ['id'];
@@ -19,8 +19,13 @@ class PertinentSignsAndSymptomsList extends Model
     {
         parent::boot();
 
-        static::creating(function ($pertinent) {
-            $pertinent->pid = $pertinent->pid ?? Str::uuid()->toString();
+        static::creating(function ($icd) {
+            $icd->pid = $icd->pid ?? Str::uuid()->toString();
         });
+    }
+
+    public function soaps(): HasMany
+    {
+        return $this->hasMany(Soap::class);
     }
 }

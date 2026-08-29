@@ -213,7 +213,13 @@ export interface PatientCase {
     patient_pid?: string;
     patient?: PatientRegistration;
     station_id?: number | null;
+    station_pid?: string;
+    // Laravel serializes the `station` relation as snake_case.
+    station?: Station;
     bed_id?: number | null;
+    bed_pid?: string;
+    // Laravel serializes the `bed` relation as snake_case.
+    bed?: Bed;
     patient_type_id?: number | null;
     patient_type_pid?: string;
     // Laravel serializes the `patientType` relation as snake_case.
@@ -248,6 +254,8 @@ export interface PatientRegistration {
     final_diagnosis?: string;
     type: 'inpatient' | 'outpatient';
     patient_type_pid?: string;
+    station_pid?: string;
+    bed_pid?: string;
     // patientCases?: PatientCase[];
     patient_cases?: PatientCase[];
 
@@ -356,6 +364,30 @@ export interface PertinentSignsAndSymptomsList {
     name: string;
     status?: boolean;
     others?: string | null;
+}
+
+export interface Icd {
+    pid?: string;
+    code: string;
+    name: string;
+    status?: boolean;
+}
+
+export interface Soap {
+    pid?: string;
+    patient_case_pid: string;
+    patientCase?: PatientCase;
+    // Laravel serializes the `patientCase` relation as snake_case.
+    patient_case?: PatientCase;
+    doctor?: User;
+    icd_pid: string;
+    icd?: Icd;
+    subjective: string;
+    objective: string;
+    assessment: string;
+    plan: string;
+    remarks?: string | null;
+    created_at?: string;
 }
 
 export interface PertinentSignsAndSymptoms {

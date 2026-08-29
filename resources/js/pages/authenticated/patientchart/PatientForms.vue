@@ -54,6 +54,20 @@
                 </div>
                 <BiChevronRight class="text-slate-300 group-hover:text-emerald-500 transition-colors" size="20" />
             </router-link>
+
+            <router-link
+                :to="{ name: 'SoapForm' }"
+                class="group flex items-center gap-4 p-5 rounded-xl border border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all duration-200 bg-white"
+            >
+                <div class="w-12 h-12 shrink-0 rounded-xl bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
+                    <BsJournalMedical class="text-white" size="20" />
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-semibold text-slate-800 group-hover:text-emerald-700">SOAP Notes</p>
+                    <p class="text-xs text-slate-400 mt-0.5">Subjective, objective, assessment &amp; plan</p>
+                </div>
+                <BiChevronRight class="text-slate-300 group-hover:text-emerald-500 transition-colors" size="20" />
+            </router-link>
         </div>
     </div>
 </template>

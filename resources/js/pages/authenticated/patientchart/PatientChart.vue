@@ -248,11 +248,6 @@ const navItems = [
     icon: FiActivity,
   },
   {
-    name: "PatientDiet",
-    label: "Diet",
-    icon: FaUtensils,
-  },
-  {
     label: "Doctors Order",
     name: "DoctorsOrder",
     icon: FaBookMedical,
@@ -266,6 +261,12 @@ const navItems = [
     name: "Therapeutic",
     label: "Therapeutic",
     icon: GiMedicines,
+  },
+
+  {
+    name: "PatientDiet",
+    label: "Diet",
+    icon: FaUtensils,
   },
 ];
 const toggleSubmenu = (item) => {

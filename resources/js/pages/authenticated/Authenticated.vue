@@ -208,7 +208,7 @@ import { useRouter, useRoute } from "vue-router";
 import { MdDashboard, MdLayers, MdLocationOn, MdSwapVert } from "vue-icons-plus/md";
 import { FiUsers, FiSettings, FiUserPlus, FiActivity } from "vue-icons-plus/fi";
 import { GiMedicalPack, GiMedicines } from "vue-icons-plus/gi";
-import { FaUsers, FaBuilding, FaBed, FaUtensils, FaCapsules } from "vue-icons-plus/fa";
+import { FaUsers, FaBuilding, FaBed, FaUtensils, FaCapsules, FaBookMedical } from "vue-icons-plus/fa";
 import { BsFillDoorOpenFill } from "vue-icons-plus/bs";
 import { BiCategoryAlt, BiBox, BiFoodMenu } from "vue-icons-plus/bi";
 import { PiUsersThreeFill } from "vue-icons-plus/pi";
@@ -274,11 +274,7 @@ const navItems = [
     label: "Pharmacy",
     icon: FaCapsules,
   },
-  {
-    name: "Users",
-    label: "Users",
-    icon: FaUsers,
-  },
+
   {
     name: "Supplies",
     label: "Supplies",
@@ -295,9 +291,14 @@ const navItems = [
     label: "Dietary",
     icon: FaUtensils,
     children: [
-      { name: "Diets", label: "Diets", icon: FaUtensils },
       { name: "DietaryList", label: "Dietary List", icon: BiFoodMenu },
+      { name: "Diets", label: "Diets", icon: FaUtensils },
     ],
+  },
+  {
+    name: "Users",
+    label: "Users",
+    icon: FaUsers,
   },
   {
     name: "Settings",
@@ -312,6 +313,7 @@ const navItems = [
       { name: "Stations", label: "Stations", icon: MdLocationOn },
       { name: "PatientTypes", label: "Patient Types", icon: BiCategoryAlt },
       { name: "PertinentSignsAndSymptoms", label: "Signs & Symptoms", icon: FiActivity },
+      { name: "Icds", label: "ICD Codes", icon: FaBookMedical },
     ],
   },
 ];

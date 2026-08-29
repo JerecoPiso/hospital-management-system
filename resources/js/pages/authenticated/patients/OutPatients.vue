@@ -95,7 +95,11 @@
           <span class="text-slate-600 text-sm">{{ data.patient_cases?.[0]?.case_number || "—" }}</span>
         </template>
       </Column>
-
+      <Column header="Patient Type">
+        <template #body="{ data }">
+          {{ data.patient_cases[data.patient_cases.length - 1].patient_type?.name }}
+        </template>
+      </Column>
       <Column header="Visit Date" class="w-44">
         <template #body="{ data }">
           <span class="text-slate-600 text-sm">{{ formatDate(data.patient_cases?.[0]?.admission_datetime) }}</span>
@@ -167,7 +171,7 @@ const { search, rows, first, total, loading, onPage, onSearch } = useApiTable(
       toast.error(err.response?.data?.message || "Failed to retrieve outpatients");
     }
   },
-  () => patientStore.meta,
+  () => patientStore.meta
 );
 
 const formatDate = (value?: string) => (value ? new Date(value).toLocaleString() : "—");

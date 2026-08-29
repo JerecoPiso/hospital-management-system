@@ -89,13 +89,24 @@
           </div>
         </template>
       </Column>
-
       <Column header="Case Number" class="w-40">
         <template #body="{ data }">
           <span class="text-slate-600 text-sm">{{ data.patient_cases?.[data.patient_cases.length - 1]?.case_number || "—" }}</span>
         </template>
       </Column>
-
+      <Column header="Station & Bed">
+        <template #body="{ data }">
+          <div class="flex flex-col gap-2.5">
+            <p v-if="data.patient_cases[data.patient_cases.length - 1].station?.name">Station: {{ data.patient_cases[data.patient_cases.length - 1].station?.name }}</p>
+            <p v-if="data.patient_cases[data.patient_cases.length - 1].bed?.bed_number">Bed: {{ data.patient_cases[data.patient_cases.length - 1].bed?.bed_number }}</p>
+          </div>
+        </template>
+      </Column>
+      <Column header="Patient Type">
+        <template #body="{ data }">
+          {{ data.patient_cases[data.patient_cases.length - 1].patient_type?.name }}
+        </template>
+      </Column>
       <Column header="Admission Date" class="w-44">
         <template #body="{ data }">
           <span class="text-slate-500 text-sm">{{ formatDate(data.patient_cases?.[data.patient_cases.length - 1]?.admission_datetime) }}</span>
@@ -163,7 +174,7 @@ const { search, rows, first, total, loading, onPage, onSearch } = useApiTable(
       toast.error(err.response?.data?.message || "Failed to retrieve inpatients");
     }
   },
-  () => patientStore.meta,
+  () => patientStore.meta
 );
 
 const formatDate = (value?: string) => (value ? new Date(value).toLocaleString() : "—");

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\PatientCase;
+namespace App\Http\Requests\Icd;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
@@ -16,15 +16,9 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "patient_pid" => "required|string|exists:patients,pid",
-            "type" => "required|in:inpatient,outpatient",
-            "admission_datetime" => "required|date",
-            "chief_complaint" => "required|string",
-            "initial_diagnosis" => "nullable|string",
-            "final_diagnosis" => "nullable|string",
-            "patient_type_pid" => "nullable|string|exists:patient_types,pid",
-            "station_pid" => "nullable|string|exists:stations,pid",
-            "bed_pid" => "nullable|string|exists:beds,pid",
+            "code" => "required|string|max:10",
+            "name" => "required|string|max:255",
+            "status" => "nullable|boolean",
         ];
     }
 
