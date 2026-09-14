@@ -51,9 +51,13 @@
                         <label class="text-sm font-medium text-slate-700">Gender</label>
                         <Select v-model="userInfo.gender" :options="genders" placeholder="Select gender" fluid class="text-sm" />
                     </div>
-                    <div class="col-span-2 flex flex-col gap-1.5">
+                    <div class="flex flex-col gap-1.5">
                         <label class="text-sm font-medium text-slate-700">Date of Birth</label>
                         <DatePicker v-model="userInfo.date_of_birth" dateFormat="yy-mm-dd" placeholder="YYYY-MM-DD" fluid class="text-sm" />
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-medium text-slate-700">Role</label>
+                        <Select v-model="userInfo.role_pid" :options="roles" optionLabel="name" optionValue="pid" placeholder="Select role" filter showClear fluid class="text-sm" />
                     </div>
                     <div v-if="!isUpdate" class="col-span-2 flex flex-col gap-1.5">
                         <label class="text-sm font-medium text-slate-700">
@@ -98,6 +102,7 @@
                     <InputText v-model="search" @input="onSearch" placeholder="Search . . ." class="w-full text-sm pl-8!" />
                 </div>
                 <button
+                    v-if="can('users', 'create')"
                     type="button"
                     @click="orderModal = true"
                     class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 shrink-0"
@@ -181,10 +186,18 @@
                 </template>
             </Column>
 
+            <Column header="Role" class="w-36">
+                <template #body="{ data }">
+                    <span v-if="data.role?.name" class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border bg-emerald-50 text-emerald-700 border-emerald-100">{{ data.role.name }}</span>
+                    <span v-else class="text-slate-300 text-sm italic">—</span>
+                </template>
+            </Column>
+
             <Column header="Actions" class="w-24">
                 <template #body="{ data }">
                     <div class="flex items-center gap-1">
                         <button
+                            v-if="can('users', 'update')"
                             type="button"
                             title="Edit user"
                             @click="view(data.pid)"
@@ -193,6 +206,7 @@
                             <BiEdit size="18" />
                         </button>
                         <button
+                            v-if="can('users', 'delete')"
                             type="button"
                             title="Delete user"
                             @click="archive(data.pid)"
@@ -209,24 +223,29 @@
 
 <script setup lang="ts">
 import Password from 'primevue/password';
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { BsPlusCircle } from 'vue-icons-plus/bs';
 import { BiEdit, BiTrash } from 'vue-icons-plus/bi';
 import { FiUsers, FiSearch } from 'vue-icons-plus/fi';
 import { useApiTable } from '@/composables/apiTable';
 import { useUserStore } from '@/store/User';
-import { User } from '@/interface/Interfaces';
+import { useRoleStore } from '@/store/Role';
+import { User, Role } from '@/interface/Interfaces';
 import { useConfirmToast } from '@/composables/confirm';
 import { useAppToast } from "@/composables/toast";
+import { usePermission } from '@/composables/permission';
 
 const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
 const userStore = useUserStore();
+const roleStore = useRoleStore();
+const { can } = usePermission();
 const orderModal = ref<boolean>(false);
 const users = computed<User[]>(() => userStore.users);
 const user = computed<User>(() => userStore.user);
 const genders = computed(() => userStore.genders);
-const userInfo = reactive<User>({
+const roles = computed<Role[]>(() => roleStore.roles);
+const defaultUserInfo = (): User => ({
     pid: '',
     email: '',
     firstname: '',
@@ -236,26 +255,21 @@ const userInfo = reactive<User>({
     license_no: '',
     gender: '',
     date_of_birth: new Date(),
-    password: ''
+    password: '',
+    role_pid: '',
 });
+const userInfo = reactive<User>(defaultUserInfo());
 const isUpdate = ref<boolean>(false);
+
+onMounted(() => {
+    roleStore.read().catch(() => {});
+});
 
 watch(
     () => orderModal.value,
     (newVal) => {
         if (!newVal) {
-            Object.assign(userInfo, {
-                pid: '',
-                email: '',
-                firstname: '',
-                middlename: '',
-                lastname: '',
-                suffix: '',
-                license_no: '',
-                gender: '',
-                date_of_birth: new Date(),
-                password: ''
-            });
+            Object.assign(userInfo, defaultUserInfo());
             isUpdate.value = false;
         }
     }
@@ -286,7 +300,7 @@ const create = async () => {
 const view = async (pid: string) => {
     try {
         await userStore.view(pid);
-        Object.assign(userInfo, user.value);
+        Object.assign(userInfo, user.value, { role_pid: user.value.role?.pid ?? '' });
         isUpdate.value = true;
         orderModal.value = true;
     } catch (err: any) {

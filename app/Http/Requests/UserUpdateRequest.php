@@ -33,7 +33,8 @@ class UserUpdateRequest extends FormRequest
             'gender' => "required|string",
 
             'date_of_birth' => 'required|date',
-            'license_no' =>  'nullable|string|max:255'
+            'license_no' =>  'nullable|string|max:255',
+            'role_pid' => 'nullable|string|exists:roles,pid',
         ];
     }
     protected function failedValidation(Validator $validator)

@@ -80,7 +80,7 @@ trait UserTrait
     {
         try {
             $validated = $request->validated();
-            $user = User::create([
+            $user = $this->userRepo->create([
                 'email' => $validated["email"],
                 'firstname' => $validated["firstname"],
                 'lastname' => $validated["lastname"],
@@ -89,12 +89,23 @@ trait UserTrait
                 'date_of_birth' => Carbon::parse($validated["date_of_birth"])->format('Y-m-d'),
                 'license_no' => $validated["license_no"],
                 'gender' => $validated["gender"],
-                'password' => Hash::make($validated["password"])
+                'password' => Hash::make($validated["password"]),
+                'role_pid' => $validated["role_pid"] ?? null,
             ]);
             return api_response(["user" => $user], true, "Success", 200);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
         }
+    }
+
+    public function me(Request $request)
+    {
+        $user = $request->user()?->load('role');
+
+        return api_response([
+            'user' => $user,
+            'permissions' => $user?->permissionsMap() ?? [],
+        ], true, "Success", 200);
     }
     public function delete($pid)
     {

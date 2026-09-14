@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -29,7 +30,9 @@ class User extends Authenticatable
         'middlename',
         'suffix',
         'gender',
-        'date_of_birth'
+        'date_of_birth',
+        'license_no',
+        'role_id',
     ];
 
     /**
@@ -67,5 +70,52 @@ class User extends Authenticatable
         static::creating(function ($user) {
             $user->pid = $user->pid ?? Str::uuid()->toString();
         });
+    }
+
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Whether this user's role grants the given ability (view|create|update|delete)
+     * on the given module key (see config/modules.php).
+     */
+    public function hasPermission(string $module, string $ability): bool
+    {
+        if (!$this->role_id) {
+            return false;
+        }
+
+        $column = "can_{$ability}";
+        $access = $this->relationLoaded('role') && $this->role
+            ? $this->role->roleAccesses->firstWhere('module', $module)
+            : RoleAccess::where('role_id', $this->role_id)->where('module', $module)->first();
+
+        return (bool) ($access?->{$column} ?? false);
+    }
+
+    /**
+     * Flattened map of module => [view, create, update, delete] booleans for the
+     * frontend to gate navigation and buttons with.
+     */
+    public function permissionsMap(): array
+    {
+        $modules = collect(require config_path('modules.php'));
+        $accesses = $this->role
+            ? $this->role->roleAccesses->keyBy('module')
+            : collect();
+
+        return $modules->mapWithKeys(function ($module) use ($accesses) {
+            $access = $accesses->get($module['key']);
+            return [
+                $module['key'] => [
+                    'view' => (bool) ($access->can_view ?? false),
+                    'create' => (bool) ($access->can_create ?? false),
+                    'update' => (bool) ($access->can_update ?? false),
+                    'delete' => (bool) ($access->can_delete ?? false),
+                ],
+            ];
+        })->all();
     }
 }

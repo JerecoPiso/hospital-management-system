@@ -30,6 +30,7 @@ require __DIR__ . '/api/patientTypes.php';
 require __DIR__ . '/api/pertinentSignsAndSymptoms.php';
 require __DIR__ . '/api/pertinentSignsAndSymptomsLists.php';
 require __DIR__ . '/api/prescriptions.php';
+require __DIR__ . '/api/roles.php';
 require __DIR__ . '/api/rooms.php';
 require __DIR__ . '/api/soaps.php';
 require __DIR__ . '/api/stations.php';

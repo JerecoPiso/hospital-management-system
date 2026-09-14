@@ -412,8 +412,41 @@ export interface User {
     license_no?: string,
     gender: string,
     date_of_birth: Date,
-    password: string
+    password: string,
+    role_pid?: string,
+    role?: Role | null,
 }
+
+export interface RoleAccess {
+    module: string,
+    label?: string,
+    can_view: boolean,
+    can_create: boolean,
+    can_update: boolean,
+    can_delete: boolean,
+}
+
+export interface Role {
+    pid?: string,
+    name: string,
+    description?: string,
+    users_count?: number,
+    accesses?: RoleAccess[],
+}
+
+export interface ModuleDefinition {
+    key: string,
+    label: string,
+}
+
+export interface PermissionAbilities {
+    view: boolean,
+    create: boolean,
+    update: boolean,
+    delete: boolean,
+}
+
+export type PermissionsMap = Record<string, PermissionAbilities>;
 
 export interface DashboardStats {
     total_patients: number;

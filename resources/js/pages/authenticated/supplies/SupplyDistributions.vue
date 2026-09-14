@@ -49,7 +49,7 @@
                     <FiSearch class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10" size="16" />
                     <InputText v-model="search" @input="onSearch" placeholder="Search . . ." class="w-full text-sm pl-8!" />
                 </div>
-                <button type="button" @click="modalOpen = true" class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 shrink-0">
+                <button v-if="can('supply-distributions', 'create')" type="button" @click="modalOpen = true" class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 shrink-0">
                     <BsPlusCircle size="16" />
                     Distribute Stock
                 </button>
@@ -92,8 +92,10 @@ import { useStationStore } from '@/store/Station';
 import { SupplyDistribution, SupplyStock } from '@/interface/Interfaces';
 import { useApiTable } from '@/composables/apiTable';
 import { useAppToast } from '@/composables/toast';
+import { usePermission } from '@/composables/permission';
 
 const toast = useAppToast();
+const { can } = usePermission();
 const supplyDistributionStore = useSupplyDistributionStore();
 const supplyStockStore = useSupplyStockStore();
 const stationStore = useStationStore();

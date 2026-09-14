@@ -63,7 +63,7 @@
                     <p class="text-xs text-slate-400">Recorded signs and symptoms for this case</p>
                 </div>
             </div>
-            <button type="button" @click="openCreate" class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95">
+            <button v-if="can('pertinent-signs-and-symptoms', 'create')" type="button" @click="openCreate" class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95">
                 <BsPlusCircle size="16" />
                 Add Entry
             </button>
@@ -117,10 +117,10 @@
             <Column header="Actions" class="w-24">
                 <template #body="{ data }">
                     <div class="flex items-center gap-1">
-                        <button type="button" title="Edit entry" @click="view(data.pid)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
+                        <button v-if="can('pertinent-signs-and-symptoms', 'update')" type="button" title="Edit entry" @click="view(data.pid)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
                             <BiEdit size="18" />
                         </button>
-                        <button type="button" title="Delete entry" @click="archive(data.pid)" class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer">
+                        <button v-if="can('pertinent-signs-and-symptoms', 'delete')" type="button" title="Delete entry" @click="archive(data.pid)" class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer">
                             <BiTrash size="18" />
                         </button>
                     </div>
@@ -141,10 +141,12 @@ import { usePertinentSignsAndSymptomsListStore } from '@/store/PertinentSignsAnd
 import { PertinentSignsAndSymptoms, PertinentSignsAndSymptomsList } from '@/interface/Interfaces';
 import { useConfirmToast } from '@/composables/confirm';
 import { useAppToast } from '@/composables/toast';
+import { usePermission } from '@/composables/permission';
 
 const route = useRoute();
 const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
+const { can } = usePermission();
 const store = usePertinentSignsAndSymptomsStore();
 const listStore = usePertinentSignsAndSymptomsListStore();
 

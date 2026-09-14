@@ -126,7 +126,7 @@
                     </p>
                 </div>
             </div>
-            <button type="button" @click="openCreate" :disabled="!patientCasePid" title="This patient has no case record yet"
+            <button v-if="can('prescriptions', 'create')" type="button" @click="openCreate" :disabled="!patientCasePid" title="This patient has no case record yet"
                 class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed">
                 <BsPlusCircle size="16" />
                 Add Prescription
@@ -182,10 +182,10 @@
                         <button type="button" title="View as prescription (Rx)" @click="openRx(data)" class="p-1.5 rounded-md text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors duration-150 cursor-pointer">
                             <FaFilePrescription size="18" />
                         </button>
-                        <button type="button" title="Edit prescription" @click="edit(data.pid)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
+                        <button v-if="can('prescriptions', 'update')" type="button" title="Edit prescription" @click="edit(data.pid)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
                             <BiEdit size="18" />
                         </button>
-                        <button type="button" title="Delete prescription" @click="archive(data.pid)" class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer">
+                        <button v-if="can('prescriptions', 'delete')" type="button" title="Delete prescription" @click="archive(data.pid)" class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer">
                             <BiTrash size="18" />
                         </button>
                     </div>
@@ -209,9 +209,11 @@ import { useMedicineStore } from '@/store/Medicine';
 import { Prescription, PrescriptionItem, Medicines } from '@/interface/Interfaces';
 import { useConfirmToast } from '@/composables/confirm';
 import { useAppToast } from '@/composables/toast';
+import { usePermission } from '@/composables/permission';
 
 const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
+const { can } = usePermission();
 const route = useRoute();
 const prescriptionStore = usePrescriptionStore();
 const patientCaseStore = usePatientCaseStore();

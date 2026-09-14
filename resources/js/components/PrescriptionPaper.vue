@@ -25,7 +25,7 @@
                     <span class="rx-value">{{ prescriptionDate }}</span>
                 </div>
             </div>
-            <div class="rx-patient rx-patient--sub">
+            <!-- <div class="rx-patient rx-patient--sub">
                 <div class="rx-field rx-field--grow">
                     <span class="rx-label">Case No.</span>
                     <span class="rx-value">{{ caseNumber }}</span>
@@ -34,7 +34,7 @@
                     <span class="rx-label">Status</span>
                     <span class="rx-value rx-value--caps">{{ prescription?.status || '—' }}</span>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Rx body -->
             <div class="rx-body">
@@ -94,9 +94,9 @@ const props = withDefaults(
     }>(),
     {
         prescription: null,
-        hospitalName: 'Hospital Management System',
-        hospitalAddress: 'Provincial Government of Leyte',
-        hospitalContact: 'Tel. (053) 000-0000',
+        hospitalName:  import.meta.env.VITE_FACILITY_NAME,
+        hospitalAddress: import.meta.env.VITE_ADDRESS,
+        hospitalContact: import.meta.env.VITE_CONTACT,
     }
 );
 

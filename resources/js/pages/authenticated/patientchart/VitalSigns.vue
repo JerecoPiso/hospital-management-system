@@ -175,12 +175,30 @@
         </Dialog>
         <div class="pb-8  border-slate-200 flex justify-between items-center">
             <h3 class="text-lg font-bold text-slate-900">Vital Signs</h3>
-            <button type="button" @click="vitalsModal = true;"
-                class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all bg-linear-to-r from-emerald-500 to-teal-600 text-white shadow-md">
-                <BsPlusCircle size="20" /> Vital Signs
-            </button>
+            <div class="flex items-center gap-2">
+                <div class="flex items-center bg-slate-100 rounded-lg p-1">
+                    <button
+                        type="button"
+                        @click="viewMode = 'chart'"
+                        :class="['flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors', viewMode === 'chart' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700']"
+                    >
+                        <FiActivity size="15" /> Chart
+                    </button>
+                    <button
+                        type="button"
+                        @click="viewMode = 'table'"
+                        :class="['flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors', viewMode === 'table' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700']"
+                    >
+                        <FiList size="15" /> Table
+                    </button>
+                </div>
+                <button v-if="can('vital-signs', 'create')" type="button" @click="vitalsModal = true;"
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all bg-linear-to-r from-emerald-500 to-teal-600 text-white shadow-md">
+                    <BsPlusCircle size="20" /> Vital Signs
+                </button>
+            </div>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div v-if="viewMode === 'chart'" class="grid grid-cols-2 gap-4">
             <div class="md:col-span-2 col-span-2 border border-slate-200 rounded-xl p-5 bg-white">
                 <div class="flex items-center gap-3 mb-2">
                     <span class="flex items-center justify-center w-9 h-9 rounded-lg" style="background:#eff6ff;color:#2a78d6;">
@@ -219,26 +237,99 @@
                 <Chart type="line" :data="oxygenSaturationChartData" :options="singleSeriesChartOptions" class="h-80" />
             </div>
         </div>
+
+        <div v-else class="border border-slate-200 rounded-xl overflow-hidden">
+            <DataTable
+                :value="vitalSigns"
+                responsiveLayout="scroll"
+                tableStyle="min-width: 60rem"
+                :pt="{ table: { class: 'text-sm' }, thead: { class: 'bg-slate-50' }, bodyRow: { class: 'hover:bg-slate-50 transition-colors duration-150 border-b border-slate-100' } }"
+            >
+                <template #empty>
+                    <div class="flex flex-col items-center justify-center py-16 text-slate-400">
+                        <FiList size="36" class="mb-3 opacity-30" />
+                        <p class="text-sm font-medium">No vital signs recorded</p>
+                    </div>
+                </template>
+                <Column header="Type" class="w-28">
+                    <template #body="{ data }"><span class="text-slate-700 text-sm uppercase">{{ data.type || "—" }}</span></template>
+                </Column>
+                <Column header="Measured At" class="w-44">
+                    <template #body="{ data }"><span class="text-slate-500 text-sm">{{ data.measured_at ? new Date(data.measured_at).toLocaleString() : "—" }}</span></template>
+                </Column>
+                <Column header="BP" class="w-24">
+                    <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.systolic && data.diastolic ? `${data.systolic}/${data.diastolic}` : "—" }}</span></template>
+                </Column>
+                <Column header="Temp" class="w-20">
+                    <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.temperature ?? "—" }}</span></template>
+                </Column>
+                <Column header="HR" class="w-20">
+                    <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.heart_rate ?? "—" }}</span></template>
+                </Column>
+                <Column header="RR" class="w-20">
+                    <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.respiratory_rate ?? "—" }}</span></template>
+                </Column>
+                <Column header="SpO2" class="w-20">
+                    <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.oxygen_saturation ?? "—" }}</span></template>
+                </Column>
+                <Column header="Weight" class="w-20">
+                    <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.weight ?? "—" }}</span></template>
+                </Column>
+                <Column header="Remarks">
+                    <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.remarks || "—" }}</span></template>
+                </Column>
+                <Column header="Actions" class="w-24">
+                    <template #body="{ data }">
+                        <div class="flex items-center gap-1">
+                            <button
+                                v-if="can('vital-signs', 'update')"
+                                type="button"
+                                title="Edit"
+                                @click="edit(data.pid)"
+                                class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
+                            >
+                                <BiEdit size="18" />
+                            </button>
+                            <button
+                                v-if="can('vital-signs', 'delete')"
+                                type="button"
+                                title="Delete"
+                                @click="remove(data.pid)"
+                                class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer"
+                            >
+                                <BiTrash size="18" />
+                            </button>
+                        </div>
+                    </template>
+                </Column>
+            </DataTable>
+        </div>
     </div>
 </template>
 <script setup lang="ts">
 import { onMounted, ref, reactive, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { BsPlusCircle } from 'vue-icons-plus/bs';
-import { FiThermometer, FiHeart, FiDroplet } from 'vue-icons-plus/fi';
+import { BiEdit, BiTrash } from 'vue-icons-plus/bi';
+import { FiThermometer, FiHeart, FiDroplet, FiActivity, FiList } from 'vue-icons-plus/fi';
 import Chart from 'primevue/chart';
 import { VitalSigns } from '@/interface/Interfaces';
 import { useVitalSignsStore } from '@/store/patientchart/VitalSigns';
 import { useAppToast } from '@/composables/toast';
+import { useConfirmToast } from '@/composables/confirm';
 import { useVitalSignsChart } from '@/composables/vitalSignsChart';
+import { usePermission } from '@/composables/permission';
 
 const route = useRoute();
 const toast = useAppToast();
+const { showConfirm } = useConfirmToast();
+const { can } = usePermission();
 const vitalSignsStore = useVitalSignsStore();
 const vitalSigns = computed<VitalSigns[]>(() => vitalSignsStore.vitalSigns);
 const { tprChartData, bloodPressureChartData, oxygenSaturationChartData, chartOptions, singleSeriesChartOptions } = useVitalSignsChart(vitalSigns);
 
 const patientCasePid = computed(() => route.params.patient_case_pid as string | undefined);
+const viewMode = ref<'chart' | 'table'>('chart');
 
 const defaultVitalSignInfo = (): VitalSigns => ({
     pid: "",
@@ -319,5 +410,37 @@ const update = async () => {
     } catch (err: any) {
         toast.error(err.response?.data?.message || "Failed to update Vital Sign");
     }
+};
+
+const edit = async (pid: string) => {
+    try {
+        await vitalSignsStore.view(pid);
+        const record = vitalSignsStore.vitalSign;
+        Object.assign(vitalSignInfo, defaultVitalSignInfo(), record, {
+            measured_at: record.measured_at ? new Date(record.measured_at) : null,
+            lmp: record.lmp ? new Date(record.lmp) : null,
+            edc: record.edc ? new Date(record.edc) : null,
+        });
+        isUpdate.value = true;
+        vitalsModal.value = true;
+    } catch (err: any) {
+        toast.error(err.response?.data?.message || "Failed to retrieve Vital Sign");
+    }
+};
+
+const remove = (pid: string) => {
+    showConfirm({
+        message: "Are you sure you want to delete this vital sign record?",
+        header: "Delete Confirmation",
+        onAccept: async () => {
+            try {
+                await vitalSignsStore.archive(pid, patientCasePid.value);
+                toast.success("Vital Sign deleted successfully");
+            } catch (err: any) {
+                toast.error(err.response?.data?.message || "Failed to delete Vital Sign");
+            }
+        },
+        onReject: () => {},
+    });
 };
 </script>

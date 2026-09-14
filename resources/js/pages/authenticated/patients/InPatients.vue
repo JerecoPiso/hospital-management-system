@@ -62,6 +62,8 @@
       :rowsPerPageOptions="[10, 15, 25, 50, 100]"
       responsiveLayout="scroll"
       tableStyle="min-width: 60rem"
+      dataKey="pid"
+      v-model:expandedRows="expandedRows"
       :pt="{
         table: { class: 'text-sm' },
         thead: { class: 'bg-slate-50' },
@@ -75,6 +77,8 @@
           <p class="text-xs mt-1">Admitted patients will appear here</p>
         </div>
       </template>
+
+      <Column expander class="w-10" />
 
       <Column header="Patient">
         <template #body="{ data }">
@@ -145,12 +149,76 @@
           </button>
         </template>
       </Column>
+
+      <template #expansion="{ data }">
+        <div class="bg-slate-50 px-6 py-4">
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Case History</p>
+          <DataTable :value="data.patient_cases" class="text-sm" :pt="{ table: { class: 'text-sm' }, thead: { class: 'bg-slate-100' } }">
+            <Column header="Case Number">
+              <template #body="{ data: caseData }">
+                <span class="text-slate-600 text-sm">{{ caseData.case_number || "—" }}</span>
+              </template>
+            </Column>
+            <Column header="Type">
+              <template #body="{ data: caseData }">
+                <Tag :value="caseData.type === 'inpatient' ? 'Inpatient' : 'Outpatient'" :severity="caseData.type === 'inpatient' ? 'info' : 'success'" />
+              </template>
+            </Column>
+            <Column header="Station & Bed">
+              <template #body="{ data: caseData }">
+                <div class="flex flex-col gap-1">
+                  <p v-if="caseData.station?.name">Station: {{ caseData.station?.name }}</p>
+                  <p v-if="caseData.bed?.bed_number">Bed: {{ caseData.bed?.bed_number }}</p>
+                  <span v-if="!caseData.station?.name && !caseData.bed?.bed_number" class="text-slate-300 italic">—</span>
+                </div>
+              </template>
+            </Column>
+            <Column header="Patient Type">
+              <template #body="{ data: caseData }">
+                {{ caseData.patient_type?.name || "—" }}
+              </template>
+            </Column>
+            <Column header="Admission Date">
+              <template #body="{ data: caseData }">
+                <span class="text-slate-500 text-sm">{{ formatDate(caseData.admission_datetime) }}</span>
+              </template>
+            </Column>
+            <Column header="Chief Complaint">
+              <template #body="{ data: caseData }">
+                <span class="text-slate-600 text-sm">{{ caseData.chief_complaint || "—" }}</span>
+              </template>
+            </Column>
+            <Column header="Initial Diagnosis">
+              <template #body="{ data: caseData }">
+                <span class="text-slate-600 text-sm">{{ caseData.initial_diagnosis || "—" }}</span>
+              </template>
+            </Column>
+            <Column header="Final Diagnosis">
+              <template #body="{ data: caseData }">
+                <span class="text-slate-600 text-sm">{{ caseData.final_diagnosis || "—" }}</span>
+              </template>
+            </Column>
+            <Column header="Actions" class="w-16">
+              <template #body="{ data: caseData }">
+                <button
+                  type="button"
+                  title="View patient chart"
+                  @click="viewChart(caseData.pid)"
+                  class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
+                >
+                  <FiEye size="18" />
+                </button>
+              </template>
+            </Column>
+          </DataTable>
+        </div>
+      </template>
     </DataTable>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import { FaBed } from "vue-icons-plus/fa";
 import { BiBed } from "vue-icons-plus/bi";
@@ -163,6 +231,8 @@ import { useAppToast } from "@/composables/toast";
 const router = useRouter();
 const toast = useAppToast();
 const patientStore = usePatientStore();
+
+const expandedRows = ref<Record<string, boolean>>({});
 
 const inpatients = computed<PatientRegistration[]>(() => patientStore.patients);
 

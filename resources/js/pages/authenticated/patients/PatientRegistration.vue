@@ -41,7 +41,7 @@
           </div>
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Civil Status</label>
-            <InputText v-model="patientInfo.civil_status" fluid class="text-sm" />
+            <Select v-model="patientInfo.civil_status" :options="civilStatuses" optionLabel="label" optionValue="value" placeholder="Select a language" class="w-full" />
           </div>
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Contact Number</label>
@@ -53,7 +53,8 @@
           </div>
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Religion</label>
-            <InputText v-model="patientInfo.religion" fluid class="text-sm" />
+            <!-- <InputText v-model="patientInfo.religion" fluid class="text-sm" /> -->
+            <Select v-model="patientInfo.religion" :options="religions" optionLabel="label" optionValue="value" placeholder="Select religion" class="w-full" />
           </div>
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Birthplace</label>
@@ -207,6 +208,7 @@
           <InputText v-model="search" @input="onSearch" placeholder="Search . . ." class="w-full text-sm pl-8!" />
         </div>
         <button
+          v-if="can('patient', 'create')"
           type="button"
           @click="patientModal = true"
           class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 shrink-0"
@@ -230,6 +232,8 @@
       :rowsPerPageOptions="[10, 15, 25, 50, 100]"
       responsiveLayout="scroll"
       tableStyle="min-width: 55rem"
+      dataKey="pid"
+      v-model:expandedRows="expandedRows"
       :pt="{
         table: { class: 'text-sm' },
         thead: { class: 'bg-slate-50' },
@@ -243,6 +247,8 @@
           <p class="text-xs mt-1">Click "Register Patient" to add the first entry</p>
         </div>
       </template>
+
+      <Column expander class="w-10" />
 
       <Column header="Patient" class="w-56">
         <template #body="{ data }">
@@ -327,6 +333,7 @@
               <FiEye size="18" />
             </button>
             <button
+              v-if="can('patient-cases', 'create')"
               type="button"
               title="Add new case"
               @click="openCaseModal(data)"
@@ -335,6 +342,7 @@
               <FiFilePlus size="18" />
             </button>
             <button
+              v-if="can('patient', 'update')"
               type="button"
               title="Edit registration"
               @click="view(data.pid)"
@@ -343,6 +351,7 @@
               <BiEdit size="18" />
             </button>
             <button
+              v-if="can('patient', 'delete')"
               type="button"
               title="Delete registration"
               @click="archive(data.pid)"
@@ -353,6 +362,71 @@
           </div>
         </template>
       </Column>
+
+      <template #expansion="{ data }">
+        <div class="bg-slate-50 px-6 py-4">
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Case History</p>
+          <DataTable :value="data.patient_cases" class="text-sm" :pt="{ table: { class: 'text-sm' }, thead: { class: 'bg-slate-100' } }">
+            <Column header="Case Number">
+              <template #body="{ data: caseData }">
+                <span class="text-slate-600 text-sm">{{ caseData.case_number || "—" }}</span>
+              </template>
+            </Column>
+            <Column header="Admission Type">
+              <template #body="{ data: caseData }">
+                <Tag v-if="caseData.type" :value="caseData.type === 'inpatient' ? 'Inpatient' : 'Outpatient'" :severity="caseData.type === 'inpatient' ? 'info' : 'success'" />
+                <span v-else class="text-slate-300 text-sm italic">—</span>
+              </template>
+            </Column>
+            <Column header="Station / Bed">
+              <template #body="{ data: caseData }">
+                <span v-if="caseData.type === 'inpatient'" class="text-slate-600 text-sm">
+                  {{ caseData.station?.name || "—" }}
+                  <span v-if="caseData.bed?.bed_number" class="text-slate-400"> · Bed {{ caseData.bed.bed_number }}</span>
+                </span>
+                <span v-else class="text-slate-300 text-sm italic">—</span>
+              </template>
+            </Column>
+            <Column header="Patient Type">
+              <template #body="{ data: caseData }">
+                <span class="text-slate-600 text-sm">{{ caseData.patient_type?.name || "—" }}</span>
+              </template>
+            </Column>
+            <Column header="Admission Date">
+              <template #body="{ data: caseData }">
+                <span class="text-slate-500 text-sm">{{ formatDate(caseData.admission_datetime) }}</span>
+              </template>
+            </Column>
+            <Column header="Chief Complaint">
+              <template #body="{ data: caseData }">
+                <p class="text-slate-600 text-sm leading-relaxed line-clamp-2">{{ caseData.chief_complaint || "—" }}</p>
+              </template>
+            </Column>
+            <Column header="Initial Diagnosis">
+              <template #body="{ data: caseData }">
+                <p class="text-slate-600 text-sm leading-relaxed line-clamp-2">{{ caseData.initial_diagnosis || "—" }}</p>
+              </template>
+            </Column>
+            <Column header="Final Diagnosis">
+              <template #body="{ data: caseData }">
+                <p class="text-slate-600 text-sm leading-relaxed line-clamp-2">{{ caseData.final_diagnosis || "—" }}</p>
+              </template>
+            </Column>
+            <Column header="Actions" class="w-16">
+              <template #body="{ data: caseData }">
+                <button
+                  type="button"
+                  title="View patient chart"
+                  @click="viewChart(caseData.pid)"
+                  class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
+                >
+                  <FiEye size="18" />
+                </button>
+              </template>
+            </Column>
+          </DataTable>
+        </div>
+      </template>
     </DataTable>
   </div>
 </template>
@@ -372,14 +446,18 @@ import { PatientRegistration, PatientCase, PatientType, Station, Bed } from "@/i
 import { useApiTable } from "@/composables/apiTable";
 import { useConfirmToast } from "@/composables/confirm";
 import { useAppToast } from "@/composables/toast";
+import { usePermission } from "@/composables/permission";
+import { useListStore } from "@/store/List";
 
 const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
+const { can } = usePermission();
 const patientStore = usePatientStore();
 const patientCaseStore = usePatientCaseStore();
 const patientTypeStore = usePatientTypeStore();
 const stationStore = useStationStore();
 const bedStore = useBedStore();
+const listStore = useListStore();
 const router = useRouter();
 
 const genders = ["Male", "Female", "Other"];
@@ -387,6 +465,8 @@ const admissionTypeOptions = [
   { label: "Inpatient", value: "inpatient" },
   { label: "Outpatient", value: "outpatient" },
 ];
+const civilStatuses = computed(() => listStore.civilStatuses);
+const religions = computed(() => listStore.religions);
 const patientTypes = computed<PatientType[]>(() => patientTypeStore.patientTypes);
 const stations = computed<Station[]>(() => stationStore.stations);
 const beds = computed<Bed[]>(() => bedStore.beds);
@@ -432,6 +512,9 @@ const patientModal = ref<boolean>(false);
 const isUpdate = ref<boolean>(false);
 const birthdateModel = ref<Date | null>(null);
 const admissionDatetimeModel = ref<Date | null>(null);
+const expandedRows = ref<Record<string, boolean>>({});
+
+const formatDate = (value?: string) => (value ? new Date(value).toLocaleString() : "—");
 
 const { search, rows, first, total, loading, onPage, onSearch, reload } = useApiTable(
   async (params) => {

@@ -74,6 +74,7 @@
                 </div>
             </div>
             <button
+                v-if="can('history-and-physical-examination-form-one', 'create')"
                 type="button"
                 @click="historyModal = true"
                 class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95"
@@ -141,6 +142,7 @@
                 <template #body="{ data }">
                     <div class="flex items-center gap-1">
                         <button
+                            v-if="can('history-and-physical-examination-form-one', 'update')"
                             type="button"
                             title="Edit entry"
                             @click="view(data.pid)"
@@ -149,6 +151,7 @@
                             <BiEdit size="18" />
                         </button>
                         <button
+                            v-if="can('history-and-physical-examination-form-one', 'delete')"
                             type="button"
                             title="Delete entry"
                             @click="archive(data.pid)"
@@ -173,10 +176,12 @@ import { useHistoryAndPhysicalExaminationFormOneStore } from '@/store/patientcha
 import { HistoryAndPhysicalExaminationFormOne } from '@/interface/Interfaces';
 import { useConfirmToast } from '@/composables/confirm';
 import { useAppToast } from '@/composables/toast';
+import { usePermission } from '@/composables/permission';
 
 const route = useRoute();
 const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
+const { can } = usePermission();
 const historyStore = useHistoryAndPhysicalExaminationFormOneStore();
 const patientCasePid = computed(() => route.params.patient_case_pid as string | undefined);
 

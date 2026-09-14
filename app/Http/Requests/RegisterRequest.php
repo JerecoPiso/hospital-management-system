@@ -34,6 +34,7 @@ class RegisterRequest extends FormRequest
             'license_no' =>  'nullable|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|min:7',
+            'role_pid' => 'nullable|string|exists:roles,pid',
         ];
     }
     // protected function failedValidation(Validator $validator)

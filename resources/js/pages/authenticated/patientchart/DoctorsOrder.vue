@@ -77,6 +77,7 @@
                 </div>
             </div>
             <button
+                v-if="can('doctors-order', 'create')"
                 type="button"
                 @click="orderModal = true"
                 class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95"
@@ -138,6 +139,7 @@
                 <template #body="{ data }">
                     <div class="flex items-center gap-1">
                         <button
+                            v-if="can('doctors-order', 'update')"
                             type="button"
                             title="Edit order"
                             @click="view(data.pid)"
@@ -146,6 +148,7 @@
                             <BiEdit size="18" />
                         </button>
                         <button
+                            v-if="can('doctors-order', 'delete')"
                             type="button"
                             title="Delete order"
                             @click="archive(data.pid)"
@@ -169,10 +172,12 @@ import { useDoctorsOrderStore } from '@/store/patientchart/DoctorsOrder';
 import { DoctorsOrder } from '@/interface/Interfaces';
 import { useConfirmToast } from '@/composables/confirm';
 import { useAppToast } from "@/composables/toast";
+import { usePermission } from '@/composables/permission';
 
 const route = useRoute();
 const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
+const { can } = usePermission();
 const doctorsOrderStore = useDoctorsOrderStore();
 const orderModal = ref<boolean>(false);
 const doctorsOrders = computed<DoctorsOrder[]>(() => doctorsOrderStore.doctorsOrders);

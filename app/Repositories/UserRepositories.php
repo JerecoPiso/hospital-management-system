@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Role;
 use App\Models\User;
 
 class UserRepositories
@@ -9,7 +10,7 @@ class UserRepositories
 
     public function list($filter = [])
     {
-        $query = User::query()->orderBy('id', 'desc');
+        $query = User::with('role')->orderBy('id', 'desc');
 
         return api_list($query, $filter, ['firstname', 'lastname', 'middlename', 'email', 'license_no']);
     }
@@ -17,13 +18,24 @@ class UserRepositories
     {
         try {
 
-            $user = User::where('pid', $pid)->first();
+            $user = User::with('role')->where('pid', $pid)->first();
 
             if (!$user) {
                 return [];
             }
 
             return $user;
+        } catch (\Exception $e) {
+            throw new \Exception("An error has occured! " . $e->getMessage());
+        }
+    }
+    public function create($data)
+    {
+        try {
+            $data = $this->resolveRoleId($data);
+            $user = User::create($data);
+
+            return $user->load('role');
         } catch (\Exception $e) {
             throw new \Exception("An error has occured! " . $e->getMessage());
         }
@@ -36,13 +48,24 @@ class UserRepositories
                 return null;
             }
 
+            $data = $this->resolveRoleId($data);
             $note = User::findOrFail($user_id);
             $note->update($data);
 
-            return $note;
+            return $note->load('role');
         } catch (\Exception $e) {
             throw new \Exception("An error has occured! " . $e->getMessage());
         }
+    }
+
+    private function resolveRoleId($data)
+    {
+        if (array_key_exists('role_pid', $data)) {
+            $data['role_id'] = $data['role_pid'] ? Role::where('pid', $data['role_pid'])->firstOrFail()->id : null;
+            unset($data['role_pid']);
+        }
+
+        return $data;
     }
 
     public function delete($data)

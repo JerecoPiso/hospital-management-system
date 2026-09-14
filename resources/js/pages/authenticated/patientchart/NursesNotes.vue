@@ -56,6 +56,7 @@
         </div>
       </div>
       <button
+        v-if="can('nurses-notes', 'create')"
         type="button"
         @click="noteModal = true"
         class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95"
@@ -126,10 +127,10 @@
       <Column header="Actions" class="w-24">
         <template #body="{ data }">
           <div class="flex items-center gap-1">
-            <button type="button" title="Edit note" @click="view(data.pid)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
+            <button v-if="can('nurses-notes', 'update')" type="button" title="Edit note" @click="view(data.pid)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
               <BiEdit size="18" />
             </button>
-            <button type="button" title="Delete note" @click="archive(data.pid)" class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer">
+            <button v-if="can('nurses-notes', 'delete')" type="button" title="Delete note" @click="archive(data.pid)" class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer">
               <BiTrash size="18" />
             </button>
           </div>
@@ -148,10 +149,12 @@ import { NursesNotes } from "@/interface/Interfaces";
 import { useNursesNotesStore } from "@/store/patientchart/NursesNotes";
 import { useConfirmToast } from "@/composables/confirm";
 import { useAppToast } from "@/composables/toast";
+import { usePermission } from '@/composables/permission';
 
 const route = useRoute();
 const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
+const { can } = usePermission();
 const nursesNotesStore = useNursesNotesStore();
 const nursesNotes = computed<NursesNotes[]>(() => nursesNotesStore.nursesNotes);
 const nurseNote = computed<NursesNotes>(() => nursesNotesStore.nursesNote);

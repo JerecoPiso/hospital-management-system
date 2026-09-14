@@ -28,7 +28,17 @@
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <label class="text-sm font-medium text-slate-700">Unit Type</label>
-                        <InputText v-model="info.unit_type" placeholder="e.g. box, roll, pack" fluid class="text-sm" />
+                        <AutoComplete
+                            v-model="info.unit_type"
+                            :suggestions="filteredUnits"
+                            @complete="onCompleteUnit"
+                            dropdown
+                            completeOnFocus
+                            placeholder="e.g. Box, Roll, Pack"
+                            fluid
+                            inputClass="text-sm"
+                            readonly
+                        />
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <label class="text-sm font-medium text-slate-700">Units per Package</label>
@@ -69,7 +79,7 @@
                     <FiSearch class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10" size="16" />
                     <InputText v-model="search" @input="onSearch" placeholder="Search . . ." class="w-full text-sm pl-8!" />
                 </div>
-                <button type="button" @click="modalOpen = true" class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 shrink-0">
+                <button v-if="can('supply-stocks', 'create')" type="button" @click="modalOpen = true" class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 shrink-0">
                     <BsPlusCircle size="16" />
                     Add Stock Batch
                 </button>
@@ -102,10 +112,10 @@
             <Column header="Actions" class="w-24">
                 <template #body="{ data }">
                     <div class="flex items-center gap-1">
-                        <button type="button" title="Edit stock" @click="edit(data.pid)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
+                        <button v-if="can('supply-stocks', 'update')" type="button" title="Edit stock" @click="edit(data.pid)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
                             <BiEdit size="18" />
                         </button>
-                        <button type="button" title="Delete stock" @click="archive(data.pid)" class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer">
+                        <button v-if="can('supply-stocks', 'delete')" type="button" title="Delete stock" @click="archive(data.pid)" class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer">
                             <BiTrash size="18" />
                         </button>
                     </div>
@@ -117,6 +127,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue';
+import AutoComplete from 'primevue/autocomplete';
 import { BsPlusCircle } from 'vue-icons-plus/bs';
 import { FiSearch } from 'vue-icons-plus/fi';
 import { BiEdit, BiTrash, BiBox } from 'vue-icons-plus/bi';
@@ -126,17 +137,28 @@ import { SupplyStock } from '@/interface/Interfaces';
 import { useApiTable } from '@/composables/apiTable';
 import { useConfirmToast } from '@/composables/confirm';
 import { useAppToast } from '@/composables/toast';
+import { usePermission } from '@/composables/permission';
+import { useListStore } from '@/store/List';
 
 const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
+const { can } = usePermission();
 const supplyStockStore = useSupplyStockStore();
 const supplyStore = useSupplyStore();
+const listStore = useListStore()
+
+const supplyUnits = listStore.supplyUnits;
+const filteredUnits = ref<string[]>([...supplyUnits]);
+const onCompleteUnit = (e: { query: string }) => {
+    const q = e.query.trim().toLowerCase();
+    filteredUnits.value = q ? supplyUnits.filter((option) => option.toLowerCase().includes(q)) : [...supplyUnits];
+};
 
 const supplyStocks = computed<SupplyStock[]>(() => supplyStockStore.supplyStocks);
 const supplies = computed(() => supplyStore.supplies);
 const modalOpen = ref<boolean>(false);
 const isUpdate = ref<boolean>(false);
-const defaultInfo = (): SupplyStock => ({ pid: '', supply_pid: '', quantity: 0, purchase_price: null, reorder_level: 100, unit_type: 'box', units_per_package: 1, expiration_date: null, batch_number: '' });
+const defaultInfo = (): SupplyStock => ({ pid: '', supply_pid: '', quantity: 0, purchase_price: null, reorder_level: 100, unit_type: '', units_per_package: 1, expiration_date: null, batch_number: '' });
 const info = reactive<SupplyStock>(defaultInfo());
 const expirationDate = ref<Date | null>(null);
 

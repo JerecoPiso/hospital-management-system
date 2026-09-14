@@ -32,15 +32,42 @@
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <label class="text-sm font-medium text-slate-700">Dosage Unit</label>
-                        <InputText v-model="info.dosage_unit" placeholder="e.g. mg, mL, g" fluid class="text-sm" />
+                        <AutoComplete
+                            v-model="info.dosage_unit"
+                            :suggestions="filteredDosageUnits"
+                            @complete="onCompleteDosageUnit"
+                            dropdown
+                            completeOnFocus
+                            placeholder="e.g. mg, mL, g"
+                            fluid
+                            inputClass="text-sm"
+                        />
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <label class="text-sm font-medium text-slate-700">Form</label>
-                        <InputText v-model="info.form" placeholder="e.g. Tablet, Capsule, Syrup" fluid class="text-sm" />
+                        <AutoComplete
+                            v-model="info.form"
+                            :suggestions="filteredDosageForms"
+                            @complete="onCompleteDosageForm"
+                            dropdown
+                            completeOnFocus
+                            placeholder="e.g. Tablet, Capsule, Syrup"
+                            fluid
+                            inputClass="text-sm"
+                        />
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <label class="text-sm font-medium text-slate-700">Administration Route</label>
-                        <InputText v-model="info.administration_route" placeholder="e.g. Oral, IV, IM" fluid class="text-sm" />
+                        <AutoComplete
+                            v-model="info.administration_route"
+                            :suggestions="filteredAdministrationRoutes"
+                            @complete="onCompleteAdministrationRoute"
+                            dropdown
+                            completeOnFocus
+                            placeholder="e.g. Oral, IV, IM"
+                            fluid
+                            inputClass="text-sm"
+                        />
                     </div>
                     <div class="col-span-2 flex flex-col gap-1.5">
                         <label class="text-sm font-medium text-slate-700">Price <span class="text-red-400">*</span></label>
@@ -69,7 +96,7 @@
                     <FiSearch class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10" size="16" />
                     <InputText v-model="search" @input="onSearch" placeholder="Search . . ." class="w-full text-sm pl-8!" />
                 </div>
-                <button type="button" @click="modalOpen = true" class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 shrink-0">
+                <button v-if="can('medicine', 'create')" type="button" @click="modalOpen = true" class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 shrink-0">
                     <BsPlusCircle size="16" />
                     Add Medicine
                 </button>
@@ -120,10 +147,10 @@
             <Column header="Actions" class="w-24">
                 <template #body="{ data }">
                     <div class="flex items-center gap-1">
-                        <button type="button" title="Edit medicine" @click="edit(data.pid)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
+                        <button v-if="can('medicine', 'update')" type="button" title="Edit medicine" @click="edit(data.pid)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
                             <BiEdit size="18" />
                         </button>
-                        <button type="button" title="Delete medicine" @click="archive(data.pid)" class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer">
+                        <button v-if="can('medicine', 'delete')" type="button" title="Delete medicine" @click="archive(data.pid)" class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer">
                             <BiTrash size="18" />
                         </button>
                     </div>
@@ -135,6 +162,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue';
+import AutoComplete from 'primevue/autocomplete';
 import { BsPlusCircle } from 'vue-icons-plus/bs';
 import { FiSearch } from 'vue-icons-plus/fi';
 import { BiEdit, BiTrash } from 'vue-icons-plus/bi';
@@ -144,10 +172,30 @@ import { Medicines } from '@/interface/Interfaces';
 import { useApiTable } from '@/composables/apiTable';
 import { useConfirmToast } from '@/composables/confirm';
 import { useAppToast } from '@/composables/toast';
-
+import { usePermission } from '@/composables/permission';
+import { useListStore } from '@/store/List';
 const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
+const { can } = usePermission();
 const medicineStore = useMedicineStore();
+const listStore = useListStore();
+
+const administrationRoutes = listStore.administrationRoutes;
+const dosageUnits = listStore.dosageUnits;
+const dosageForms = listStore.dosageForms;
+
+const filteredAdministrationRoutes = ref<string[]>([...administrationRoutes]);
+const filteredDosageUnits = ref<string[]>([...dosageUnits]);
+const filteredDosageForms = ref<string[]>([...dosageForms]);
+
+const filterSuggestions = (source: string[], target: typeof filteredAdministrationRoutes, query: string) => {
+    const q = query.trim().toLowerCase();
+    target.value = q ? source.filter((option) => option.toLowerCase().includes(q)) : [...source];
+};
+
+const onCompleteAdministrationRoute = (e: { query: string }) => filterSuggestions(administrationRoutes, filteredAdministrationRoutes, e.query);
+const onCompleteDosageUnit = (e: { query: string }) => filterSuggestions(dosageUnits, filteredDosageUnits, e.query);
+const onCompleteDosageForm = (e: { query: string }) => filterSuggestions(dosageForms, filteredDosageForms, e.query);
 
 const medicines = computed<Medicines[]>(() => medicineStore.medicines);
 const modalOpen = ref<boolean>(false);

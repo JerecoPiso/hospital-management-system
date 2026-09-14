@@ -142,7 +142,7 @@
           </button>
         </div>
         <nav class="p-4 space-y-2">
-          <template v-for="item in navItems" :key="item.name">
+          <template v-for="item in visibleNavItems" :key="item.name">
             <!-- Parent link with submenu -->
             <div v-if="item.children">
               <button
@@ -156,7 +156,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              <div v-if="sidebarExpanded && expandedMenu === item.name" class="mt-1 ml-4 space-y-1 border-l-2 border-slate-200 pl-3">
+              <div v-if="sidebarExpanded && expandedMenu === item.name" class="mt-1 max-h-80 overflow-auto ml-4 space-y-1 border-l-2 border-slate-200 pl-3">
                 <router-link
                   v-for="child in item.children"
                   :key="child.name"
@@ -215,11 +215,13 @@ import { PiUsersThreeFill } from "vue-icons-plus/pi";
 import { Fa6BedPulse, Fa6Hospital, Fa6TruckFast } from "vue-icons-plus/fa6";
 import axios from "axios";
 import { useAuthStore } from "@/store/patientchart/AuthStore";
+import { usePermission } from "@/composables/permission";
 const confirm = useConfirm();
 const toast = useToast();
 const router = useRouter();
 const route = useRoute();
 const auth = useAuthStore();
+const { can } = usePermission();
 const userDisplayName = computed(() => {
   const user = auth.user;
   if (!user) return "Guest";
@@ -253,9 +255,9 @@ const navItems = [
     label: "Patients",
     icon: FiUsers,
     children: [
-      { name: "PatientRegistration", label: "Patient Registration", icon: FiUserPlus },
-      { name: "OutPatients", label: "Out-Patients", icon: PiUsersThreeFill },
-      { name: "InPatients", label: "In-Patients", icon: Fa6BedPulse },
+      { name: "PatientRegistration", label: "Patient Registration", icon: FiUserPlus, module: "patient" },
+      { name: "OutPatients", label: "Out-Patients", icon: PiUsersThreeFill, module: "patient" },
+      { name: "InPatients", label: "In-Patients", icon: Fa6BedPulse, module: "patient" },
     ],
   },
   {
@@ -263,16 +265,17 @@ const navItems = [
     label: "Medicines",
     icon: GiMedicines,
     children: [
-      { name: "Medicines", label: "Items", icon: GiMedicines },
-      { name: "MedicineStocks", label: "Stocks", icon: BiBox },
-      { name: "MedicineStockMovements", label: "Movements", icon: MdSwapVert },
-      { name: "MedicineDistributions", label: "Distributions", icon: Fa6TruckFast },
+      { name: "Medicines", label: "Items", icon: GiMedicines, module: "medicine" },
+      { name: "MedicineStocks", label: "Stocks", icon: BiBox, module: "medicine-stocks" },
+      { name: "MedicineStockMovements", label: "Movements", icon: MdSwapVert, module: "medicine-stock-movements" },
+      { name: "MedicineDistributions", label: "Distributions", icon: Fa6TruckFast, module: "medicine-distributions" },
     ],
   },
   {
     name: "Pharmacy",
     label: "Pharmacy",
     icon: FaCapsules,
+    module: "prescriptions",
   },
 
   {
@@ -280,10 +283,10 @@ const navItems = [
     label: "Supplies",
     icon: GiMedicalPack,
     children: [
-      { name: "Supplies", label: "Items", icon: GiMedicalPack },
-      { name: "SupplyStocks", label: "Stocks", icon: BiBox },
-      { name: "SupplyMovements", label: "Movements", icon: MdSwapVert },
-      { name: "SupplyDistributions", label: "Distributions", icon: Fa6TruckFast },
+      { name: "Supplies", label: "Items", icon: GiMedicalPack, module: "supplies" },
+      { name: "SupplyStocks", label: "Stocks", icon: BiBox, module: "supply-stocks" },
+      { name: "SupplyMovements", label: "Movements", icon: MdSwapVert, module: "supply-movements" },
+      { name: "SupplyDistributions", label: "Distributions", icon: Fa6TruckFast, module: "supply-distributions" },
     ],
   },
   {
@@ -291,32 +294,46 @@ const navItems = [
     label: "Dietary",
     icon: FaUtensils,
     children: [
-      { name: "DietaryList", label: "Dietary List", icon: BiFoodMenu },
-      { name: "Diets", label: "Diets", icon: FaUtensils },
+      { name: "DietaryList", label: "Dietary List", icon: BiFoodMenu, module: "patient-case-diets" },
+      { name: "Diets", label: "Diets", icon: FaUtensils, module: "diets" },
     ],
   },
   {
     name: "Users",
     label: "Users",
     icon: FaUsers,
+    module: "users",
   },
   {
     name: "Settings",
     label: "Settings",
     icon: FiSettings,
     children: [
-      { name: "Buildings", label: "Buildings", icon: FaBuilding },
-      { name: "Floors", label: "Floors", icon: MdLayers },
-      { name: "Wards", label: "Wards", icon: Fa6Hospital },
-      { name: "Rooms", label: "Rooms", icon: BsFillDoorOpenFill },
-      { name: "Beds", label: "Beds", icon: FaBed },
-      { name: "Stations", label: "Stations", icon: MdLocationOn },
-      { name: "PatientTypes", label: "Patient Types", icon: BiCategoryAlt },
-      { name: "PertinentSignsAndSymptoms", label: "Signs & Symptoms", icon: FiActivity },
-      { name: "Icds", label: "ICD Codes", icon: FaBookMedical },
+      { name: "Buildings", label: "Buildings", icon: FaBuilding, module: "buildings" },
+      { name: "Floors", label: "Floors", icon: MdLayers, module: "floors" },
+      { name: "Wards", label: "Wards", icon: Fa6Hospital, module: "wards" },
+      { name: "Rooms", label: "Rooms", icon: BsFillDoorOpenFill, module: "rooms" },
+      { name: "Beds", label: "Beds", icon: FaBed, module: "beds" },
+      { name: "Stations", label: "Stations", icon: MdLocationOn, module: "stations" },
+      { name: "PatientTypes", label: "Patient Types", icon: BiCategoryAlt, module: "patient-types" },
+      { name: "PertinentSignsAndSymptoms", label: "Signs & Symptoms", icon: FiActivity, module: "pertinent-signs-and-symptoms-lists" },
+      { name: "Icds", label: "ICD Codes", icon: FaBookMedical, module: "icds" },
+      { name: "Roles", label: "Roles & Permissions", icon: FiSettings, module: "roles" },
     ],
   },
 ];
+
+const visibleNavItems = computed(() =>
+  navItems
+    .map((item) => {
+      if (item.children) {
+        const children = item.children.filter((child) => !child.module || can(child.module, "view"));
+        return children.length ? { ...item, children } : null;
+      }
+      return !item.module || can(item.module, "view") ? item : null;
+    })
+    .filter((item) => item !== null)
+);
 const toggleSubmenu = (item) => {
   if (!sidebarExpanded.value) {
     sidebarExpanded.value = true;
