@@ -14,11 +14,11 @@
       <div class="rx-patient">
         <div class="rx-field rx-field--grow">
           <span class="rx-label">Patient</span>
-          <span class="rx-value">{{ patientName }}</span>
+          <span class="rx-value uppercase">{{ patientName }}</span>
         </div>
         <div class="rx-field">
           <span class="rx-label">Age / Sex</span>
-          <span class="rx-value">{{ ageSex }}</span>
+          <span class="rx-value uppercase">{{ ageSex }}</span>
         </div>
         <div class="rx-field">
           <span class="rx-label">Date</span>
@@ -151,7 +151,9 @@ const drugStrength = (item: PrescriptionItem) => {
 };
 
 const sig = (item: PrescriptionItem) => {
-  const duration = item.duration ? `${item.frequency} for ${Number(item.duration)} ${item.duration_unit || "days"} (${item.instructions})`.trim() : null;
+  const duration = item.duration
+    ? `${item.frequency} for ${Number(item.duration)} ${item.duration_unit || "days"}${Number(item.duration) > 1 ? 's' : ''} ${item.instructions ? "(" : ""} ${item.instructions || ""} ${item.instructions ? ")" : ""}`.trim()
+    : null;
   return [Number(item.frequency), duration].filter(Boolean).join(", ");
 };
 

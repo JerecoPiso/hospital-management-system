@@ -43,7 +43,7 @@
             </button>
           </div>
 
-          <div v-for="(item, index) in info.items.reverse()" :key="index" class="rounded-lg border border-slate-200 p-4 flex flex-col gap-3 bg-slate-50/50">
+          <div v-for="(item, index) in info.items" :key="index" class="rounded-lg border border-slate-200 p-4 flex flex-col gap-3 bg-slate-50/50">
             <div class="flex items-center justify-between">
               <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Medicine {{ index + 1 }}</span>
               <button
@@ -179,7 +179,7 @@
           <ul class="space-y-0.5">
             <li v-for="(item, idx) in data.items" :key="idx" class="text-slate-700 text-sm">
               {{ item.medicine?.name || "—" }}
-              <span class="text-slate-400 text-xs">{{ [item.frequency, item.duration ? `${item.duration} ${item.duration_unit || ""}`.trim() : null].filter(Boolean).join(" • ") }}</span>
+              <span class="text-slate-400 text-xs">{{ [item.frequency, item.duration ? `${Number(item.duration)} ${item.duration_unit || ""}${Number(item.duration) > 1 ? 's' : ''}`.trim() : null].filter(Boolean).join(" • ") }}</span>
             </li>
           </ul>
         </template>

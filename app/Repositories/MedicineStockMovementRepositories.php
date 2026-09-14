@@ -13,18 +13,18 @@ class MedicineStockMovementRepositories
         $medicineStockMovement = MedicineStockMovement::with(['medicineStock', 'medicineStock.medicine'])->orderBy('id', 'desc');
 
         if (!empty($filter['medicine_pid'])) {
-            $medicineStockMovement->whereHas('medicine', function ($q) use ($filter) {
+            $medicineStockMovement->whereHas('medicineStock', function ($q) use ($filter) {
                 $q->where('pid', $filter['medicine_pid']);
             });
         }
 
-        return api_list($medicineStockMovement, $filter, ['type', 'reference', 'remarks', 'medicine.name']);
+        return api_list($medicineStockMovement, $filter, ['type', 'reference', 'remarks', 'medicineStock.medicine.name']);
     }
 
     public function searchByPid($pid)
     {
         try {
-            $medicineStockMovement = MedicineStockMovement::with(['medicine'])->where('pid', $pid)->first();
+            $medicineStockMovement = MedicineStockMovement::with(['medicineStock'])->where('pid', $pid)->first();
 
             if (!$medicineStockMovement) {
                 return [];
@@ -45,7 +45,7 @@ class MedicineStockMovementRepositories
 
             $medicineStockMovement = MedicineStockMovement::create($data);
 
-            return $medicineStockMovement->load('medicine');
+            return $medicineStockMovement->load('medicineStoc.medicine');
         } catch (\Exception $e) {
             throw new \Exception("An error has occured! " . $e->getMessage());
         }

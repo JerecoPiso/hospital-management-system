@@ -65,14 +65,14 @@
                 </div>
             </template>
             <Column header="Supply">
-                <template #body="{ data }"><span class="text-slate-800 text-sm font-medium">{{ data.supplyStock?.supply?.name || '—' }}</span></template>
+                <template #body="{ data }"><span class="text-slate-800 text-sm font-medium">{{ data.supply_stock?.supply?.name || '—' }}</span></template>
             </Column>
             <Column header="Station">
                 <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.station?.name || '—' }}</span></template>
             </Column>
             <Column field="quantity" header="Quantity" class="w-24" />
             <Column header="Distributed By">
-                <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.distributedBy?.firstname ? `${data.distributedBy.firstname} ${data.distributedBy.lastname}` : '—' }}</span></template>
+                <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.distributed_by?.firstname ? `${data.distributed_by.firstname} ${data.distributed_by.lastname}` : '—' }}</span></template>
             </Column>
             <Column header="Distributed At" class="w-44">
                 <template #body="{ data }"><span class="text-slate-500 text-xs">{{ formatDate(data.distributed_at) }}</span></template>

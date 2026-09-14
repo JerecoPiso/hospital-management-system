@@ -40,7 +40,7 @@
                         </button>
                     </div>
 
-                    <div v-for="(item, index) in info.items.reverse()" :key="index" class="rounded-lg border border-slate-200 p-4 flex flex-col gap-3 bg-slate-50/50">
+                    <div v-for="(item, index) in info.items" :key="index" class="rounded-lg border border-slate-200 p-4 flex flex-col gap-3 bg-slate-50/50">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Supply {{ index + 1 }}</span>
                             <button type="button" title="Remove supply" @click="removeItem(index)" :disabled="info.items.length === 1"
@@ -110,7 +110,7 @@
 
             <Column header="Charged By" class="w-44">
                 <template #body="{ data }">
-                    <span class="text-slate-700 text-sm">{{ `${data.chargedBy?.firstname ?? ''} ${data.chargedBy?.lastname ?? ''}`.trim() || '—' }}</span>
+                    <span class="text-slate-700 text-sm">{{ `${data.charged_by?.firstname ?? ''} ${data.charged_by?.lastname ?? ''}`.trim() || '—' }}</span>
                 </template>
             </Column>
 
