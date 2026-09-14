@@ -16,7 +16,7 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "medicine_pid" => "required|string|exists:medicines,pid",
+            "medicine_stock_pid" => "required|string|exists:medicine_stocks,pid",
             "type" => "required|in:IN,OUT",
             "quantity" => "required|integer|min:1",
             "reference" => "nullable|string",

@@ -7,7 +7,7 @@ export const useMedicineStockMovementStore = defineStore("medicineStockMovement"
     const baseUrl = import.meta.env.VITE_APP_API_URL;
     const medicineStockMovements = ref<MedicineStockMovement[]>([])
     const medicineStockMovement = ref<MedicineStockMovement>({
-        medicine_pid: '',
+        medicine_stock_pid: '',
         type: 'IN',
         quantity: 0,
         reference: '',

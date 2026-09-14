@@ -220,18 +220,19 @@ const chartParams = computed(() => (route.params.patient_case_pid ? { patient_ca
 const sidebarExpanded = ref(true);
 const expandedMenu = ref(null);
 const navItems = [
-  {
-    name: "MainMenu",
-    label: "Main Menu",
-    icon: MdDashboard,
-    children: [
-      { name: "Dashboard", label: "Dashboard", icon: MdDashboard },
-      { name: "Medicines", label: "Medicines", icon: GiMedicines },
-      { name: "Users", label: "Users", icon: FaUsers },
-      { name: "Supplies", label: "Supplies", icon: GiMedicalPack },
-      // { name: "Settings", label: "Settings", icon: FiSettings },
-    ],
-  },
+  // {
+  //   name: "MainMenu",
+  //   label: "Main Menu",
+  //   icon: MdDashboard,
+  //   children: [
+  //     { name: "Dashboard", label: "Dashboard", icon: MdDashboard },
+  //     { name: "Medicines", label: "Medicines", icon: GiMedicines },
+  //     { name: "Users", label: "Users", icon: FaUsers },
+  //     { name: "Supplies", label: "Supplies", icon: GiMedicalPack },
+  //     // { name: "Settings", label: "Settings", icon: FiSettings },
+  //   ],
+  // },
+  { name: "Dashboard", label: "Dashboard", icon: MdDashboard },
   {
     label: "Patient Information",
     name: "PatientInformation",
@@ -261,6 +262,11 @@ const navItems = [
     name: "Therapeutic",
     label: "Therapeutic",
     icon: GiMedicines,
+  },
+  {
+    name: "SupplyCharges",
+    label: "Supply Charges",
+    icon: GiMedicalPack,
   },
 
   {

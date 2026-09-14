@@ -261,6 +261,12 @@ const navItems = [
     ],
   },
   {
+    name: "Pharmacy",
+    label: "Pharmacy",
+    icon: FaCapsules,
+    module: "prescriptions",
+  },
+  {
     name: "Medicines",
     label: "Medicines",
     icon: GiMedicines,
@@ -270,12 +276,6 @@ const navItems = [
       { name: "MedicineStockMovements", label: "Movements", icon: MdSwapVert, module: "medicine-stock-movements" },
       { name: "MedicineDistributions", label: "Distributions", icon: Fa6TruckFast, module: "medicine-distributions" },
     ],
-  },
-  {
-    name: "Pharmacy",
-    label: "Pharmacy",
-    icon: FaCapsules,
-    module: "prescriptions",
   },
 
   {
@@ -298,17 +298,19 @@ const navItems = [
       { name: "Diets", label: "Diets", icon: FaUtensils, module: "diets" },
     ],
   },
-  {
-    name: "Users",
-    label: "Users",
-    icon: FaUsers,
-    module: "users",
-  },
+
   {
     name: "Settings",
     label: "Settings",
     icon: FiSettings,
     children: [
+      {
+        name: "Users",
+        label: "Users",
+        icon: FaUsers,
+        module: "users",
+      },
+      { name: "Roles", label: "Roles & Permissions", icon: FiSettings, module: "roles" },
       { name: "Buildings", label: "Buildings", icon: FaBuilding, module: "buildings" },
       { name: "Floors", label: "Floors", icon: MdLayers, module: "floors" },
       { name: "Wards", label: "Wards", icon: Fa6Hospital, module: "wards" },
@@ -318,7 +320,6 @@ const navItems = [
       { name: "PatientTypes", label: "Patient Types", icon: BiCategoryAlt, module: "patient-types" },
       { name: "PertinentSignsAndSymptoms", label: "Signs & Symptoms", icon: FiActivity, module: "pertinent-signs-and-symptoms-lists" },
       { name: "Icds", label: "ICD Codes", icon: FaBookMedical, module: "icds" },
-      { name: "Roles", label: "Roles & Permissions", icon: FiSettings, module: "roles" },
     ],
   },
 ];

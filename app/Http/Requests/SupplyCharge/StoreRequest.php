@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\SupplyDistribution;
+namespace App\Http\Requests\SupplyCharge;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
@@ -16,10 +16,13 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "supply_pid" => "required|string|exists:supplies,pid",
-            "station_pid" => "required|string|exists:stations,pid",
-            "quantity" => "required|integer|min:1",
-            "distributed_at" => "nullable|date",
+            "patient_case_pid" => "required|string|exists:patient_cases,pid",
+            "charge_date" => "required|date",
+            "remarks" => "nullable|string",
+            "items" => "required|array|min:1",
+            "items.*.supply_pid" => "required|string|exists:supplies,pid",
+            "items.*.quantity" => "required|numeric|min:0.01",
+            "items.*.remarks" => "nullable|string",
         ];
     }
 

@@ -74,7 +74,7 @@ export interface MedicineStock {
 
 export interface MedicineStockMovement {
     pid?: string;
-    medicine_pid: string;
+    medicine_stock_pid: string;
     medicine?: Medicines;
     type: 'IN' | 'OUT';
     quantity: number;
@@ -243,6 +243,10 @@ export interface PatientRegistration {
     gender?: string;
     civil_status?: string;
     contact_number?: string;
+    region?: string,
+    province?: string,
+    municipality?: string,
+    barangay?: string,
     email_address?: string;
     religion?: string;
     birthplace?: string;
@@ -294,13 +298,34 @@ export interface SupplyMovement {
 
 export interface SupplyDistribution {
     pid?: string;
-    supply_stock_pid: string;
+    supply_pid: string;
     supplyStock?: SupplyStock;
     station_pid: string;
     station?: Station;
     quantity: number;
     distributedBy?: User | null;
     distributed_at?: string;
+}
+
+export interface SupplyChargeItem {
+    pid?: string;
+    supply_pid: string;
+    supply?: Supply;
+    quantity: number | null;
+    remarks?: string | null;
+}
+
+export interface SupplyCharge {
+    pid?: string;
+    patient_case_pid: string;
+    patientCase?: PatientCase;
+    // Laravel serializes the `patientCase` relation as snake_case.
+    patient_case?: PatientCase;
+    chargedBy?: User | null;
+    charge_date: string;
+    remarks?: string | null;
+    items: SupplyChargeItem[];
+    created_at?: string;
 }
 
 export interface Building {

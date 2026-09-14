@@ -8,15 +8,15 @@
                     </div>
                     <div>
                         <h2 class="text-base font-semibold text-slate-800">Distribute Stock to Station</h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Deducts the quantity from the selected batch</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Automatically deducts from the earliest-expiring batch first</p>
                     </div>
                 </div>
             </template>
             <form @submit.prevent="create" class="flex flex-col gap-5 pt-2">
                 <div class="grid grid-cols-2 gap-x-4 gap-y-4">
                     <div class="col-span-2 flex flex-col gap-1.5">
-                        <label class="text-sm font-medium text-slate-700">Stock Batch <span class="text-red-400">*</span></label>
-                        <Select v-model="info.supply_stock_pid" :options="supplyStocks" :optionLabel="stockOptionLabel" optionValue="pid" placeholder="Select stock batch" filter fluid class="text-sm" />
+                        <label class="text-sm font-medium text-slate-700">Supply Item <span class="text-red-400">*</span></label>
+                        <Select v-model="info.supply_pid" :options="supplies" optionLabel="name" optionValue="pid" placeholder="Select supply item" filter fluid class="text-sm" />
                     </div>
                     <div class="col-span-2 flex flex-col gap-1.5">
                         <label class="text-sm font-medium text-slate-700">Station <span class="text-red-400">*</span></label>
@@ -87,9 +87,9 @@ import { BsPlusCircle } from 'vue-icons-plus/bs';
 import { FiSearch } from 'vue-icons-plus/fi';
 import { Fa6TruckFast } from 'vue-icons-plus/fa6';
 import { useSupplyDistributionStore } from '@/store/SupplyDistribution';
-import { useSupplyStockStore } from '@/store/SupplyStock';
+import { useSupplyStore } from '@/store/Supply';
 import { useStationStore } from '@/store/Station';
-import { SupplyDistribution, SupplyStock } from '@/interface/Interfaces';
+import { SupplyDistribution, Supply } from '@/interface/Interfaces';
 import { useApiTable } from '@/composables/apiTable';
 import { useAppToast } from '@/composables/toast';
 import { usePermission } from '@/composables/permission';
@@ -97,20 +97,19 @@ import { usePermission } from '@/composables/permission';
 const toast = useAppToast();
 const { can } = usePermission();
 const supplyDistributionStore = useSupplyDistributionStore();
-const supplyStockStore = useSupplyStockStore();
+const supplyStore = useSupplyStore();
 const stationStore = useStationStore();
 
 const supplyDistributions = computed<SupplyDistribution[]>(() => supplyDistributionStore.supplyDistributions);
-const supplyStocks = computed<SupplyStock[]>(() => supplyStockStore.supplyStocks);
+const supplies = computed<Supply[]>(() => supplyStore.supplies);
 const stations = computed(() => stationStore.stations);
 const modalOpen = ref<boolean>(false);
-const defaultInfo = (): SupplyDistribution => ({ supply_stock_pid: '', station_pid: '', quantity: 0 });
+const defaultInfo = (): SupplyDistribution => ({ supply_pid: '', station_pid: '', quantity: 0 });
 const info = reactive<SupplyDistribution>(defaultInfo());
 
 watch(modalOpen, (open) => { if (!open) { Object.assign(info, defaultInfo()); } });
 
 const formatDate = (value?: string) => value ? new Date(value).toLocaleString() : '—';
-const stockOptionLabel = (data: SupplyStock) => `${data.supply?.name || 'Unknown'}${data.batch_number ? ' — ' + data.batch_number : ''} (qty: ${data.quantity ?? 0})`;
 
 const { search, rows, first, total, loading, onPage, onSearch, reload } = useApiTable(
     async (params) => {
@@ -124,7 +123,7 @@ const { search, rows, first, total, loading, onPage, onSearch, reload } = useApi
 );
 
 onMounted(() => {
-    supplyStockStore.read();
+    supplyStore.read();
     stationStore.read();
 });
 
@@ -134,7 +133,6 @@ const create = async () => {
         toast.success('Stock distributed successfully');
         modalOpen.value = false;
         await reload();
-        await supplyStockStore.read();
     } catch (err: any) {
         toast.error(err.response?.data?.message || 'Failed to distribute stock');
     }

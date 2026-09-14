@@ -3,13 +3,14 @@
 namespace App\Repositories;
 
 use App\Models\Medicine;
+use App\Models\MedicineStock;
 use App\Models\MedicineStockMovement;
 
 class MedicineStockMovementRepositories
 {
     public function list($filter = [])
     {
-        $medicineStockMovement = MedicineStockMovement::with(['medicine'])->orderBy('id', 'desc');
+        $medicineStockMovement = MedicineStockMovement::with(['medicineStock', 'medicineStock.medicine'])->orderBy('id', 'desc');
 
         if (!empty($filter['medicine_pid'])) {
             $medicineStockMovement->whereHas('medicine', function ($q) use ($filter) {
@@ -38,9 +39,9 @@ class MedicineStockMovementRepositories
     public function store($data)
     {
         try {
-            $medicine = Medicine::where('pid', $data['medicine_pid'])->firstOrFail();
-            $data['medicine_id'] = $medicine->id;
-            unset($data['medicine_pid']);
+            $medicine = MedicineStock::where('pid', $data['medicine_stock_pid'])->firstOrFail();
+            $data['medicine_stock_id'] = $medicine->id;
+            unset($data['medicine_stock_pid']);
 
             $medicineStockMovement = MedicineStockMovement::create($data);
 

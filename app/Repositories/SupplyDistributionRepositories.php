@@ -3,9 +3,11 @@
 namespace App\Repositories;
 
 use App\Models\Station;
+use App\Models\Supply;
 use App\Models\SupplyDistribution;
 use App\Models\SupplyMovement;
 use App\Models\SupplyStock;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class SupplyDistributionRepositories
@@ -42,36 +44,71 @@ class SupplyDistributionRepositories
     {
         try {
             return DB::transaction(function () use ($data) {
-                $supplyStock = SupplyStock::where('pid', $data['supply_stock_pid'])->lockForUpdate()->firstOrFail();
+                $supply = Supply::where('pid', $data['supply_pid'])->firstOrFail();
                 $station = Station::where('pid', $data['station_pid'])->firstOrFail();
 
-                if ($supplyStock->quantity < $data['quantity']) {
-                    throw new \Exception("Insufficient stock: only {$supplyStock->quantity} unit(s) available.");
-                }
+                $distributedBy = $data['distributed_by'] ?? auth()->id();
+                $distributedAt = $data['distributed_at'] ?? now();
 
-                $supplyStock->quantity -= $data['quantity'];
-                $supplyStock->save();
+                $distributions = $this->distributeFefo($supply->id, (int) $data['quantity'], $station->id, $distributedBy, $distributedAt);
 
-                $data['supply_stock_id'] = $supplyStock->id;
-                $data['station_id'] = $station->id;
-                unset($data['supply_stock_pid'], $data['station_pid']);
-
-                $data['distributed_by'] ??= auth()->id();
-                $data['distributed_at'] ??= now();
-
-                $supplyDistribution = SupplyDistribution::create($data);
-
-                SupplyMovement::create([
-                    'supply_stock_id' => $supplyStock->id,
-                    'quantity' => $data['quantity'],
-                    'type' => 'OUT',
-                    'used_for' => 'Distributed to station',
-                ]);
-
-                return $supplyDistribution->load(['supplyStock.supply', 'station', 'distributedBy']);
+                return $distributions->load(['supplyStock.supply', 'station', 'distributedBy']);
             });
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
+    }
+
+    /**
+     * Distribute the requested quantity to a station, drawing from the
+     * soonest-to-expire batch first (FEFO). If a batch can't cover the full
+     * amount, the remainder rolls over to the next soonest-to-expire batch
+     * until the requested quantity is fully covered — one distribution (and
+     * movement) record is created per batch actually drawn from.
+     */
+    private function distributeFefo(int $supplyId, int $quantity, int $stationId, $distributedBy, $distributedAt)
+    {
+        $remaining = $quantity;
+        $created = new Collection();
+
+        $batches = SupplyStock::where('supply_id', $supplyId)
+            ->where('quantity', '>', 0)
+            ->orderByRaw('expiration_date IS NULL, expiration_date ASC')
+            ->lockForUpdate()
+            ->get();
+
+        foreach ($batches as $batch) {
+            if ($remaining <= 0) {
+                break;
+            }
+
+            $deduct = min($batch->quantity, $remaining);
+            $batch->quantity -= $deduct;
+            $batch->save();
+
+            $created->push(SupplyDistribution::create([
+                'supply_stock_id' => $batch->id,
+                'station_id' => $stationId,
+                'quantity' => $deduct,
+                'distributed_by' => $distributedBy,
+                'distributed_at' => $distributedAt,
+            ]));
+
+            SupplyMovement::create([
+                'supply_stock_id' => $batch->id,
+                'quantity' => $deduct,
+                'type' => 'OUT',
+                'used_for' => 'Distributed to station' . ($batch->batch_number ? " (batch {$batch->batch_number})" : ''),
+            ]);
+
+            $remaining -= $deduct;
+        }
+
+        if ($remaining > 0) {
+            $supplyName = Supply::find($supplyId)?->name ?? "supply #{$supplyId}";
+            throw new \Exception("Insufficient stock for {$supplyName}: short by {$remaining} unit(s).");
+        }
+
+        return $created;
     }
 }

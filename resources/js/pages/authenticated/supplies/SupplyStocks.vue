@@ -107,7 +107,7 @@
             <Column field="units_per_package" header="Units/Pkg" class="w-24" />
             <Column field="reorder_level" header="Reorder Lvl" class="w-28" />
             <Column header="Expiration" class="w-32">
-                <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.expiration_date || '—' }}</span></template>
+                <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.expiration_date.split("T")[0] || '—' }}</span></template>
             </Column>
             <Column header="Actions" class="w-24">
                 <template #body="{ data }">

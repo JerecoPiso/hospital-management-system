@@ -35,6 +35,7 @@ require __DIR__ . '/api/rooms.php';
 require __DIR__ . '/api/soaps.php';
 require __DIR__ . '/api/stations.php';
 require __DIR__ . '/api/supplies.php';
+require __DIR__ . '/api/supplyCharges.php';
 require __DIR__ . '/api/supplyDistributions.php';
 require __DIR__ . '/api/supplyMovements.php';
 require __DIR__ . '/api/supplyStocks.php';

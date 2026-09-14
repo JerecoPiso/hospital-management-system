@@ -83,6 +83,7 @@ const router = createRouter({
                 { path: "doctors-order", name: "DoctorsOrder", component: () => import("../pages/authenticated/patientchart/DoctorsOrder.vue"), meta: { module: "doctors-order" } },
                 { path: "nurses-notes", name: "NursesNotes", component: () => import("../pages/authenticated/patientchart/NursesNotes.vue"), meta: { module: "nurses-notes" } },
                 { path: "therapeutic", name: "Therapeutic", component: () => import("../pages/authenticated/patientchart/Therapeutic.vue"), meta: { module: "prescriptions" } },
+                { path: "supply-charges", name: "SupplyCharges", component: () => import("../pages/authenticated/patientchart/SupplyCharges.vue"), meta: { module: "supply-charges" } },
                 { path: "vital-signs", name: "VitalSigns", component: () => import("../pages/authenticated/patientchart/VitalSigns.vue"), meta: { module: "vital-signs" } },
                 { path: "diet", name: "PatientDiet", component: () => import("../pages/authenticated/patientchart/Diet.vue"), meta: { module: "patient-case-diets" } },
                 { path: "patient-forms", name: "PatientForms", component: () => import("../pages/authenticated/patientchart/PatientForms.vue") },

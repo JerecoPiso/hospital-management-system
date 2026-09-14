@@ -145,5 +145,32 @@ const supplyUnits = [
     'Tube',
     'Vial',
 ];
-return {administrationRoutes, dosageUnits, dosageForms, civilStatuses, religions, supplyUnits}
+const frequencies = [
+  { label: 'Once daily', value: 'OD' },
+  { label: 'Twice daily', value: 'BID' },
+  { label: 'Three times daily', value: 'TID' },
+  { label: 'Four times daily', value: 'QID' },
+  { label: 'Every 2 hours', value: 'q2h' },
+  { label: 'Every 3 hours', value: 'q3h' },
+  { label: 'Every 4 hours', value: 'q4h' },
+  { label: 'Every 6 hours', value: 'q6h' },
+  { label: 'Every 8 hours', value: 'q8h' },
+  { label: 'Every 12 hours', value: 'q12h' },
+  { label: 'Every 24 hours', value: 'q24h' },
+  { label: 'As needed', value: 'PRN' },
+  { label: 'Before meals', value: 'AC' },
+  { label: 'After meals', value: 'PC' },
+  { label: 'At bedtime', value: 'HS' },
+  { label: 'Once weekly', value: 'Weekly' },
+  { label: 'Once monthly', value: 'Monthly' },
+  { label: 'As directed', value: 'UD' },
+];
+const durationUnits = [
+  'Hour',
+  'Day',
+  'Week',
+  'Month',
+  'Year',
+];
+return {administrationRoutes, civilStatuses,  durationUnits,  dosageUnits, dosageForms, frequencies, religions, supplyUnits}
 })

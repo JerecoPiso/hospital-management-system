@@ -3,9 +3,12 @@
 namespace App\Repositories;
 
 use App\Models\Medicine;
+use App\Models\MedicineStock;
+use App\Models\MedicineStockMovement;
 use App\Models\PatientCase;
 use App\Models\Prescription;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class PrescriptionRepositories
 {
@@ -84,7 +87,9 @@ class PrescriptionRepositories
                 $prescription = Prescription::findOrFail($prescription_id);
 
                 $update = [
-                    'prescription_date' => $data['prescription_date'],
+                    'prescription_date' => !empty($data['prescription_date'])
+                        ? Carbon::parse($data['prescription_date'])->format('Y-m-d H:i:s')
+                        : null,
                     'remarks' => $data['remarks'] ?? null,
                     'status' => $data['status'] ?? $prescription->status,
                 ];
@@ -110,16 +115,77 @@ class PrescriptionRepositories
     public function updateStatus($prescription_id, $data)
     {
         try {
-            $prescription = Prescription::findOrFail($prescription_id);
+            return DB::transaction(function () use ($prescription_id, $data) {
+                $prescription = Prescription::with('items')->lockForUpdate()->findOrFail($prescription_id);
+                $wasDone = $prescription->status === 'done';
 
-            $prescription->update([
-                'status' => $data['status'],
-                'remarks' => $data['remarks'] ?? $prescription->remarks,
-            ]);
+                $prescription->update([
+                    'status' => $data['status'],
+                    'remarks' => $data['remarks'] ?? $prescription->remarks,
+                ]);
 
-            return $prescription->load(['patientCase.patient', 'doctor', 'items.medicine']);
+                if ($data['status'] === 'done' && !$wasDone) {
+                    $this->dispenseInventory($prescription);
+                }
+
+                return $prescription->load(['patientCase.patient', 'doctor', 'items.medicine']);
+            });
         } catch (\Exception $e) {
             throw new \Exception("An error has occured! " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Deduct dispensed quantities from medicine stock, oldest-expiring batch first (FEFO).
+     * If a batch doesn't have enough on hand, the remainder rolls over to the next
+     * soonest-to-expire batch until the prescribed quantity is fully covered.
+     */
+    private function dispenseInventory(Prescription $prescription)
+    {
+        foreach ($prescription->items as $item) {
+            $quantity = (int) round((float) ($item->quantity ?? 0));
+
+            if ($quantity <= 0) {
+                continue;
+            }
+
+            $this->deductFromStockFefo($item->medicine_id, $quantity, $prescription->pid);
+        }
+    }
+
+    private function deductFromStockFefo(int $medicineId, int $quantity, string $reference)
+    {
+        $remaining = $quantity;
+
+        $batches = MedicineStock::where('medicine_id', $medicineId)
+            ->where('quantity', '>', 0)
+            ->orderByRaw('expiration_date IS NULL, expiration_date ASC')
+            ->lockForUpdate()
+            ->get();
+
+        foreach ($batches as $batch) {
+            if ($remaining <= 0) {
+                break;
+            }
+
+            $deduct = min($batch->quantity, $remaining);
+            $batch->quantity -= $deduct;
+            $batch->save();
+
+            MedicineStockMovement::create([
+                'medicine_stock_id' => $batch->id,
+                'type' => 'OUT',
+                'quantity' => $deduct,
+                'reference' => $reference,
+                'remarks' => 'Dispensed for prescription' . ($batch->batch_number ? " (batch {$batch->batch_number})" : ''),
+            ]);
+
+            $remaining -= $deduct;
+        }
+
+        if ($remaining > 0) {
+            $medicineName = Medicine::find($medicineId)?->name ?? "medicine #{$medicineId}";
+            throw new \Exception("Insufficient stock for {$medicineName}: short by {$remaining} unit(s).");
         }
     }
 

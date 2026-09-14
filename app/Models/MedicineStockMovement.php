@@ -23,8 +23,8 @@ class MedicineStockMovement extends Model
         });
     }
 
-    public function medicine(): BelongsTo
+    public function medicineStock(): BelongsTo
     {
-        return $this->belongsTo(Medicine::class);
+        return $this->belongsTo(MedicineStock::class);
     }
 }

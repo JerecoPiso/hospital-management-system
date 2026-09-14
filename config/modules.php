@@ -25,6 +25,7 @@ return [
     ['key' => 'prescription-items', 'label' => 'Prescription Items'],
     ['key' => 'diets', 'label' => 'Diets'],
     ['key' => 'patient-case-diets', 'label' => 'Patient Case Diets'],
+    ['key' => 'supply-charges', 'label' => 'Supply Charges'],
     ['key' => 'medicine', 'label' => 'Medicine Items'],
     ['key' => 'medicine-stocks', 'label' => 'Medicine Stocks'],
     ['key' => 'medicine-stock-movements', 'label' => 'Medicine Stock Movements'],

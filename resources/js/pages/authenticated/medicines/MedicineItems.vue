@@ -124,7 +124,7 @@
             <Column header="Dosage" class="w-32">
                 <template #body="{ data }">
                     <span v-if="data.dosage" class="text-slate-700 text-sm">
-                        {{ data.dosage }}<span v-if="data.dosage_unit" class="text-slate-400 ml-0.5">{{ data.dosage_unit }}</span>
+                        {{ Number(data.dosage) }}<span v-if="data.dosage_unit" class="text-slate-400 ml-0.5">{{ data.dosage_unit }}</span>
                     </span>
                     <span v-else class="text-slate-300 text-sm italic">—</span>
                 </template>

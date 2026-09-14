@@ -1,6 +1,6 @@
 <template>
   <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-    <Dialog v-model:visible="patientModal" modal :style="{ width: '56vw' }" :breakpoints="{ '1199px': '80vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
+    <Dialog v-model:visible="patientModal" modal :style="{ width: '86vw' }" :breakpoints="{ '1199px': '80vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
       <template #header>
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
@@ -14,7 +14,7 @@
       </template>
       <form @submit.prevent="isUpdate ? update() : create()" class="flex flex-col gap-5 pt-2">
         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Patient Information</p>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-4 gap-4">
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">First Name <span class="text-red-400">*</span></label>
             <InputText v-model="patientInfo.firstname" fluid required class="text-sm" />
@@ -48,17 +48,44 @@
             <InputText v-model="patientInfo.contact_number" fluid class="text-sm" />
           </div>
           <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Region</label>
+            <Select v-model="patientInfo.region" :options="regions" optionLabel="name" optionValue="name" filter filterBy="name" showClear placeholder="Select a Country" class="w-full"> </Select>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Province</label>
+            <Select v-model="patientInfo.province" :options="provinces" optionLabel="name" optionValue="name" filter filterBy="name" showClear placeholder="Select a Country" class="w-full"> </Select>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">City/Municipality</label>
+            <Select v-model="patientInfo.municipality" :options="municipalities" optionLabel="name" optionValue="name" filter filterBy="name" showClear placeholder="Select a Country" class="w-full">
+            </Select>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Barangay</label>
+            <Select v-model="patientInfo.barangay" :options="barangays" optionLabel="name" optionValue="name" filter filterBy="name" showClear placeholder="Select a Country" class="w-full"> </Select>
+          </div>
+          <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Email Address</label>
             <InputText v-model="patientInfo.email_address" type="email" fluid class="text-sm" />
           </div>
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Religion</label>
-            <!-- <InputText v-model="patientInfo.religion" fluid class="text-sm" /> -->
             <Select v-model="patientInfo.religion" :options="religions" optionLabel="label" optionValue="value" placeholder="Select religion" class="w-full" />
           </div>
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Birthplace</label>
-            <InputText v-model="patientInfo.birthplace" fluid class="text-sm" />
+            <Select
+              v-model="patientInfo.birthplace"
+              :options="all_municipalities"
+              optionLabel="name"
+              optionValue="name"
+              filter
+              filterBy="name"
+              showClear
+              editable
+              placeholder="Select or enter birthplace"
+              class="w-full"
+            />
           </div>
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Occupation</label>
@@ -71,7 +98,7 @@
         </div>
 
         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide pt-2">Case Information</p>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-3 gap-4">
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Admission Type <span class="text-red-400">*</span></label>
             <Select v-model="patientInfo.type" :options="admissionTypeOptions" optionLabel="label" optionValue="value" placeholder="Select admission type" required fluid class="text-sm" />
@@ -94,7 +121,7 @@
               <Select v-model="patientInfo.bed_pid" :options="beds" :optionLabel="bedOptionLabel" optionValue="pid" placeholder="Select bed" filter showClear fluid class="text-sm" />
             </div>
           </template>
-          <div class="col-span-2 flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Chief Complaint <span class="text-red-400">*</span></label>
             <InputText v-model="patientInfo.chief_complaint" fluid required class="text-sm" />
           </div>
@@ -448,6 +475,7 @@ import { useConfirmToast } from "@/composables/confirm";
 import { useAppToast } from "@/composables/toast";
 import { usePermission } from "@/composables/permission";
 import { useListStore } from "@/store/List";
+import { useLocationStore } from "@/store/Location";
 
 const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
@@ -458,7 +486,13 @@ const patientTypeStore = usePatientTypeStore();
 const stationStore = useStationStore();
 const bedStore = useBedStore();
 const listStore = useListStore();
+const locationStore = useLocationStore();
 const router = useRouter();
+const regions = computed(() => locationStore.regions);
+const provinces = computed(() => locationStore.provinces);
+const municipalities = computed(() => locationStore.municipalities);
+const barangays = computed(() => locationStore.barangays);
+const all_municipalities = computed(() => locationStore.all_municipalities);
 
 const genders = ["Male", "Female", "Other"];
 const admissionTypeOptions = [
@@ -490,6 +524,10 @@ const emptyPatient = (): PatientRegistration => ({
   gender: "",
   civil_status: "",
   contact_number: "",
+  region: "",
+  province: "",
+  municipality: "",
+  barangay: "",
   email_address: "",
   religion: "",
   birthplace: "",
@@ -514,6 +552,33 @@ const birthdateModel = ref<Date | null>(null);
 const admissionDatetimeModel = ref<Date | null>(null);
 const expandedRows = ref<Record<string, boolean>>({});
 
+watch(
+  () => patientInfo.region,
+  () => {
+    const region = regions.value.find((el) => el.name === patientInfo.region);
+    if (region) {
+      locationStore.getProvincesByRegion(region.reg_code);
+    }
+  }
+);
+watch(
+  () => patientInfo.province,
+  () => {
+    const province = provinces.value.find((el) => el.name === patientInfo.province);
+    if (province) {
+      locationStore.getCityMunByProvince(province.prov_code);
+    }
+  }
+);
+watch(
+  () => patientInfo.municipality,
+  () => {
+    const municipality = municipalities.value.find((el) => el.name === patientInfo.municipality);
+    if (municipality) {
+      locationStore.getBarangayByMun(municipality.mun_code);
+    }
+  }
+);
 const formatDate = (value?: string) => (value ? new Date(value).toLocaleString() : "—");
 
 const { search, rows, first, total, loading, onPage, onSearch, reload } = useApiTable(

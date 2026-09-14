@@ -7,7 +7,7 @@ export const useSupplyDistributionStore = defineStore("supplyDistribution", () =
     const baseUrl = import.meta.env.VITE_APP_API_URL;
     const supplyDistributions = ref<SupplyDistribution[]>([])
     const supplyDistribution = ref<SupplyDistribution>({
-        supply_stock_pid: '',
+        supply_pid: '',
         station_pid: '',
         quantity: 0
     })

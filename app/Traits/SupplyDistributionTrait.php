@@ -21,8 +21,8 @@ trait SupplyDistributionTrait
         try {
             $validated = $request->validated();
 
-            $supplyDistribution = $this->supplyDistributionRepo->store($validated);
-            return api_response(["supply_distribution" => $supplyDistribution], true, "Success", 201);
+            $supplyDistributions = $this->supplyDistributionRepo->store($validated);
+            return api_response(["supply_distributions" => $supplyDistributions], true, "Success", 201);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
         }
