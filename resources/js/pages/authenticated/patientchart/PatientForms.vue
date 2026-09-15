@@ -13,7 +13,7 @@
 
         <!-- Buttons -->
         <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <router-link v-if="can('history-and-physical-examination-form-one', 'view')"
+            <!-- <router-link v-if="can('history-and-physical-examination-form-one', 'view')"
                 :to="{ name: 'HistoryAndPhysicalExaminationFormOne' }"
                 class="group flex items-center gap-4 p-5 rounded-xl border border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all duration-200 bg-white"
             >
@@ -53,7 +53,7 @@
                     <p class="text-xs text-slate-400 mt-0.5">Tick the signs &amp; symptoms that apply</p>
                 </div>
                 <BiChevronRight class="text-slate-300 group-hover:text-emerald-500 transition-colors" size="20" />
-            </router-link>
+            </router-link> -->
 
             <router-link v-if="can('soaps', 'view')"
                 :to="{ name: 'SoapForm' }"

@@ -268,24 +268,24 @@ const navItems = [
     label: "Patient Forms",
     icon: FaFileMedicalAlt,
   },
-  {
-    name: "VitalSigns",
-    label: "Vital Signs",
-    icon: FiActivity,
-    module: "vital-signs",
-  },
-  {
-    label: "Doctors Order",
-    name: "DoctorsOrder",
-    icon: FaBookMedical,
-    module: "doctors-order",
-  },
-  {
-    name: "NursesNotes",
-    label: "Nurses Notes",
-    icon: BsJournalMedical,
-    module: "nurses-notes",
-  },
+  // {
+  //   name: "VitalSigns",
+  //   label: "Vital Signs",
+  //   icon: FiActivity,
+  //   module: "vital-signs",
+  // },
+  // {
+  //   label: "Doctors Order",
+  //   name: "DoctorsOrder",
+  //   icon: FaBookMedical,
+  //   module: "doctors-order",
+  // },
+  // {
+  //   name: "NursesNotes",
+  //   label: "Nurses Notes",
+  //   icon: BsJournalMedical,
+  //   module: "nurses-notes",
+  // },
   {
     name: "Therapeutic",
     label: "Therapeutic",
@@ -299,12 +299,12 @@ const navItems = [
     module: "supply-charges",
   },
 
-  {
-    name: "PatientDiet",
-    label: "Diet",
-    icon: FaUtensils,
-    module: "patient-case-diets",
-  },
+  // {
+  //   name: "PatientDiet",
+  //   label: "Diet",
+  //   icon: FaUtensils,
+  //   module: "patient-case-diets",
+  // },
 ];
 
 const visibleNavItems = computed(() =>

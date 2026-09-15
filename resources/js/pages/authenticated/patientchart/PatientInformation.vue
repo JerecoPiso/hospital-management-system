@@ -69,7 +69,7 @@
     </div>
 
     <!-- Vital Signs -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+    <!-- <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
       <div v-for="stat in vitalStats" :key="stat.label" class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200 flex items-start gap-3">
         <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" :style="{ backgroundColor: stat.bgColor }">
           <component :is="stat.icon" :style="{ color: stat.color }" size="18" />
@@ -80,7 +80,7 @@
         </div>
       </div>
     </div>
-    <p class="text-xs text-slate-400 -mt-3">Last measured {{ formatDateTime(latestVitalSignsMeasuredAt) }}</p>
+    <p class="text-xs text-slate-400 -mt-3">Last measured {{ formatDateTime(latestVitalSignsMeasuredAt) }}</p> -->
 
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -328,7 +328,7 @@ watch(
   }
 );
 onMounted(async () => {
-  await vitalSignStore.getLatestVitalSigns(route.params.patient_case_pid);
+  // await vitalSignStore.getLatestVitalSigns(route.params.patient_case_pid);
   if (!patientCasePid.value) return;
   try {
     await patientCaseStore.view(patientCasePid.value);
