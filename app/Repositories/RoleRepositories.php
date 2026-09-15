@@ -9,7 +9,7 @@ class RoleRepositories
 {
     public function list($filter = [])
     {
-        $query = Role::withCount('users')->orderBy('id', 'desc');
+        $query = Role::withCount('users')->whereNot('id', Role::SUPER_ADMIN)->orderBy('id', 'desc');
 
         return api_list($query, $filter, ['name', 'description']);
     }

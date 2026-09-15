@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 class Role extends Model
 {
     use SoftDeletes;
-
+    const SUPER_ADMIN = 1;
     protected $guarded = ['id'];
     protected $hidden = ['id', 'deleted_at', 'created_at', 'updated_at'];
 

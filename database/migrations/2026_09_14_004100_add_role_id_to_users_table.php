@@ -21,7 +21,7 @@ return new class extends Migration
         // so nobody is locked out once permission middleware starts enforcing access.
         $roleId = DB::table('roles')->insertGetId([
             'pid' => (string) Str::uuid(),
-            'name' => 'Administrator',
+            'name' => 'Super Admin',
             'description' => 'Full access to every module in the system.',
             'created_at' => now(),
             'updated_at' => now(),
@@ -29,7 +29,7 @@ return new class extends Migration
 
         $modules = require __DIR__ . '/../../config/modules.php';
         $now = now();
-        $rows = array_map(fn ($module) => [
+        $rows = array_map(fn($module) => [
             'pid' => (string) Str::uuid(),
             'role_id' => $roleId,
             'module' => $module['key'],
