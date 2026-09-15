@@ -12,7 +12,7 @@ class SupplyMovement extends Model
     use SoftDeletes;
 
     protected $guarded = ['id'];
-    protected $hidden = ['id', 'supply_stock_id', 'deleted_at', 'created_at', 'updated_at'];
+    protected $hidden = ['id', 'supply_stock_id', 'deleted_at', 'updated_at'];
 
     protected static function boot()
     {

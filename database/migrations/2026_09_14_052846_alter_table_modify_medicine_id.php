@@ -12,12 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('medicine_stock_movements', function (Blueprint $table) {
-            $table->dropForeign(['medicine_id']);
-            $table->dropColumn('medicine_id');
+            $table->dropForeign(['medicine_stock_id']);
+            $table->dropColumn('medicine_stock_id');
             $table->foreignId('medicine_stock_id')
                 ->after('pid')
                 ->constrained('medicine_stocks')
                 ->cascadeOnDelete();
+                
         });
     }
 

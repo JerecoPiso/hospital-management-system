@@ -59,12 +59,22 @@
                         <label class="text-sm font-medium text-slate-700">Role</label>
                         <Select v-model="userInfo.role_pid" :options="roles" optionLabel="name" optionValue="pid" placeholder="Select role" filter showClear fluid class="text-sm" />
                     </div>
-                    <div v-if="!isUpdate" class="col-span-2 flex flex-col gap-1.5">
-                        <label class="text-sm font-medium text-slate-700">
-                            Password <span class="text-red-400">*</span>
-                        </label>
-                        <Password v-model="userInfo.password" fluid :feedback="false" toggleMask required />
-                    </div>
+                    <template v-if="!isUpdate || can('users', 'update')">
+                        <div class="col-span-2 flex flex-col gap-1.5">
+                            <label class="text-sm font-medium text-slate-700">
+                                Password
+                                <span v-if="!isUpdate" class="text-red-400">*</span>
+                                <span v-else class="text-slate-400 font-normal">(leave blank to keep current password)</span>
+                            </label>
+                            <Password v-model="userInfo.password" fluid :feedback="!isUpdate" toggleMask :required="!isUpdate" :placeholder="isUpdate ? 'New password' : undefined" />
+                        </div>
+                        <div class="col-span-2 flex flex-col gap-1.5">
+                            <label class="text-sm font-medium text-slate-700">
+                                Confirm Password <span v-if="!isUpdate" class="text-red-400">*</span>
+                            </label>
+                            <Password v-model="passwordConfirmation" fluid :feedback="false" toggleMask :required="!isUpdate" :placeholder="isUpdate ? 'Re-enter new password' : undefined" />
+                        </div>
+                    </template>
                 </div>
                 <div class="flex gap-2 pt-1">
                     <Button
@@ -260,6 +270,7 @@ const defaultUserInfo = (): User => ({
 });
 const userInfo = reactive<User>(defaultUserInfo());
 const isUpdate = ref<boolean>(false);
+const passwordConfirmation = ref<string>('');
 
 onMounted(() => {
     roleStore.read().catch(() => {});
@@ -271,6 +282,7 @@ watch(
         if (!newVal) {
             Object.assign(userInfo, defaultUserInfo());
             isUpdate.value = false;
+            passwordConfirmation.value = '';
         }
     }
 );
@@ -287,6 +299,10 @@ const { search, rows, first, total, loading, onPage, onSearch, reload } = useApi
 );
 
 const create = async () => {
+    if (userInfo.password !== passwordConfirmation.value) {
+        toast.error("Password and confirmation do not match");
+        return;
+    }
     try {
         await userStore.create(userInfo);
         toast.success("User created successfully");
@@ -300,7 +316,8 @@ const create = async () => {
 const view = async (pid: string) => {
     try {
         await userStore.view(pid);
-        Object.assign(userInfo, user.value, { role_pid: user.value.role?.pid ?? '' });
+        Object.assign(userInfo, user.value, { role_pid: user.value.role?.pid ?? '', password: '' });
+        passwordConfirmation.value = '';
         isUpdate.value = true;
         orderModal.value = true;
     } catch (err: any) {
@@ -309,8 +326,18 @@ const view = async (pid: string) => {
 };
 
 const update = async () => {
+    if (userInfo.password && userInfo.password !== passwordConfirmation.value) {
+        toast.error("Password and confirmation do not match");
+        return;
+    }
     try {
-        await userStore.update(userInfo);
+        const payload: any = { ...userInfo };
+        if (payload.password) {
+            payload.password_confirmation = passwordConfirmation.value;
+        } else {
+            delete payload.password;
+        }
+        await userStore.update(payload);
         toast.success("User updated successfully");
         orderModal.value = false;
         await reload();

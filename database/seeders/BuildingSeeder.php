@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Building;
 use Illuminate\Database\Seeder;
-
+use Illuminate\Support\Str;
 class BuildingSeeder extends Seeder
 {
     public function run(): void
@@ -18,7 +18,7 @@ class BuildingSeeder extends Seeder
         foreach ($buildings as $building) {
             Building::updateOrCreate(
                 ['code' => $building['code']],
-                ['name' => $building['name'], 'description' => $building['description']]
+                ['name' => $building['name'], 'pid' => Str::uuid()->toString(), 'description' => $building['description']]
             );
         }
     }

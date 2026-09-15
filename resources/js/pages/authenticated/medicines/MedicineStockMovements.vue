@@ -78,6 +78,34 @@
       </div>
     </div>
 
+    <!-- Filters -->
+    <div class="px-6 py-4 border-b border-slate-100 flex flex-wrap items-end gap-4 bg-slate-50/50">
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-medium text-slate-500">Type</label>
+        <div class="flex items-center gap-1.5 bg-slate-100 rounded-lg p-1">
+          <button
+            v-for="option in typeOptions"
+            :key="option.value"
+            type="button"
+            @click="typeFilter = option.value"
+            class="px-3 py-1.5 rounded-md text-xs font-semibold transition-colors duration-150"
+            :class="typeFilter === option.value ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+          >
+            {{ option.label }}
+          </button>
+        </div>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-medium text-slate-500">From</label>
+        <DatePicker v-model="dateFrom" dateFormat="yy-mm-dd" showIcon showButtonBar placeholder="Any" class="text-sm w-40" />
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-medium text-slate-500">To</label>
+        <DatePicker v-model="dateTo" dateFormat="yy-mm-dd" showIcon showButtonBar placeholder="Any" class="text-sm w-40" />
+      </div>
+      <button v-if="hasFilters" type="button" @click="resetFilters" class="text-xs font-semibold text-slate-500 hover:text-red-500 transition-colors duration-150 px-2 py-2">Clear filters</button>
+    </div>
+
     <DataTable
       :value="medicineStockMovements"
       lazy
@@ -109,19 +137,19 @@
         </template>
       </Column>
       <Column field="quantity" header="Quantity" class="w-24" />
-      <Column header="Reference" class="w-32">
+      <!-- <Column header="Reference" class="w-32">
         <template #body="{ data }"
           ><span class="text-slate-600 text-sm">{{ data.reference || "—" }}</span></template
         >
-      </Column>
+      </Column> -->
       <Column header="Remarks">
         <template #body="{ data }"
           ><span class="text-slate-600 text-sm">{{ data.remarks || "—" }}</span></template
         >
       </Column>
       <Column header="Date" class="w-40">
-        <template #body="{ data }"
-          ><span class="text-slate-500 text-xs">{{ formatDate(data.created_at) }}</span></template
+        <template #body="{ data }">
+          <span class="text-slate-500 text-xs">{{ formatDate(data.created_at) }}</span></template
         >
       </Column>
     </DataTable>
@@ -159,16 +187,51 @@ watch(modalOpen, (open) => {
 
 const formatDate = (value?: string) => (value ? new Date(value).toLocaleString() : "—");
 
-const { search, rows, first, total, loading, onPage, onSearch, reload } = useApiTable(
+const typeOptions: { label: string; value: "ALL" | "IN" | "OUT" }[] = [
+  { label: "All", value: "ALL" },
+  { label: "In", value: "IN" },
+  { label: "Out", value: "OUT" },
+];
+const typeFilter = ref<"ALL" | "IN" | "OUT">("ALL");
+const dateFrom = ref<Date | null>(null);
+const dateTo = ref<Date | null>(null);
+const hasFilters = computed(() => typeFilter.value !== "ALL" || !!dateFrom.value || !!dateTo.value);
+
+const toDateParam = (date: Date | null) => {
+  if (!date) return undefined;
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
+
+const resetFilters = () => {
+  typeFilter.value = "ALL";
+  dateFrom.value = null;
+  dateTo.value = null;
+};
+
+const { search, rows, first, total, loading, onPage, onSearch, reload, page } = useApiTable(
   async (params) => {
     try {
-      await medicineStockMovementStore.read(params);
+      await medicineStockMovementStore.read({
+        ...params,
+        type: typeFilter.value !== "ALL" ? typeFilter.value : undefined,
+        date_from: toDateParam(dateFrom.value),
+        date_to: toDateParam(dateTo.value),
+      });
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to retrieve movements");
     }
   },
   () => medicineStockMovementStore.meta
 );
+
+watch([typeFilter, dateFrom, dateTo], () => {
+  page.value = 1;
+  first.value = 0;
+  reload();
+});
 
 onMounted(() => {
   //   medicineStore.read();

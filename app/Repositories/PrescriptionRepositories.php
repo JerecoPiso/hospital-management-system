@@ -157,7 +157,7 @@ class PrescriptionRepositories
     {
         $remaining = $quantity;
 
-        $batches = MedicineStock::where('medicine_id', $medicineId)
+        $batches = MedicineStock::with(['medicine'])->where('medicine_id', $medicineId)
             ->where('quantity', '>', 0)
             ->orderByRaw('expiration_date IS NULL, expiration_date ASC')
             ->lockForUpdate()
@@ -174,6 +174,7 @@ class PrescriptionRepositories
 
             MedicineStockMovement::create([
                 'medicine_stock_id' => $batch->id,
+                'price' => $batch->medicine->price,
                 'type' => 'OUT',
                 'quantity' => $deduct,
                 'reference' => $reference,

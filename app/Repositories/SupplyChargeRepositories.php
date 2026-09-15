@@ -92,7 +92,7 @@ class SupplyChargeRepositories
 
         $remaining = $quantity;
 
-        $batches = SupplyStock::where('supply_id', $supplyId)
+        $batches = SupplyStock::with(['supply'])->where('supply_id', $supplyId)
             ->where('quantity', '>', 0)
             ->orderByRaw('expiration_date IS NULL, expiration_date ASC')
             ->lockForUpdate()
@@ -110,6 +110,7 @@ class SupplyChargeRepositories
             SupplyMovement::create([
                 'supply_stock_id' => $batch->id,
                 'quantity' => $deduct,
+                'price' => $batch->supply->selling_price,
                 'type' => 'OUT',
                 'used_for' => 'Charged to patient' . ($caseNumber ? " (case {$caseNumber})" : '') . ($batch->batch_number ? " — batch {$batch->batch_number}" : ''),
             ]);

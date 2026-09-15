@@ -2,6 +2,9 @@
   <div class="flex flex-col gap-4">
     <div ref="paperRef" class="rx-paper">
       <!-- Letterhead -->
+      <div class="flex w-full justify-center align-middle">
+        <img :src="`${appURL}storage/images/patterson.png`" alt="Logo" class="rx-logo" />
+      </div>
       <div class="rx-letterhead">
         <div class="rx-clinic">
           <p class="rx-clinic-name">{{ hospitalName }}</p>
@@ -45,6 +48,7 @@
             <p class="rx-drug">
               <span class="rx-drug-name">{{ item.medicine?.name || "Medicine" }}</span>
               <span v-if="drugStrength(item)" class="rx-drug-strength">{{ drugStrength(item) }}</span>
+              <span class="rx-drug-strength">#{{ Number(item.quantity) }}</span>
             </p>
             <p class="rx-sig">
               <span class="rx-sig-label">Sig:</span>
@@ -68,8 +72,8 @@
           </template>
         </div>
         <div class="rx-sign">
+          <p class="rx-sign-name uppercase">{{ doctorName }}</p>
           <div class="rx-sign-line"></div>
-          <p class="rx-sign-name">{{ doctorName }}</p>
           <p class="rx-sign-lic">Lic. No. {{ doctorLicense || "__________" }}</p>
         </div>
       </div>
@@ -84,7 +88,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { Prescription, PrescriptionItem } from "@/interface/Interfaces";
-
+const appURL = import.meta.env.VITE_APP_URL;
 const props = withDefaults(
   defineProps<{
     prescription: Prescription | null;
@@ -152,7 +156,9 @@ const drugStrength = (item: PrescriptionItem) => {
 
 const sig = (item: PrescriptionItem) => {
   const duration = item.duration
-    ? `${item.frequency} for ${Number(item.duration)} ${item.duration_unit || "days"}${Number(item.duration) > 1 ? 's' : ''} ${item.instructions ? "(" : ""} ${item.instructions || ""} ${item.instructions ? ")" : ""}`.trim()
+    ? `${item.frequency} for ${Number(item.duration)} ${item.duration_unit || "days"}${Number(item.duration) > 1 ? "s" : ""} ${item.instructions ? "(" : ""} ${item.instructions || ""} ${
+        item.instructions ? ")" : ""
+      }`.trim()
     : null;
   return [Number(item.frequency), duration].filter(Boolean).join(", ");
 };
@@ -176,7 +182,7 @@ body { margin: 0; padding: 24px; font-family: "Segoe UI", Roboto, Helvetica, Ari
 .rx-paper { max-width: 720px; margin: 0 auto; border: 1px solid #cbd5e1; border-radius: 10px; padding: 28px 32px; }
 .rx-actions { display: none !important; }
 .rx-letterhead { text-align: center; border-bottom: 2px solid #0f766e; padding-bottom: 12px; }
-.rx-clinic-name { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: .5px; color: #0f766e; }
+.rx-clinic-name { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase;}
 .rx-clinic-line { margin: 2px 0 0; font-size: 12px; color: #64748b; }
 .rx-patient { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 16px; }
 .rx-patient--sub { margin-top: 8px; }
@@ -186,11 +192,18 @@ body { margin: 0; padding: 24px; font-family: "Segoe UI", Roboto, Helvetica, Ari
 .rx-value { font-size: 14px; font-weight: 600; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px; min-height: 20px; }
 .rx-value--caps { text-transform: capitalize; }
 .rx-body { position: relative; margin-top: 26px; min-height: 320px; padding-left: 8px; }
-.rx-symbol { font-size: 46px; font-weight: 700; font-style: italic; color: #0f766e; line-height: 1; }
+.rx-symbol { font-size: 46px; font-weight: 700; font-style: italic; line-height: 1; }
 .rx-list { list-style: decimal; margin: 14px 0 0; padding-left: 26px; display: flex; flex-direction: column; gap: 16px; }
 .rx-item { padding-left: 4px; }
 .rx-drug { margin: 0; font-size: 15px; }
 .rx-drug-name { font-weight: 700; }
+.rx-logo {
+    display: block;
+    width: 160px;
+    height: 120px;
+    object-fit: contain;
+    margin: 0 auto;
+}
 .rx-drug-strength { color: #475569; font-weight: 500; margin-left: 6px; }
 .rx-sig { margin: 3px 0 0; font-size: 13px; color: #334155; }
 .rx-sig-label { font-style: italic; color: #64748b; margin-right: 4px; }
@@ -205,6 +218,7 @@ body { margin: 0; padding: 24px; font-family: "Segoe UI", Roboto, Helvetica, Ari
 .rx-sign-name { margin: 0; font-size: 13px; font-weight: 700; }
 .rx-sign-lic { margin: 2px 0 0; font-size: 11px; color: #64748b; }
 @media print { body { padding: 0; } .rx-paper { border: none; } }
+
 `;
 </script>
 
@@ -227,7 +241,7 @@ body { margin: 0; padding: 24px; font-family: "Segoe UI", Roboto, Helvetica, Ari
   font-size: 20px;
   font-weight: 700;
   letter-spacing: 0.5px;
-  color: #0f766e;
+  
 }
 .rx-clinic-line {
   margin: 2px 0 0;
@@ -277,7 +291,6 @@ body { margin: 0; padding: 24px; font-family: "Segoe UI", Roboto, Helvetica, Ari
   font-size: 46px;
   font-weight: 700;
   font-style: italic;
-  color: #0f766e;
   line-height: 1;
 }
 .rx-list {
@@ -304,6 +317,15 @@ body { margin: 0; padding: 24px; font-family: "Segoe UI", Roboto, Helvetica, Ari
   margin: 3px 0 0;
   font-size: 13px;
   color: #334155;
+}
+.rx-logo {
+  display: block;
+  width: 160px;
+  height: auto;
+  max-height: 120px;
+  object-fit: contain;
+  margin: 0 auto;
+  border: 12px;
 }
 .rx-sig-label {
   font-style: italic;

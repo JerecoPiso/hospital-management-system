@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\Station;
 use App\Models\Ward;
 use Illuminate\Database\Seeder;
-
+use Illuminate\Support\Str;
 class StationSeeder extends Seeder
 {
     public function run(): void
@@ -28,7 +28,7 @@ class StationSeeder extends Seeder
 
             Station::updateOrCreate(
                 ['ward_id' => $ward->id, 'name' => $station['name']],
-                ['description' => $station['description']]
+                ['description' => $station['description'], 'pid' => Str::uuid()->toString(),]
             );
         }
     }

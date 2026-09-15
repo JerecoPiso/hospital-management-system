@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\Building;
 use App\Models\Floor;
 use Illuminate\Database\Seeder;
-
+use Illuminate\Support\Str;
 class FloorSeeder extends Seeder
 {
     public function run(): void
@@ -34,7 +34,7 @@ class FloorSeeder extends Seeder
             foreach ($floors as $floor) {
                 Floor::updateOrCreate(
                     ['building_id' => $building->id, 'floor_number' => $floor['floor_number']],
-                    ['name' => $floor['name'], 'description' => $floor['description']]
+                    ['name' => $floor['name'], 'pid' => Str::uuid()->toString(), 'description' => $floor['description']]
                 );
             }
         }

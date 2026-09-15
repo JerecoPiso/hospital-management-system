@@ -7,6 +7,21 @@ use Illuminate\Http\Request;
 
 trait VitalSignTrait
 {
+
+
+    public function getLatestVitalSign(string $case_pid)
+    {
+        try {
+            $patientCase = $this->patientCaseRepo->searchByPid($case_pid);
+            if (!$patientCase) {
+                return api_response([], false, "Patient case not found!", 404);
+            }
+            $latestVitalSigns = $this->vitalSignRepo->getLatestVitalSign($patientCase->id);
+            return api_response($latestVitalSigns, true, "Success", 200);
+        } catch (\Exception $e) {
+            return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
+        }
+    }
     public function list(Request $request)
     {
         try {

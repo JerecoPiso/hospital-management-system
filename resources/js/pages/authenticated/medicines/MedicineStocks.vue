@@ -200,7 +200,7 @@ const defaultInfo = (): MedicineStock => ({
   quantity: 0,
   purchase_price: null,
   reorder_level: 100,
-  unit_type: "box",
+  unit_type: "",
   units_per_package: 1,
   expiration_date: null,
   batch_number: "",

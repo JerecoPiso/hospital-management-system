@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UserUpdateRequest;
@@ -39,6 +40,9 @@ trait UserTrait
     {
         try {
             $validated = $request->validated();
+            if (empty($validated['password'])) {
+                unset($validated['password']);
+            }
             $validated["date_of_birth"] = Carbon::parse($validated["date_of_birth"])->format('Y-m-d');
             $user = $this->userRepo->searchByPid($order_pid);
             if (!$user) {
@@ -93,6 +97,24 @@ trait UserTrait
                 'role_pid' => $validated["role_pid"] ?? null,
             ]);
             return api_response(["user" => $user], true, "Success", 200);
+        } catch (\Exception $e) {
+            return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
+        }
+    }
+
+    public function changePassword(ChangePasswordRequest $request)
+    {
+        try {
+            $validated = $request->validated();
+            $user = $request->user();
+
+            if (!Hash::check($validated['current_password'], $user->password)) {
+                return api_response([], false, "Current password is incorrect", 422);
+            }
+
+            $this->userRepo->update($user->id, ['password' => $validated['password']]);
+
+            return api_response([], true, "Password changed successfully", 200);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
         }

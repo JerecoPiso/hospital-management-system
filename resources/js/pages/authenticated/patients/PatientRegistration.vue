@@ -57,12 +57,24 @@
           </div>
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">City/Municipality</label>
-            <Select v-model="patientInfo.municipality" :options="municipalities" optionLabel="name" optionValue="name" filter filterBy="name" showClear placeholder="Select a Country" class="w-full">
+            <Select v-model="patientInfo.municipality"  :virtualScrollerOptions="{ lazy: true, itemSize: 25 }" :options="municipalities" optionLabel="name" optionValue="name" filter filterBy="name" showClear placeholder="Select a Country" class="w-full">
             </Select>
           </div>
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Barangay</label>
-            <Select v-model="patientInfo.barangay" :options="barangays" optionLabel="name" optionValue="name" filter filterBy="name" showClear placeholder="Select a Country" class="w-full"> </Select>
+            <Select
+              v-model="patientInfo.barangay"
+              :options="barangays"
+              :virtualScrollerOptions="{ lazy: true, itemSize: 25 }"
+              optionLabel="name"
+              optionValue="name"
+              filter
+              filterBy="name"
+              showClear
+              placeholder="Select a Country"
+              class="w-full"
+            >
+            </Select>
           </div>
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Email Address</label>
@@ -77,6 +89,7 @@
             <Select
               v-model="patientInfo.birthplace"
               :options="all_municipalities"
+              :virtualScrollerOptions="{ lazy: true, itemSize: 25 }"
               optionLabel="name"
               optionValue="name"
               filter

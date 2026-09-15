@@ -15,8 +15,14 @@ return new class extends Migration
             $table->id();
             $table->string('pid')->unique();
 
-            $table->foreignId('medicine_id')->constrained()->cascadeOnDelete();
+            // $table->foreignId('medicine_stock_id')->constrained()->cascadeOnDelete();
 
+            $table->foreignId('medicine_stock_id');
+
+            $table->foreign('medicine_stock_id', 'medicine_stock_movements_medicine_stock_id_foreign')
+                ->references('id')
+                ->on('medicine_stocks')
+                ->cascadeOnDelete();
             $table->enum('type', ['IN', 'OUT']); // delivery or dispense
             $table->integer('quantity');
 
@@ -24,7 +30,7 @@ return new class extends Migration
             $table->text('remarks')->nullable();
             $table->softDeletes();
             $table->timestamps();
-            $table->index(['medicine_id', 'type']);
+            $table->index(['medicine_stock_id', 'type']);
         });
     }
 

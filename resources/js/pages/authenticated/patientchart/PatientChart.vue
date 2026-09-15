@@ -6,29 +6,27 @@
     <header class="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
       <div class="flex items-center justify-between px-4 md:px-8 py-4">
         <!-- Logo & Title -->
-        <div class="flex items-center gap-3">
-          <button @click="sidebarOpen = !sidebarOpen" class="md:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors">
-            <svg class="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-          <div class="flex items-center gap-2">
-            <div class="w-10 h-10 bg-linear-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M12 5v14m7-7H5" />
-              </svg>
-            </div>
-            <div>
-              <h1 class="text-xl font-bold text-slate-900">Hospital Management System</h1>
-              <p class="text-xs text-slate-500">Admin Dashboard</p>
-            </div>
+       
+        <div class="hidden md:flex items-center gap-3">
+          <!-- Logo -->
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center">
+              <img :src="`${appURL}storage/images/patterson.png`" alt="Clinic Logo" class="h-12 w-12 rounded-md" />
+          </div>
+
+          <!-- Facility Information -->
+          <div class="flex flex-col justify-center leading-tight">
+            <h1 class="text-sm font-bold tracking-wide text-slate-700">
+              {{ facilityName }}
+            </h1>
+
+            <!-- <span class="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-teal-600"> Eye Care Center </span> -->
           </div>
         </div>
 
         <!-- Right Section with User Profile Popover -->
         <div class="flex items-center gap-4">
           <!-- Notifications -->
-          <button class="relative p-2 hover:bg-slate-100 rounded-lg transition-colors">
+          <!-- <button class="relative p-2 hover:bg-slate-100 rounded-lg transition-colors">
             <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
@@ -38,21 +36,22 @@
               />
             </svg>
             <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-          </button>
+          </button> -->
 
           <!-- User Profile Popover -->
           <div class="relative">
             <button @click="profileOpen = !profileOpen" class="flex items-center gap-2 p-2 hover:bg-slate-100 rounded-lg transition-colors">
-              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin" alt="User" class="w-8 h-8 rounded-full border-2 border-emerald-500" />
+              <div class="w-8 h-8 rounded-full border-2 border-emerald-500 bg-linear-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-xs font-semibold shrink-0">
+                {{ userInitials }}
+              </div>
               <div class="hidden sm:block text-left">
-                <p class="text-sm font-semibold text-slate-900">Dr. Sarah</p>
-                <p class="text-xs text-slate-500">Administrator</p>
+                <p class="text-sm font-semibold text-slate-900">{{ userDisplayName }}</p>
+                <p class="text-xs text-slate-500">{{ userEmail }}</p>
               </div>
               <svg class="w-4 h-4 text-slate-600 transition-transform" :class="{ 'rotate-180': profileOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
               </svg>
             </button>
-
             <!-- Popover Menu -->
             <transition
               enter-active-class="transition ease-out duration-100"
@@ -65,14 +64,16 @@
               <div v-if="profileOpen" class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden z-50">
                 <!-- Profile Header -->
                 <div class="bg-linear-to-r from-emerald-500 to-teal-600 px-6 py-4">
-                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin" alt="User" class="w-12 h-12 rounded-full border-3 border-white mb-3" />
-                  <p class="text-white font-semibold">Dr. Sarah Johnson</p>
-                  <p class="text-emerald-100 text-sm">Administrator</p>
+                  <div class="w-12 h-12 rounded-full border-3 border-white mb-3 bg-white/20 flex items-center justify-center text-white font-semibold">
+                    {{ userInitials }}
+                  </div>
+                  <p class="text-white font-semibold">{{ userDisplayName }}</p>
+                  <p class="text-emerald-100 text-sm">{{ userEmail }}</p>
                 </div>
 
                 <!-- Menu Items -->
                 <div class="py-2">
-                  <button @click="handleMenuClick('profile')" class="w-full px-6 py-3 text-left text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors">
+                  <!-- <button @click="handleMenuClick('profile')" class="w-full px-6 py-3 text-left text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors">
                     <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
@@ -90,7 +91,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                     <span class="font-medium">Settings</span>
-                  </button>
+                  </button> -->
 
                   <button @click="handleMenuClick('security')" class="w-full px-6 py-3 text-left text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors">
                     <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,12 +122,14 @@
     </header>
 
     <div class="flex">
+      <!-- Mobile Backdrop -->
+      <div v-if="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 bg-black/50 z-20 md:hidden"></div>
+
       <!-- Sidebar -->
       <aside
-        class="fixed min-h-[90vh] md:static inset-y-0 left-0 z-30 bg-white border-r border-slate-200 transform transition-all duration-300 mt-16 md:mt-0"
-        :class="{ 'w-64': sidebarExpanded, 'md:w-20': !sidebarExpanded }"
+        class="fixed w-64 min-h-[calc(100vh-4rem)] md:min-h-[90vh] md:static inset-y-0 left-0 z-30 bg-white border-r border-slate-200 transform transition-transform duration-300 mt-16 md:mt-0 md:translate-x-0"
+        :class="[sidebarOpen ? 'translate-x-0' : '-translate-x-full', { 'md:w-20': !sidebarExpanded }]"
       >
-        <!-- '-translate-x-full': !sidebarOpen,  -->
         <!-- Added sidebar header with toggle button -->
         <div class="p-6 border-b border-slate-200 flex items-center justify-between">
           <h2 v-if="sidebarExpanded" class="text-sm font-bold text-slate-900 uppercase tracking-wider">Menu</h2>
@@ -137,7 +140,7 @@
           </button>
         </div>
         <nav class="p-4 space-y-2">
-          <template v-for="item in navItems" :key="item.name">
+          <template v-for="item in visibleNavItems" :key="item.name">
             <!-- Parent link with submenu -->
             <div v-if="item.children">
               <button
@@ -182,7 +185,7 @@
         </nav>
         <!-- Added sidebar footer with additional info -->
         <div class="fixed bottom-0 left-0 right-0 p-4 border-t border-slate-200 bg-slate-50">
-          <p class="text-xs text-slate-600 text-center">Hospital Management System v1.0</p>
+          <p class="text-xs text-slate-600 text-center">{{ facilityName }}</p>
         </div>
       </aside>
 
@@ -206,14 +209,36 @@ import { BsJournalMedical } from "vue-icons-plus/bs";
 import { BiSolidUserAccount } from "vue-icons-plus/bi";
 import { FiActivity, FiSettings } from "vue-icons-plus/fi";
 import { MdDashboard } from "vue-icons-plus/md";
-import axios from "axios";
+// import axios from "axios";
+
 import { useAuthStore } from "@/store/patientchart/AuthStore";
+import { usePermission } from "@/composables/permission";
 const confirm = useConfirm();
 const toast = useToast();
 const auth = useAuthStore();
 const router = useRouter();
 const route = useRoute();
-const sidebarOpen = ref(true);
+const { can } = usePermission();
+const appURL = import.meta.env.VITE_APP_URL;
+const facilityName = import.meta.env.VITE_FACILITY_NAME;
+const userDisplayName = computed(() => {
+  const user = auth.user;
+  if (!user) return "Guest";
+  if (user.name) return user.name;
+  return [user.firstname, user.lastname].filter(Boolean).join(" ") || "Guest";
+});
+const userEmail = computed(() => auth.user?.email || "");
+const userInitials = computed(() => {
+  const name = userDisplayName.value;
+  if (!name || name === "Guest") return "?";
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join("");
+});
+const sidebarOpen = ref(false);
 const profileOpen = ref(false);
 const activeNav = computed(() => route.name);
 const chartParams = computed(() => (route.params.patient_case_pid ? { patient_case_pid: route.params.patient_case_pid } : {}));
@@ -247,34 +272,52 @@ const navItems = [
     name: "VitalSigns",
     label: "Vital Signs",
     icon: FiActivity,
+    module: "vital-signs",
   },
   {
     label: "Doctors Order",
     name: "DoctorsOrder",
     icon: FaBookMedical,
+    module: "doctors-order",
   },
   {
     name: "NursesNotes",
     label: "Nurses Notes",
     icon: BsJournalMedical,
+    module: "nurses-notes",
   },
   {
     name: "Therapeutic",
     label: "Therapeutic",
     icon: GiMedicines,
+    module: "prescriptions",
   },
   {
     name: "SupplyCharges",
     label: "Supply Charges",
     icon: GiMedicalPack,
+    module: "supply-charges",
   },
 
   {
     name: "PatientDiet",
     label: "Diet",
     icon: FaUtensils,
+    module: "patient-case-diets",
   },
 ];
+
+const visibleNavItems = computed(() =>
+  navItems
+    .map((item) => {
+      if (item.children) {
+        const children = item.children.filter((child) => !child.module || can(child.module, "view"));
+        return children.length ? { ...item, children } : null;
+      }
+      return !item.module || can(item.module, "view") ? item : null;
+    })
+    .filter((item) => item !== null)
+);
 const toggleSubmenu = (item) => {
   if (!sidebarExpanded.value) {
     sidebarExpanded.value = true;
@@ -295,7 +338,9 @@ watch(
 
 const handleMenuClick = (action) => {
   profileOpen.value = false;
-  if (action === "logout") {
+  if (action === "security") {
+    router.push({ name: "Security" });
+  } else if (action === "logout") {
     confirm.require({
       message: "Are you sure you want to proceed?",
       header: "Confirmation",

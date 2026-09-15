@@ -5,9 +5,8 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Validation\Rule;
 
-class UserUpdateRequest extends FormRequest
+class ChangePasswordRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,19 +24,11 @@ class UserUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
-            'firstname' => "required|string|max:255",
-            'lastname' => "required|string|max:255",
-            'middlename' => "nullable|string|max:255",
-            'suffix' => "nullable|string|max:10",
-            'gender' => "required|string",
-
-            'date_of_birth' => 'required|date',
-            'license_no' =>  'nullable|string|max:255',
-            'role_pid' => 'nullable|string|exists:roles,pid',
-            'password' => 'nullable|string|min:7|confirmed',
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:7|confirmed',
         ];
     }
+
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([

@@ -6,7 +6,7 @@ use App\Models\Building;
 use App\Models\Floor;
 use App\Models\Ward;
 use Illuminate\Database\Seeder;
-
+use Illuminate\Support\Str;
 class WardSeeder extends Seeder
 {
     public function run(): void
@@ -36,7 +36,7 @@ class WardSeeder extends Seeder
 
             Ward::updateOrCreate(
                 ['code' => $ward['code']],
-                ['floor_id' => $floor->id, 'name' => $ward['name']]
+                ['floor_id' => $floor->id, 'name' => $ward['name'], 'pid' => Str::uuid()->toString(),]
             );
         }
     }

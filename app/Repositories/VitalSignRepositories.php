@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\DB;
 class VitalSignRepositories
 {
 
+    public function getLatestVitalSign(int $case_id)
+    {
+        $latestVitalSigns = VitalSign::where('patient_case_id', $case_id)->latest()->first(['temperature', 'heart_rate', 'respiratory_rate', 'systolic', 'diastolic', 'oxygen_saturation', 'weight', 'height', 'bmi', 'measured_at']);
+        return $latestVitalSigns;
+    }
     public function list($filter = [])
     {
         $vitalSign = VitalSign::with(['user', 'patientCase.patient'])->orderBy('id', 'desc');
@@ -21,7 +26,7 @@ class VitalSignRepositories
         $vitalSign = $vitalSign->get();
         return $vitalSign->toArray();
     }
-    public function searchByPid($pid)
+    public function searchByPid(string $pid)
     {
         try {
 

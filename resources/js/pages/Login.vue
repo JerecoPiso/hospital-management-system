@@ -5,13 +5,16 @@
       <div class="bg-white rounded-2xl shadow-xl p-8">
         <!-- Header -->
         <div class="mb-8 text-center">
-          <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-linear-to-br from-emerald-500 to-teal-600 mb-4 shadow-md">
+          <!-- <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-linear-to-br from-emerald-500 to-teal-600 mb-4 shadow-md">
             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M12 5v14m7-7H5" />
             </svg>
+          </div> -->
+          <div class="flex justify-center ">
+            <img :src="`${appURL}storage/images/patterson.png`" alt="Logo" class="w-40 h-36 rounded-xl" />
           </div>
-          <h1 class="text-3xl font-bold text-slate-900 mb-2">Hospital Management System</h1>
-          <p class="text-slate-600 text-sm">Secure access for healthcare professionals</p>
+          <!-- <h1 class="text-xl font-bold text-slate-900 mb-2">{{ facilityName }}</h1> -->
+          <p class="text-slate-600 text-sm mt-4">Secure access for healthcare professionals</p>
         </div>
 
         <!-- Form -->
@@ -69,13 +72,13 @@
           </div>
 
           <!-- Remember Me & Forgot Password -->
-          <div class="flex items-center justify-between">
+          <!-- <div class="flex items-center justify-between">
             <label class="flex items-center gap-2 cursor-pointer">
               <input v-model="rememberMe" type="checkbox" class="w-4 h-4 rounded border-slate-200 text-emerald-600 focus:ring-emerald-500" />
               <span class="text-sm text-slate-600">Remember me</span>
             </label>
             <a href="#" class="text-sm font-medium text-emerald-600 hover:text-emerald-700 transition"> Forgot password? </a>
-          </div>
+          </div> -->
           {{ errorMessage }}
           <!-- Login Button -->
           <button
@@ -92,12 +95,12 @@
         </form>
 
         <!-- Footer Links -->
-        <div class="mt-6 pt-6 border-t border-slate-100 text-center">
+        <!-- <div class="mt-6 pt-6 border-t border-slate-100 text-center">
           <p class="text-sm text-slate-600">
             Need help?
             <a href="#" class="font-medium text-emerald-600 hover:text-emerald-700 transition">Contact Support</a>
           </p>
-        </div>
+        </div> -->
 
         <!-- Security Notice -->
         <div class="mt-4 p-3 bg-emerald-50 rounded-lg flex items-start gap-2">
@@ -110,7 +113,7 @@
 
       <!-- Footer -->
       <div class="mt-8 text-center text-xs text-slate-500">
-        <p>© {{ getYear() }} Hospital Management System. All rights reserved.</p>
+        <p>© {{ getYear() }} {{ facilityName }}. All rights reserved.</p>
       </div>
     </div>
   </div>
@@ -120,6 +123,9 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAppToast } from "@/composables/toast";
 import axios from "axios";
+const appURL = import.meta.env.VITE_APP_URL;
+const facilityName = import.meta.env.VITE_FACILITY_NAME;
+
 interface LoginForm {
   email: string;
   password: string;

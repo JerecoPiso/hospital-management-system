@@ -10,8 +10,7 @@ class UserRepositories
 
     public function list($filter = [])
     {
-        $query = User::with('role')->orderBy('id', 'desc');
-
+        $query = User::with('role')->whereNot('id', User::SUPER_ADMIN)->orderBy('id', 'desc');
         return api_list($query, $filter, ['firstname', 'lastname', 'middlename', 'email', 'license_no']);
     }
     public function searchByPid($pid)

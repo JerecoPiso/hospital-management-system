@@ -20,6 +20,9 @@ export const useAuthStore = defineStore('auth', () => {
     const can = (module: string, ability: keyof import('@/interface/Interfaces').PermissionAbilities = 'view') => {
         return !!permissions.value[module]?.[ability];
     }
+    const changePassword = async (payload: { current_password: string; password: string; password_confirmation: string }) => {
+        await axios.put(`${baseUrl}api/user/change-password`, payload, { withCredentials: true });
+    }
     const logout = async () => {
         try {
             await axios.post(`${baseUrl}api/user/logout`, {}, { withCredentials: true });
@@ -31,5 +34,5 @@ export const useAuthStore = defineStore('auth', () => {
             localStorage.setItem("isLoggedout", "true");
         }
     }
-    return { user, permissions, getUser, can, logout }
+    return { user, permissions, getUser, can, changePassword, logout }
 })

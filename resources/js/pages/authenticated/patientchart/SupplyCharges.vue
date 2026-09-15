@@ -1,161 +1,186 @@
 <template>
-    <div v-if="!patientCasePid" class="bg-white rounded-xl border border-slate-200 shadow-sm p-16 flex flex-col items-center justify-center text-slate-400">
-        <BsPlusCircle size="40" class="mb-3 opacity-30" />
-        <p class="text-sm font-medium">No patient selected</p>
-        <p class="text-xs mt-1">Open this page from a patient's chart via the Inpatients or Outpatients list.</p>
-    </div>
+  <div v-if="!patientCasePid" class="bg-white rounded-xl border border-slate-200 shadow-sm p-16 flex flex-col items-center justify-center text-slate-400">
+    <BsPlusCircle size="40" class="mb-3 opacity-30" />
+    <p class="text-sm font-medium">No patient selected</p>
+    <p class="text-xs mt-1">Open this page from a patient's chart via the Inpatients or Outpatients list.</p>
+  </div>
 
-    <div v-else class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-        <Dialog v-model:visible="modalOpen" modal :style="{ width: '52vw' }" :breakpoints="{ '1199px': '85vw', '575px': '95vw' }"
-            :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
-            <template #header>
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
-                        <GiMedicalPack class="text-white" size="17" />
-                    </div>
-                    <div>
-                        <h2 class="text-base font-semibold text-slate-800">Charge Supplies</h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Deducts stock automatically from the earliest-expiring batch first</p>
-                    </div>
-                </div>
-            </template>
-            <form @submit.prevent="create" class="flex flex-col gap-5 pt-2">
-                <div class="grid grid-cols-2 gap-x-4 gap-y-4">
-                    <div class="flex flex-col gap-1.5">
-                        <label class="text-sm font-medium text-slate-700">Charge Date <span class="text-red-400">*</span></label>
-                        <DatePicker v-model="chargeDateModel" showTime hourFormat="24" dateFormat="yy-mm-dd" placeholder="YYYY-MM-DD HH:mm" fluid class="text-sm" />
-                    </div>
-                    <div class="col-span-2 flex flex-col gap-1.5">
-                        <label class="text-sm font-medium text-slate-700">Remarks</label>
-                        <Textarea v-model="info.remarks" rows="2" autoResize fluid placeholder="Optional remarks..." class="text-sm" />
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-3">
-                    <div class="flex items-center justify-between">
-                        <label class="text-sm font-medium text-slate-700">Supplies <span class="text-red-400">*</span></label>
-                        <button type="button" @click="addItem" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-emerald-700 hover:bg-emerald-50 text-xs font-medium transition-colors duration-150">
-                            <BsPlusCircle size="14" />
-                            Add Supply
-                        </button>
-                    </div>
-
-                    <div v-for="(item, index) in info.items" :key="index" class="rounded-lg border border-slate-200 p-4 flex flex-col gap-3 bg-slate-50/50">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Supply {{ index + 1 }}</span>
-                            <button type="button" title="Remove supply" @click="removeItem(index)" :disabled="info.items.length === 1"
-                                class="p-1 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-30 disabled:hover:bg-transparent transition-colors duration-150 cursor-pointer">
-                                <BiTrash size="16" />
-                            </button>
-                        </div>
-                        <div class="grid grid-cols-3 gap-3">
-                            <div class="col-span-2 flex flex-col gap-1.5">
-                                <label class="text-xs font-medium text-slate-600">Supply Item <span class="text-red-400">*</span></label>
-                                <Select v-model="item.supply_pid" :options="supplies" :optionLabel="supplyOptionLabel" optionValue="pid" placeholder="Select supply item" filter fluid class="text-sm" />
-                            </div>
-                            <div class="flex flex-col gap-1.5">
-                                <label class="text-xs font-medium text-slate-600">Quantity <span class="text-red-400">*</span></label>
-                                <InputNumber v-model="item.quantity" :min="0.01" :minFractionDigits="0" :maxFractionDigits="2" fluid class="text-sm" />
-                            </div>
-                            <div class="col-span-3 flex flex-col gap-1.5">
-                                <label class="text-xs font-medium text-slate-600">Remarks</label>
-                                <Textarea v-model="item.remarks" rows="2" autoResize fluid placeholder="Optional remarks..." class="text-sm" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex gap-2 pt-1">
-                    <Button type="button" label="Cancel" severity="secondary" outlined fluid @click="modalOpen = false" />
-                    <Button type="submit" label="Save Charge" fluid class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" />
-                </div>
-            </form>
-        </Dialog>
-
-        <!-- Header -->
-        <div class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-linear-to-r from-slate-50 to-white">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md">
-                    <GiMedicalPack class="text-white" size="18" />
-                </div>
-                <div>
-                    <h3 class="text-base font-bold text-slate-800">Supply Charges</h3>
-                    <p class="text-xs text-slate-400">
-                        <template v-if="patient">{{ patientName }} &bull; Case {{ currentCase?.case_number || '—' }}</template>
-                        <template v-else>Loading patient...</template>
-                    </p>
-                </div>
-            </div>
-            <button v-if="can('supply-charges', 'create')" type="button" @click="openCreate" :disabled="!patientCasePid" title="This patient has no case record yet"
-                class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed">
-                <BsPlusCircle size="16" />
-                Charge Supplies
-            </button>
+  <div v-else class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <Dialog v-model:visible="modalOpen" modal :style="{ width: '45vw' }" :breakpoints="{ '1199px': '85vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
+      <template #header>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
+            <GiMedicalPack class="text-white" size="17" />
+          </div>
+          <div>
+            <h2 class="text-base font-semibold text-slate-800">Charge Supplies</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Deducts stock automatically from the earliest-expiring batch first</p>
+          </div>
+        </div>
+      </template>
+      <form @submit.prevent="create" class="flex flex-col gap-5 pt-2">
+        <div class="grid grid-cols-1 gap-x-4 gap-y-4">
+          <div class="col-span-1 flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Charge Date <span class="text-red-400">*</span></label>
+            <DatePicker v-model="chargeDateModel" showTime hourFormat="24" dateFormat="yy-mm-dd" placeholder="YYYY-MM-DD HH:mm" fluid class="text-sm" />
+          </div>
+          <div class="col-span-1 flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Remarks</label>
+            <Textarea v-model="info.remarks" rows="2" autoResize fluid placeholder="Optional remarks..." class="text-sm" />
+          </div>
         </div>
 
-        <!-- Table -->
-        <DataTable :value="supplyCharges" paginator :rows="15" :rowsPerPageOptions="[10, 15, 25, 50, 100]" responsiveLayout="scroll" tableStyle="min-width: 50rem"
-            :pt="{ table: { class: 'text-sm' }, thead: { class: 'bg-slate-50' }, bodyRow: { class: 'hover:bg-slate-50 transition-colors duration-150 border-b border-slate-100' } }">
-            <template #empty>
-                <div class="flex flex-col items-center justify-center py-16 text-slate-400">
-                    <GiMedicalPack size="40" class="mb-3 opacity-30" />
-                    <p class="text-sm font-medium">No supplies charged</p>
-                    <p class="text-xs mt-1">Click "Charge Supplies" to record the first entry</p>
-                </div>
-            </template>
+        <div class="flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <label class="text-sm font-medium text-slate-700">Supplies <span class="text-red-400">*</span></label>
+            <button type="button" @click="addItem" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-emerald-700 hover:bg-emerald-50 text-xs font-medium transition-colors duration-150">
+              <BsPlusCircle size="14" />
+              Add Supply
+            </button>
+          </div>
 
-            <Column header="Date" class="w-40">
-                <template #body="{ data }"><span class="text-slate-600 text-sm">{{ formatDateTime(data.charge_date) }}</span></template>
-            </Column>
+          <div v-for="(item, index) in info.items" :key="index" class="rounded-lg border border-slate-200 p-4 flex flex-col gap-3 bg-slate-50/50">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Supply {{ index + 1 }}</span>
+              <button
+                type="button"
+                title="Remove supply"
+                @click="removeItem(index)"
+                :disabled="info.items.length === 1"
+                class="p-1 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-30 disabled:hover:bg-transparent transition-colors duration-150 cursor-pointer"
+              >
+                <BiTrash size="16" />
+              </button>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+              <div class="col-span-2 flex flex-col gap-1.5">
+                <label class="text-xs font-medium text-slate-600">Supply Item <span class="text-red-400">*</span></label>
+                <Select v-model="item.supply_pid" :options="supplies" :optionLabel="supplyOptionLabel" optionValue="pid" placeholder="Select supply item" filter fluid class="text-sm" />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-medium text-slate-600">Quantity <span class="text-red-400">*</span></label>
+                <InputNumber v-model="item.quantity" :min="0.01" :minFractionDigits="0" :maxFractionDigits="2" fluid class="text-sm" />
+              </div>
+              <div class="col-span-3 flex flex-col gap-1.5">
+                <label class="text-xs font-medium text-slate-600">Remarks</label>
+                <Textarea v-model="item.remarks" rows="2" autoResize fluid placeholder="Optional remarks..." class="text-sm" />
+              </div>
+            </div>
+          </div>
+        </div>
 
-            <Column header="Charged By" class="w-44">
-                <template #body="{ data }">
-                    <span class="text-slate-700 text-sm">{{ `${data.charged_by?.firstname ?? ''} ${data.charged_by?.lastname ?? ''}`.trim() || '—' }}</span>
-                </template>
-            </Column>
+        <div class="flex gap-2 pt-1">
+          <Button type="button" label="Cancel" severity="secondary" outlined fluid @click="modalOpen = false" />
+          <Button type="submit" label="Save Charge" fluid class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" />
+        </div>
+      </form>
+    </Dialog>
 
-            <Column header="Supplies">
-                <template #body="{ data }">
-                    <ul class="space-y-0.5">
-                        <li v-for="(item, idx) in data.items" :key="idx" class="text-slate-700 text-sm">
-                            {{ item.supply?.name || '—' }}
-                            <span class="text-slate-400 text-xs">x{{ item.quantity }}{{ item.supply?.unit ? ' ' + item.supply.unit : '' }}</span>
-                        </li>
-                    </ul>
-                </template>
-            </Column>
-
-            <Column header="Remarks" class="w-52">
-                <template #body="{ data }">
-                    <p v-if="data.remarks" class="text-slate-500 text-sm leading-relaxed line-clamp-2">{{ data.remarks }}</p>
-                    <span v-else class="text-slate-300 text-sm italic">None</span>
-                </template>
-            </Column>
-
-            <Column header="Actions" class="w-16">
-                <template #body="{ data }">
-                    <button v-if="can('supply-charges', 'delete')" type="button" title="Delete charge" @click="archive(data.pid)" class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer">
-                        <BiTrash size="18" />
-                    </button>
-                </template>
-            </Column>
-        </DataTable>
+    <!-- Header -->
+    <div class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-linear-to-r from-slate-50 to-white">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md">
+          <GiMedicalPack class="text-white" size="18" />
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-800">Supply Charges</h3>
+          <p class="text-xs text-slate-400">
+            <template v-if="patient">{{ patientName }} &bull; Case {{ currentCase?.case_number || "—" }}</template>
+            <template v-else>Loading patient...</template>
+          </p>
+        </div>
+      </div>
+      <button
+        v-if="can('supply-charges', 'create')"
+        type="button"
+        @click="openCreate"
+        :disabled="!patientCasePid"
+        title="This patient has no case record yet"
+        class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+      >
+        <BsPlusCircle size="16" />
+        Charge Supplies
+      </button>
     </div>
+
+    <!-- Table -->
+    <DataTable
+      :value="supplyCharges"
+      paginator
+      :rows="15"
+      :rowsPerPageOptions="[10, 15, 25, 50, 100]"
+      responsiveLayout="scroll"
+      tableStyle="min-width: 50rem"
+      :pt="{ table: { class: 'text-sm' }, thead: { class: 'bg-slate-50' }, bodyRow: { class: 'hover:bg-slate-50 transition-colors duration-150 border-b border-slate-100' } }"
+    >
+      <template #empty>
+        <div class="flex flex-col items-center justify-center py-16 text-slate-400">
+          <GiMedicalPack size="40" class="mb-3 opacity-30" />
+          <p class="text-sm font-medium">No supplies charged</p>
+          <p class="text-xs mt-1">Click "Charge Supplies" to record the first entry</p>
+        </div>
+      </template>
+
+      <Column header="Date" class="w-40">
+        <template #body="{ data }"
+          ><span class="text-slate-600 text-sm">{{ formatDateTime(data.charge_date) }}</span></template
+        >
+      </Column>
+
+      <Column header="Charged By" class="w-44">
+        <template #body="{ data }">
+          <span class="text-slate-700 text-sm">{{ `${data.charged_by?.firstname ?? ""} ${data.charged_by?.lastname ?? ""}`.trim() || "—" }}</span>
+        </template>
+      </Column>
+
+      <Column header="Supplies">
+        <template #body="{ data }">
+          <ul class="space-y-0.5">
+            <li v-for="(item, idx) in data.items" :key="idx" class="text-slate-700 text-sm">
+              {{ item.supply?.name || "—" }}
+              <span class="text-slate-400 text-xs">x{{ item.quantity }}{{ item.supply?.unit ? " " + item.supply.unit : "" }}</span>
+            </li>
+          </ul>
+        </template>
+      </Column>
+
+      <Column header="Remarks" class="w-52">
+        <template #body="{ data }">
+          <p v-if="data.remarks" class="text-slate-500 text-sm leading-relaxed line-clamp-2">{{ data.remarks }}</p>
+          <span v-else class="text-slate-300 text-sm italic">None</span>
+        </template>
+      </Column>
+
+      <Column header="Actions" class="w-16">
+        <template #body="{ data }">
+          <button
+            v-if="can('supply-charges', 'delete')"
+            type="button"
+            title="Delete charge"
+            @click="archive(data.pid)"
+            class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer"
+          >
+            <BiTrash size="18" />
+          </button>
+        </template>
+      </Column>
+    </DataTable>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
-import { BsPlusCircle } from 'vue-icons-plus/bs';
-import { BiTrash } from 'vue-icons-plus/bi';
-import { GiMedicalPack } from 'vue-icons-plus/gi';
-import { useSupplyChargeStore } from '@/store/patientchart/SupplyCharges';
-import { usePatientCaseStore } from '@/store/patients/PatientCase';
-import { useSupplyStore } from '@/store/Supply';
-import { SupplyCharge, SupplyChargeItem, Supply } from '@/interface/Interfaces';
-import { useConfirmToast } from '@/composables/confirm';
-import { useAppToast } from '@/composables/toast';
-import { usePermission } from '@/composables/permission';
+import { computed, onMounted, reactive, ref, watch } from "vue";
+import { useRoute } from "vue-router";
+import { BsPlusCircle } from "vue-icons-plus/bs";
+import { BiTrash } from "vue-icons-plus/bi";
+import { GiMedicalPack } from "vue-icons-plus/gi";
+import { useSupplyChargeStore } from "@/store/patientchart/SupplyCharges";
+import { usePatientCaseStore } from "@/store/patients/PatientCase";
+import { useSupplyStore } from "@/store/Supply";
+import { SupplyCharge, SupplyChargeItem, Supply } from "@/interface/Interfaces";
+import { useConfirmToast } from "@/composables/confirm";
+import { useAppToast } from "@/composables/toast";
+import { usePermission } from "@/composables/permission";
 
 const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
@@ -171,92 +196,92 @@ const patient = computed(() => currentCase.value?.patient);
 const supplies = computed<Supply[]>(() => supplyStore.supplies);
 const supplyCharges = computed<SupplyCharge[]>(() => supplyChargeStore.supplyCharges);
 
-const patientName = computed(() => `${patient.value?.firstname ?? ''} ${patient.value?.lastname ?? ''}`.trim() || '—');
-const supplyOptionLabel = (data: Supply) => `${data.name}${data.unit ? ' (' + data.unit + ')' : ''}`;
+const patientName = computed(() => `${patient.value?.firstname ?? ""} ${patient.value?.lastname ?? ""}`.trim() || "—");
+const supplyOptionLabel = (data: Supply) => `${data.name}${data.unit ? " (" + data.unit + ")" : ""}`;
 
 const modalOpen = ref<boolean>(false);
 const chargeDateModel = ref<Date | null>(null);
 
-const defaultItem = (): SupplyChargeItem => ({ supply_pid: '', quantity: null, remarks: '' });
+const defaultItem = (): SupplyChargeItem => ({ supply_pid: "", quantity: null, remarks: "" });
 const defaultInfo = (): SupplyCharge => ({
-    patient_case_pid: '',
-    charge_date: '',
-    remarks: '',
-    items: [defaultItem()]
+  patient_case_pid: "",
+  charge_date: "",
+  remarks: "",
+  items: [defaultItem()],
 });
 const info = reactive<SupplyCharge>(defaultInfo());
 
 watch(modalOpen, (open) => {
-    if (!open) {
-        Object.assign(info, defaultInfo());
-        chargeDateModel.value = null;
-    }
+  if (!open) {
+    Object.assign(info, defaultInfo());
+    chargeDateModel.value = null;
+  }
 });
 watch(chargeDateModel, (val) => {
-    info.charge_date = val ? val.toISOString() : '';
+  info.charge_date = val ? val.toISOString() : "";
 });
 
-const formatDateTime = (value?: string) => (value ? new Date(value).toLocaleString() : '—');
+const formatDateTime = (value?: string) => (value ? new Date(value).toLocaleString() : "—");
 
 const loadContext = async () => {
-    if (!patientCasePid.value) return;
-    try {
-        await patientCaseStore.view(patientCasePid.value);
-    } catch (err: any) {
-        toast.error(err.response?.data?.message || 'Failed to load patient');
-    }
+  if (!patientCasePid.value) return;
+  try {
+    await patientCaseStore.view(patientCasePid.value);
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Failed to load patient");
+  }
 };
 
 const refresh = async () => {
-    if (!patientCasePid.value) return;
-    try {
-        await supplyChargeStore.read(patientCasePid.value);
-    } catch (err: any) {
-        toast.error(err.response?.data?.message || 'Failed to retrieve supply charges');
-    }
+  if (!patientCasePid.value) return;
+  try {
+    await supplyChargeStore.read(patientCasePid.value);
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Failed to retrieve supply charges");
+  }
 };
 
 onMounted(async () => {
-    await Promise.all([loadContext(), supplyStore.read()]);
-    await refresh();
+  await Promise.all([loadContext(), supplyStore.read()]);
+  await refresh();
 });
 
 const addItem = () => info.items.push(defaultItem());
 const removeItem = (index: number) => {
-    if (info.items.length > 1) info.items.splice(index, 1);
+  if (info.items.length > 1) info.items.splice(index, 1);
 };
 
 const openCreate = () => {
-    if (!patientCasePid.value) return;
-    chargeDateModel.value = new Date();
-    modalOpen.value = true;
+  if (!patientCasePid.value) return;
+  chargeDateModel.value = new Date();
+  modalOpen.value = true;
 };
 
 const create = async () => {
-    try {
-        info.patient_case_pid = patientCasePid.value || '';
-        await supplyChargeStore.create(info);
-        toast.success('Supplies charged successfully');
-        modalOpen.value = false;
-        await refresh();
-    } catch (err: any) {
-        toast.error(err.response?.data?.message || 'Failed to charge supplies');
-    }
+  try {
+    info.patient_case_pid = patientCasePid.value || "";
+    await supplyChargeStore.create(info);
+    toast.success("Supplies charged successfully");
+    modalOpen.value = false;
+    await refresh();
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Failed to charge supplies");
+  }
 };
 
 const archive = (pid: string) => {
-    showConfirm({
-        message: 'Are you sure you want to delete this supply charge? This will not restore the deducted stock.',
-        header: 'Delete Confirmation',
-        onAccept: async () => {
-            try {
-                await supplyChargeStore.archive(pid);
-                toast.success('Supply charge deleted successfully');
-                await refresh();
-            } catch (err: any) {
-                toast.error(err.response?.data?.message || 'Failed to delete supply charge');
-            }
-        },
-    });
+  showConfirm({
+    message: "Are you sure you want to delete this supply charge? This will not restore the deducted stock.",
+    header: "Delete Confirmation",
+    onAccept: async () => {
+      try {
+        await supplyChargeStore.archive(pid);
+        toast.success("Supply charge deleted successfully");
+        await refresh();
+      } catch (err: any) {
+        toast.error(err.response?.data?.message || "Failed to delete supply charge");
+      }
+    },
+  });
 };
 </script>

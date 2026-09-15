@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('medicine_stock_movements', function (Blueprint $table) {
             //
-            $table->decimal('price', 12, 2)->after('medicine_id')->default(0);
+            $table->decimal('price', 12, 2)->after('medicine_stock_id')->default(0);
         });
     }
 

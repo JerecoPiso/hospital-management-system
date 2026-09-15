@@ -27,7 +27,7 @@ return new class extends Migration
             $table->text("objective");
             $table->text("assessment");
             $table->text("plan");
-            $table->text("remarks");
+            $table->text("remarks")->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

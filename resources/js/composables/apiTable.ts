@@ -6,6 +6,7 @@ export interface ApiTableMeta {
     per_page: number;
     current_page: number;
     last_page: number;
+    total_income?: number;
 }
 
 export const emptyMeta = (perPage = 15): ApiTableMeta => ({

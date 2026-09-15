@@ -34,9 +34,15 @@ export const useVitalSignsStore = defineStore("vitalSigns", () => {
         edc: null,
         remarks: ""
     })
+   
+    const latestVitalSigns = ref(null)
     const create = async (data: VitalSigns) => {
         await axios.post(`${baseUrl}api/vital-signs`, data);
         read(data.patient_case_pid);
+    }
+    const getLatestVitalSigns = async (patient_case_pid?: string) => {
+        const response = await axios.get(`${baseUrl}api/vital-signs/latest-vital-signs/${patient_case_pid}`);
+        latestVitalSigns.value = response.data.data;
     }
     const read = async (patient_case_pid?: string) => {
         const response = await axios.get(`${baseUrl}api/vital-signs`, {
@@ -57,6 +63,8 @@ export const useVitalSignsStore = defineStore("vitalSigns", () => {
         read(patient_case_pid);
     }
     return {
+        getLatestVitalSigns,
+        latestVitalSigns,
         archive,
         create,
         read,

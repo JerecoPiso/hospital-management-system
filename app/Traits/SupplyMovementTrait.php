@@ -10,7 +10,7 @@ trait SupplyMovementTrait
     public function list(Request $request)
     {
         try {
-            $supplyMovements = $this->supplyMovementRepo->list($request->only(['supply_stock_pid', 'search', 'per_page', 'page']));
+            $supplyMovements = $this->supplyMovementRepo->list($request->only(['supply_stock_pid', 'search', 'per_page', 'page', 'type', 'date_from', 'date_to']));
             return api_list_response($supplyMovements['items'], $supplyMovements['meta']);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);

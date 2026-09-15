@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\Room;
 use App\Models\Ward;
 use Illuminate\Database\Seeder;
-
+use Illuminate\Support\Str;
 class RoomSeeder extends Seeder
 {
     public function run(): void
@@ -47,7 +47,7 @@ class RoomSeeder extends Seeder
             foreach ($rooms as $room) {
                 Room::updateOrCreate(
                     ['ward_id' => $ward->id, 'room_number' => $room['room_number']],
-                    ['room_type' => $room['room_type']]
+                    ['room_type' => $room['room_type'], 'pid' => Str::uuid()->toString(),]
                 );
             }
         }

@@ -16,6 +16,7 @@ const router = createRouter({
             meta: { requiresAuth: true },
             children: [
                 { path: "", name: "Dashboard", component: () => import("../pages/authenticated/Dashboard.vue") },
+                { path: "security", name: "Security", component: () => import("../pages/authenticated/Security.vue") },
                 { path: "users", name: "Users", component: () => import("../pages/authenticated/Users.vue"), meta: { module: "users" } },
                 { path: "pharmacy", name: "Pharmacy", component: () => import("../pages/authenticated/pharmacy/Pharmacy.vue"), meta: { module: "prescriptions" } },
                 {
@@ -92,6 +93,12 @@ const router = createRouter({
                 { path: "patient-forms/pertinent-signs-and-symptoms", name: "PertinentSignsAndSymptomsForm", component: () => import("../pages/authenticated/patientchart/patientforms/PertinentSignsAndSymptoms.vue"), meta: { module: "pertinent-signs-and-symptoms" } },
                 { path: "patient-forms/soap", name: "SoapForm", component: () => import("../pages/authenticated/patientchart/patientforms/Soap.vue"), meta: { module: "soaps" } },
             ]
+        },
+        {
+            path: "/print/soap/:pid",
+            name: "SoapPrint",
+            component: () => import("../pages/print/SoapPrint.vue"),
+            meta: { requiresAuth: true },
         },
         {
             path: "/forbidden",

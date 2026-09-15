@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\PatientType;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class PatientTypeSeeder extends Seeder
 {
@@ -26,7 +27,7 @@ class PatientTypeSeeder extends Seeder
         foreach ($types as $type) {
             PatientType::updateOrCreate(
                 ['code' => $type['code']],
-                ['name' => $type['name'], 'description' => $type['description']]
+                ['name' => $type['name'], 'pid' => Str::uuid()->toString(), 'description' => $type['description']]
             );
         }
 

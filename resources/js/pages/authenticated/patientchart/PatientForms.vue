@@ -13,7 +13,7 @@
 
         <!-- Buttons -->
         <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <router-link
+            <router-link v-if="can('history-and-physical-examination-form-one', 'view')"
                 :to="{ name: 'HistoryAndPhysicalExaminationFormOne' }"
                 class="group flex items-center gap-4 p-5 rounded-xl border border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all duration-200 bg-white"
             >
@@ -27,7 +27,7 @@
                 <BiChevronRight class="text-slate-300 group-hover:text-emerald-500 transition-colors" size="20" />
             </router-link>
 
-            <router-link
+            <router-link v-if="can('history-and-physical-examination-form-two', 'view')"
                 :to="{ name: 'HistoryAndPhysicalExaminationFormTwo' }"
                 class="group flex items-center gap-4 p-5 rounded-xl border border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all duration-200 bg-white"
             >
@@ -41,7 +41,7 @@
                 <BiChevronRight class="text-slate-300 group-hover:text-emerald-500 transition-colors" size="20" />
             </router-link>
 
-            <router-link
+            <router-link v-if="can('pertinent-signs-and-symptoms', 'view')"
                 :to="{ name: 'PertinentSignsAndSymptomsForm' }"
                 class="group flex items-center gap-4 p-5 rounded-xl border border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all duration-200 bg-white"
             >
@@ -55,7 +55,7 @@
                 <BiChevronRight class="text-slate-300 group-hover:text-emerald-500 transition-colors" size="20" />
             </router-link>
 
-            <router-link
+            <router-link v-if="can('soaps', 'view')"
                 :to="{ name: 'SoapForm' }"
                 class="group flex items-center gap-4 p-5 rounded-xl border border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all duration-200 bg-white"
             >
@@ -73,8 +73,12 @@
 </template>
 
 <script setup lang="ts">
+import { usePermission } from "@/composables/permission";
 import { BsJournalMedical } from 'vue-icons-plus/bs';
 import { FaBookMedical } from 'vue-icons-plus/fa';
 import { BiChevronRight } from 'vue-icons-plus/bi';
 import { FiActivity } from 'vue-icons-plus/fi';
+
+const { can } = usePermission();
+
 </script>

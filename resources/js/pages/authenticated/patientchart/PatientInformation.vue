@@ -10,14 +10,13 @@
   </div>
 
   <div v-else class="space-y-6 mb-12">
-
     <!-- Header with Actions -->
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
       <div>
         <h1 class="text-2xl font-bold text-slate-900">Patient Information</h1>
         <p class="text-sm text-slate-500 mt-0.5">Patient profile and current case record</p>
       </div>
-      <div class="flex gap-3">
+      <!-- <div class="flex gap-3">
         <button @click="editProfile" class="px-4 py-2.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-sm font-medium text-slate-700 transition-colors shadow-sm flex items-center gap-2">
           <FiEdit2 size="15" />
           Edit Profile
@@ -26,7 +25,7 @@
           <FiPrinter size="15" />
           Print Summary
         </button>
-      </div>
+      </div> -->
     </div>
 
     <!-- Patient Header Card -->
@@ -46,7 +45,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <p class="text-xs font-semibold text-emerald-50 uppercase tracking-wider">Full Name</p>
-                <p class="text-lg font-bold text-white mt-1">{{ fullName }}</p>
+                <p class="text-lg font-bold text-white mt-1 upp">{{ fullName }}</p>
               </div>
               <div>
                 <p class="text-xs font-semibold text-emerald-50 uppercase tracking-wider">Medical Record No.</p>
@@ -70,7 +69,7 @@
     </div>
 
     <!-- Vital Signs -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
       <div v-for="stat in vitalStats" :key="stat.label" class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200 flex items-start gap-3">
         <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" :style="{ backgroundColor: stat.bgColor }">
           <component :is="stat.icon" :style="{ color: stat.color }" size="18" />
@@ -81,11 +80,10 @@
         </div>
       </div>
     </div>
-    <p class="text-xs text-slate-400 -mt-3">Last measured {{ formatDateTime(vitals.measured_at) }}</p>
+    <p class="text-xs text-slate-400 -mt-3">Last measured {{ formatDateTime(latestVitalSignsMeasuredAt) }}</p>
 
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
       <!-- Left Column -->
       <div class="space-y-6">
         <!-- Personal & Contact Information -->
@@ -186,23 +184,22 @@
           </div>
         </section>
       </div>
-
     </div>
-
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { FiUser, FiUsers, FiCalendar, FiEdit2, FiPrinter, FiMapPin, FiHeart, FiActivity, FiThermometer, FiDroplet } from 'vue-icons-plus/fi';
-import { FaWeight } from 'vue-icons-plus/fa';
-import { usePatientCaseStore } from '@/store/patients/PatientCase';
-import { useAppToast } from '@/composables/toast';
-
+import { ref, computed, onMounted, watch, markRaw } from "vue";
+import { useRoute } from "vue-router";
+import { FiUser, FiUsers, FiCalendar, FiEdit2, FiPrinter, FiMapPin, FiHeart, FiActivity, FiThermometer, FiDroplet } from "vue-icons-plus/fi";
+import { FaTextHeight, FaWeight } from "vue-icons-plus/fa";
+import { usePatientCaseStore } from "@/store/patients/PatientCase";
+import { useAppToast } from "@/composables/toast";
+import { useVitalSignsStore } from "@/store/patientchart/VitalSigns";
 const route = useRoute();
 const toast = useAppToast();
 const patientCaseStore = usePatientCaseStore();
+const vitalSignStore = useVitalSignsStore();
 
 const patientCasePid = computed(() => route.params.patient_case_pid);
 const patientCase = computed(() => patientCaseStore.patientCase);
@@ -210,35 +207,21 @@ const patient = computed(() => patientCase.value?.patient);
 
 const patientTypeLabel = computed(() => {
   const type = patientCase.value?.type;
-  return type ? `${type.charAt(0).toUpperCase()}${type.slice(1)}` : '—';
-});
-
-// Static placeholder data shaped like the `vital_signs` table columns.
-const vitals = ref({
-  temperature: 36.8,
-  heart_rate: 78,
-  respiratory_rate: 18,
-  systolic: 120,
-  diastolic: 80,
-  oxygen_saturation: 98,
-  weight: 82,
-  height: 172,
-  bmi: 27.7,
-  measured_at: '2026-08-07 06:15:00'
+  return type ? `${type.charAt(0).toUpperCase()}${type.slice(1)}` : "—";
 });
 
 // Static placeholder data shaped like the bed/room/ward/station hierarchy.
 const assignment = ref({
-  ward: 'Medical Ward',
-  station: 'Station A',
-  room: '305A',
-  bed: 'Bed 2'
+  ward: "Medical Ward",
+  station: "Station A",
+  room: "305A",
+  bed: "Bed 2",
 });
 
 const fullName = computed(() => {
-  const middle = patient.value.middlename ? `${patient.value.middlename.charAt(0)}.` : '';
-  const suffix = patient.value.suffix ? ` ${patient.value.suffix}` : '';
-  return [patient.value.firstname, middle, `${patient.value.lastname}${suffix}`].filter(Boolean).join(' ');
+  const middle = patient.value.middlename ? `${patient.value.middlename.charAt(0)}.` : "";
+  const suffix = patient.value.suffix ? ` ${patient.value.suffix}` : "";
+  return [patient.value.firstname, middle, `${patient.value.lastname}${suffix}`].filter(Boolean).join(" ");
 });
 
 const initials = computed(() => `${patient.value.firstname.charAt(0)}${patient.value.lastname.charAt(0)}`.toUpperCase());
@@ -257,70 +240,106 @@ const age = computed(() => {
 });
 
 const personalInfo = computed(() => [
-  { label: 'Date of Birth', value: formatDate(patient.value.birthdate) },
-  { label: 'Gender', value: patient.value.gender },
-  { label: 'Civil Status', value: patient.value.civil_status },
-  { label: 'Religion', value: patient.value.religion },
-  { label: 'Birthplace', value: patient.value.birthplace },
-  { label: 'Contact Number', value: patient.value.contact_number },
-  { label: 'Email Address', value: patient.value.email_address }
+  { label: "Date of Birth", value: formatDate(patient.value.birthdate) },
+  { label: "Gender", value: patient.value.gender },
+  { label: "Civil Status", value: patient.value.civil_status },
+  { label: "Religion", value: patient.value.religion },
+  { label: "Birthplace", value: patient.value.birthplace },
+  { label: "Contact Number", value: patient.value.contact_number },
+  { label: "Email Address", value: patient.value.email_address },
 ]);
 
 const familyInfo = computed(() => [
-  { label: 'Occupation', value: patient.value.occupation },
-  { label: 'Spouse Name', value: patient.value.spouse_name || '—' }
+  { label: "Occupation", value: patient.value.occupation },
+  { label: "Spouse Name", value: patient.value.spouse_name || "—" },
 ]);
-
-const vitalStats = computed(() => [
+const latestVitalSigns = computed(() => vitalSignStore.latestVitalSigns);
+const latestVitalSignsMeasuredAt = ref(null);
+const vitalStats = ref([
   {
-    label: 'Blood Pressure',
-    value: `${vitals.value.systolic}/${vitals.value.diastolic}`,
-    icon: FiHeart,
-    bgColor: '#ecfdf5',
-    color: '#059669'
+    label: "Blood Pressure",
+    value: `N/A`,
+    icon: markRaw(FiHeart),
+    bgColor: "#ecfdf5",
+    color: "#059669",
   },
   {
-    label: 'Heart Rate',
-    value: `${vitals.value.heart_rate} bpm`,
-    icon: FiActivity,
-    bgColor: '#eff6ff',
-    color: '#3b82f6'
+    label: "Heart Rate",
+    value: `N/A`,
+    icon: markRaw(FiActivity),
+    bgColor: "#eff6ff",
+    color: "#3b82f6",
   },
   {
-    label: 'Temperature',
-    value: `${vitals.value.temperature}°C`,
-    icon: FiThermometer,
-    bgColor: '#fdf4ff',
-    color: '#a855f7'
+    label: "Temperature",
+    value: `N/A`,
+    icon: markRaw(FiThermometer),
+    bgColor: "#fdf4ff",
+    color: "#a855f7",
   },
   {
-    label: 'O2 Saturation',
-    value: `${vitals.value.oxygen_saturation}%`,
-    icon: FiDroplet,
-    bgColor: '#fef2f2',
-    color: '#dc2626'
+    label: "O2 Saturation",
+    value: `N/A`,
+    icon: markRaw(FiDroplet),
+    bgColor: "#fef2f2",
+    color: "#dc2626",
   },
   {
-    label: 'Weight / BMI',
-    value: `${vitals.value.weight}kg (${vitals.value.bmi})`,
-    icon: FaWeight,
-    bgColor: '#fffbeb',
-    color: '#d97706'
+    label: "Weight",
+    value: `N/A`,
+    icon: markRaw(FaWeight),
+    bgColor: "#fffbeb",
+    color: "#d97706",
+  },
+  {
+    label: "Height",
+    value: `N/A`,
+    icon: markRaw(FaTextHeight),
+    bgColor: "#fffbeb",
+    color: "#d97706",
+  },
+]);
+watch(
+  () => latestVitalSigns.value,
+  () => {
+    if (latestVitalSigns.value) {
+      if (latestVitalSigns.value?.systolic && latestVitalSigns.value?.diastolic) {
+        vitalStats.value[0].value = `${latestVitalSigns.value?.systolic}/${latestVitalSigns.value?.diastolic}`;
+      }
+      if (latestVitalSigns.value?.heart_rate) {
+        vitalStats.value[1].value = `${latestVitalSigns.value?.heart_rate} bpm`;
+      }
+      if (latestVitalSigns.value?.temperature) {
+        vitalStats.value[2].value = `${latestVitalSigns.value?.temperature} °C`;
+      }
+      if (latestVitalSigns.value?.oxygen_saturation) {
+        vitalStats.value[3].value = `${latestVitalSigns.value?.oxygen_saturation} %`;
+      }
+      if (latestVitalSigns.value?.weight) {
+        vitalStats.value[4].value = `${Number(latestVitalSigns.value?.weight)} kg/s`;
+      }
+      if (latestVitalSigns.value?.height) {
+        vitalStats.value[5].value = `${Number(latestVitalSigns.value?.height)} cm`;
+      }
+      if (latestVitalSigns.value?.measured_at) {
+        latestVitalSignsMeasuredAt.value = latestVitalSigns.value?.measured_at;
+      }
+    }
   }
-]);
-
+);
 onMounted(async () => {
+  await vitalSignStore.getLatestVitalSigns(route.params.patient_case_pid);
   if (!patientCasePid.value) return;
   try {
     await patientCaseStore.view(patientCasePid.value);
   } catch (err) {
-    toast.error(err.response?.data?.message || 'Failed to load patient information');
+    toast.error(err.response?.data?.message || "Failed to load patient information");
   }
 });
 
 // Methods
 const editProfile = () => {
-  console.log('Edit profile clicked');
+  console.log("Edit profile clicked");
 };
 
 const printSummary = () => {
@@ -328,14 +347,14 @@ const printSummary = () => {
 };
 
 const formatDate = (dateString) => {
-  if (!dateString) return '—';
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  if (!dateString) return "—";
+  const options = { year: "numeric", month: "long", day: "numeric" };
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
 const formatDateTime = (dateString) => {
-  if (!dateString) return '—';
-  const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+  if (!dateString) return "—";
+  const options = { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" };
   return new Date(dateString).toLocaleString(undefined, options);
 };
 </script>

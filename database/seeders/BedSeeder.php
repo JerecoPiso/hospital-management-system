@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\Bed;
 use App\Models\Room;
 use Illuminate\Database\Seeder;
-
+use Illuminate\Support\Str;
 class BedSeeder extends Seeder
 {
     public function run(): void
@@ -31,7 +31,7 @@ class BedSeeder extends Seeder
             foreach ($beds as $bedNumber) {
                 Bed::updateOrCreate(
                     ['room_id' => $room->id, 'bed_number' => $bedNumber],
-                    ['status' => 'available']
+                    ['status' => 'available', 'pid' => Str::uuid()->toString(),]
                 );
             }
         }

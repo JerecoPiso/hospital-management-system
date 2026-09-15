@@ -53,7 +53,7 @@
                         <Textarea v-model="soapInfo.plan" rows="3" autoResize fluid required placeholder="Treatment / management plan..." class="text-sm" />
                     </div>
                     <div class="flex flex-col gap-1.5">
-                        <label class="text-sm font-medium text-slate-700">Remarks</label>
+                        <label class="text-sm font-medium text-slate-700">Remarks <span class="italic">(optional)</span> </label>
                         <Textarea v-model="soapInfo.remarks" rows="2" autoResize fluid placeholder="Optional remarks..." class="text-sm" />
                     </div>
                 </div>
@@ -121,9 +121,12 @@
                 <template #body="{ data }"><p class="text-slate-600 text-sm leading-relaxed line-clamp-2">{{ data.plan || '—' }}</p></template>
             </Column>
 
-            <Column header="Actions" class="w-24">
+            <Column header="Actions" class="w-32">
                 <template #body="{ data }">
                     <div class="flex items-center gap-1">
+                        <router-link :to="{ name: 'SoapPrint', params: { pid: data.pid } }" target="_blank" title="Print note" class="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors duration-150 cursor-pointer">
+                            <FiPrinter size="18" />
+                        </router-link>
                         <button v-if="can('soaps', 'update')" type="button" title="Edit note" @click="edit(data.pid)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
                             <BiEdit size="18" />
                         </button>
@@ -142,6 +145,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { BsPlusCircle, BsJournalMedical } from 'vue-icons-plus/bs';
 import { BiEdit, BiTrash } from 'vue-icons-plus/bi';
+import { FiPrinter } from 'vue-icons-plus/fi';
 import { useSoapStore } from '@/store/patientchart/Soap';
 import { useIcdStore } from '@/store/Icd';
 import { Soap, Icd } from '@/interface/Interfaces';

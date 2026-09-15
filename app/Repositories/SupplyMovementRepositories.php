@@ -18,7 +18,37 @@ class SupplyMovementRepositories
             });
         }
 
-        return api_list($supplyMovement, $filter, ['type', 'used_for', 'supplyStock.supply.name']);
+        if (!empty($filter['type'])) {
+            $supplyMovement->where('type', $filter['type']);
+        }
+
+        if (!empty($filter['date_from'])) {
+            $supplyMovement->whereDate('created_at', '>=', $filter['date_from']);
+        }
+
+        if (!empty($filter['date_to'])) {
+            $supplyMovement->whereDate('created_at', '<=', $filter['date_to']);
+        }
+
+        // Income always reflects OUT movements within the same stock/date/search
+        // filters, regardless of the `type` filter above — cloned before api_list()
+        // applies search + pagination to the main query.
+        $incomeQuery = (clone $supplyMovement)->where('type', 'OUT');
+        $search = trim((string) ($filter['search'] ?? ''));
+        if ($search !== '') {
+            $incomeQuery->where(function ($q) use ($search) {
+                $q->where('used_for', 'like', "%{$search}%")
+                    ->orWhereHas('supplyStock.supply', function ($sq) use ($search) {
+                        $sq->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+        $totalIncome = (float) ($incomeQuery->selectRaw('COALESCE(SUM(price * quantity), 0) as total_income')->value('total_income') ?? 0);
+
+        $result = api_list($supplyMovement, $filter, ['type', 'used_for', 'supplyStock.supply.name']);
+        $result['meta']['total_income'] = $totalIncome;
+
+        return $result;
     }
 
     public function searchByPid($pid)
