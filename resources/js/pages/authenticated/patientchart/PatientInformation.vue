@@ -11,8 +11,7 @@
 
   <div v-else class="space-y-6 mb-12">
     <!-- Edit Case Information Modal -->
-    <Dialog v-model:visible="caseModal" modal :style="{ width: '42vw' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
-      :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
+    <Dialog v-model:visible="caseModal" modal :style="{ width: '42vw' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
       <template #header>
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
@@ -41,6 +40,59 @@
           <label class="text-sm font-medium text-slate-700">Final Diagnosis</label>
           <Textarea v-model="caseInfo.final_diagnosis" rows="2" autoResize fluid class="text-sm" />
         </div>
+
+        <div class="flex flex-col gap-3 pt-2 border-t border-slate-100">
+          <span class="text-sm font-semibold text-slate-700 uppercase tracking-wide">Visual Acuity</span>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-slate-700">OD</label>
+              <InputText v-model="caseInfo.od" fluid class="text-sm" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-slate-700">PH</label>
+              <InputText v-model="caseInfo.ph_right" fluid class="text-sm" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-slate-700">OS</label>
+              <InputText v-model="caseInfo.os" fluid class="text-sm" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-slate-700">PH</label>
+              <InputText v-model="caseInfo.ph_left" fluid class="text-sm" />
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-3 pt-2 border-t border-slate-100">
+          <div class="flex items-center gap-3">
+            <span class="text-sm font-semibold text-slate-700 uppercase tracking-wide">CC</span>
+            <InputText v-model="caseInfo.cc" fluid class="text-sm flex-1" />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-slate-700">OD</label>
+              <InputText v-model="caseInfo.cc_od" fluid class="text-sm" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-slate-700">PH</label>
+              <InputText v-model="caseInfo.cc_ph_right" fluid class="text-sm" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-slate-700">OS</label>
+              <InputText v-model="caseInfo.cc_os" fluid class="text-sm" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-slate-700">PH</label>
+              <InputText v-model="caseInfo.cc_ph_left" fluid class="text-sm" />
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-100">
+          <label class="text-sm font-medium text-slate-700">IOP</label>
+          <InputText v-model="caseInfo.iop" fluid class="text-sm" />
+        </div>
+
         <div class="flex gap-2 pt-1">
           <Button type="button" label="Cancel" severity="secondary" outlined fluid @click="caseModal = false" />
           <Button type="submit" label="Save Changes" fluid class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" />
@@ -151,7 +203,13 @@
               </div>
               <h3 class="text-base font-bold text-slate-800">Details &amp; Diagnosis</h3>
             </div>
-            <button v-if="can('patient-cases', 'update')" type="button" @click="openEditCase" title="Edit case information" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
+            <button
+              v-if="can('patient-cases', 'update')"
+              type="button"
+              @click="openEditCase"
+              title="Edit case information"
+              class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
+            >
               <FiEdit2 size="15" />
             </button>
           </header>
@@ -172,9 +230,56 @@
               <span class="text-sm font-semibold text-slate-400 uppercase tracking-wide">Initial Diagnosis</span>
               <p class="text-base font-medium text-slate-800 mt-1">{{ patientCase.initial_diagnosis }}</p>
             </div>
-            <div>
+            <div class="pb-4 border-b border-slate-100">
               <span class="text-sm font-semibold text-slate-400 uppercase tracking-wide">Final Diagnosis</span>
               <p class="text-base font-medium text-slate-800 mt-1">{{ patientCase.final_diagnosis }}</p>
+            </div>
+            <div>
+              <div class="flex items-center gap-2.5 mb-3.5">
+                <div class="w-8 h-8 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
+                  <FiEye class="text-white" size="16" />
+                </div>
+                <span class="text-base font-bold text-slate-800">Visual Acuity</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div class="rounded-xl bg-linear-to-br from-emerald-50 to-teal-50 border border-emerald-100 px-4 py-3">
+                  <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider">OD</p>
+                  <p class="text-xl font-bold text-slate-800 font-mono mt-1">{{ patientCase.od || "—" }}</p>
+                  <p class="text-sm text-slate-500 mt-1.5">PH <span class="font-semibold text-slate-700">{{ patientCase.ph_right || "—" }}</span></p>
+                </div>
+                <div class="rounded-xl bg-linear-to-br from-emerald-50 to-teal-50 border border-emerald-100 px-4 py-3">
+                  <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider">OS</p>
+                  <p class="text-xl font-bold text-slate-800 font-mono mt-1">{{ patientCase.os || "—" }}</p>
+                  <p class="text-sm text-slate-500 mt-1.5">PH <span class="font-semibold text-slate-700">{{ patientCase.ph_left || "—" }}</span></p>
+                </div>
+              </div>
+
+              <div class="mt-3 rounded-xl border border-slate-200 overflow-hidden">
+                <div class="flex items-center justify-between px-4 py-2.5 bg-slate-50">
+                  <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">With Correction (CC)</span>
+                  <span class="text-sm font-semibold text-slate-700">{{ patientCase.cc || "—" }}</span>
+                </div>
+                <div class="grid grid-cols-2 divide-x divide-slate-100 text-sm">
+                  <div class="px-4 py-2.5">
+                    <span class="text-slate-400">OD</span>
+                    <span class="font-semibold text-slate-800 ml-1.5">{{ patientCase.cc_od || "—" }}</span>
+                    <span class="text-slate-400 ml-3">PH</span>
+                    <span class="font-semibold text-slate-800 ml-1.5">{{ patientCase.cc_ph_right || "—" }}</span>
+                  </div>
+                  <div class="px-4 py-2.5">
+                    <span class="text-slate-400">OS</span>
+                    <span class="font-semibold text-slate-800 ml-1.5">{{ patientCase.cc_os || "—" }}</span>
+                    <span class="text-slate-400 ml-3">PH</span>
+                    <span class="font-semibold text-slate-800 ml-1.5">{{ patientCase.cc_ph_left || "—" }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-3 flex items-center justify-between rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">IOP</span>
+                <span class="text-base font-bold text-slate-800 font-mono">{{ patientCase.iop || "—" }}</span>
+              </div>
             </div>
           </div>
         </section>
@@ -182,8 +287,7 @@
     </div>
 
     <!-- SOAP Note Modal -->
-    <Dialog v-model:visible="soapModal" modal :style="{ width: '52vw' }" :breakpoints="{ '1199px': '80vw', '575px': '95vw' }"
-      :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
+    <Dialog v-model:visible="soapModal" modal :style="{ width: '52vw' }" :breakpoints="{ '1199px': '80vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
       <template #header>
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
@@ -200,7 +304,9 @@
           <label class="text-sm font-medium text-slate-700">ICD Diagnosis <span class="text-red-400">*</span></label>
           <Select v-model="soapInfo.icd_pid" :options="icds" optionLabel="name" optionValue="pid" filter required fluid placeholder="Select ICD code" class="text-sm">
             <template #option="{ option }">
-              <span class="text-sm"><span class="font-medium text-slate-700">{{ option.code }}</span> — {{ option.name }}</span>
+              <span class="text-sm"
+                ><span class="font-medium text-slate-700">{{ option.code }}</span> — {{ option.name }}</span
+              >
             </template>
             <template #value="{ value, placeholder }">
               <span v-if="selectedIcd(value)" class="text-sm">
@@ -251,7 +357,12 @@
             <p class="text-sm text-slate-400">Subjective, Objective, Assessment &amp; Plan documentation</p>
           </div>
         </div>
-        <button v-if="can('soaps', 'create')" type="button" @click="openCreateSoap" class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95">
+        <button
+          v-if="can('soaps', 'create')"
+          type="button"
+          @click="openCreateSoap"
+          class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95"
+        >
           <BsPlusCircle size="16" />
           Add SOAP Note
         </button>
@@ -272,18 +383,33 @@
               <span class="text-base font-medium text-slate-700">
                 {{ `${note.doctor?.firstname ?? ""} ${note.doctor?.lastname ?? ""}`.trim() || "—" }}
               </span>
-              <span class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-sm font-medium text-emerald-700">
-                {{ note.icd?.code }} — {{ note.icd?.name }}
-              </span>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-sm font-medium text-emerald-700"> {{ note.icd?.code }} — {{ note.icd?.name }} </span>
             </div>
             <div class="flex items-center gap-1">
-              <router-link :to="{ name: 'SoapPrint', params: { pid: note.pid } }" target="_blank" title="Print note" class="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors duration-150 cursor-pointer">
+              <router-link
+                :to="{ name: 'SoapPrint', params: { pid: note.pid } }"
+                target="_blank"
+                title="Print note"
+                class="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors duration-150 cursor-pointer"
+              >
                 <FiPrinter size="18" />
               </router-link>
-              <button v-if="can('soaps', 'update')" type="button" title="Edit note" @click="editSoap(note.pid)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
+              <button
+                v-if="can('soaps', 'update')"
+                type="button"
+                title="Edit note"
+                @click="editSoap(note.pid)"
+                class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
+              >
                 <BiEdit size="18" />
               </button>
-              <button v-if="can('soaps', 'delete')" type="button" title="Delete note" @click="deleteSoap(note.pid)" class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer">
+              <button
+                v-if="can('soaps', 'delete')"
+                type="button"
+                title="Delete note"
+                @click="deleteSoap(note.pid)"
+                class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer"
+              >
                 <BiTrash size="18" />
               </button>
             </div>
@@ -319,7 +445,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, watch, markRaw } from "vue";
 import { useRoute } from "vue-router";
-import { FiUser, FiCalendar, FiEdit2, FiPrinter, FiHeart, FiActivity, FiThermometer, FiDroplet } from "vue-icons-plus/fi";
+import { FiUser, FiCalendar, FiEdit2, FiPrinter, FiHeart, FiActivity, FiThermometer, FiDroplet, FiEye } from "vue-icons-plus/fi";
 import { FaTextHeight, FaWeight } from "vue-icons-plus/fa";
 import { BsJournalMedical, BsPlusCircle } from "vue-icons-plus/bs";
 import { BiEdit, BiTrash } from "vue-icons-plus/bi";
@@ -463,15 +589,20 @@ onMounted(async () => {
   } catch (err) {
     toast.error(err.response?.data?.message || "Failed to load patient information");
   }
-  try {
-    await soapStore.read(patientCasePid.value);
-  } catch (err) {
-    toast.error(err.response?.data?.message || "Failed to load SOAP notes");
+  if (can("soaps", "view")) {
+    try {
+      await soapStore.read(patientCasePid.value);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to load SOAP notes");
+    }
   }
-  try {
-    await icdStore.read();
-  } catch (err) {
-    toast.error(err.response?.data?.message || "Failed to load ICD codes");
+
+  if (can("icds", "view")) {
+    try {
+      await icdStore.read();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to load ICD codes");
+    }
   }
 });
 
@@ -558,6 +689,16 @@ const defaultCaseInfo = () => ({
   chief_complaint: "",
   initial_diagnosis: "",
   final_diagnosis: "",
+  od: "",
+  os: "",
+  ph_right: "",
+  ph_left: "",
+  cc: "",
+  cc_od: "",
+  cc_os: "",
+  cc_ph_right: "",
+  cc_ph_left: "",
+  iop: "",
 });
 const caseInfo = reactive(defaultCaseInfo());
 
@@ -571,6 +712,16 @@ const openEditCase = () => {
     initial_diagnosis: patientCase.value.initial_diagnosis || "",
     final_diagnosis: patientCase.value.final_diagnosis || "",
     admission_datetime: patientCase.value.admission_datetime ? new Date(patientCase.value.admission_datetime) : null,
+    od: patientCase.value.od || "",
+    os: patientCase.value.os || "",
+    ph_right: patientCase.value.ph_right || "",
+    ph_left: patientCase.value.ph_left || "",
+    cc: patientCase.value.cc || "",
+    cc_od: patientCase.value.cc_od || "",
+    cc_os: patientCase.value.cc_os || "",
+    cc_ph_right: patientCase.value.cc_ph_right || "",
+    cc_ph_left: patientCase.value.cc_ph_left || "",
+    iop: patientCase.value.iop || "",
   });
   caseModal.value = true;
 };

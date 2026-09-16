@@ -14,7 +14,7 @@
       </template>
       <form @submit.prevent="isUpdate ? update() : create()" class="flex flex-col gap-5 pt-2">
         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Patient Information</p>
-        <div class="grid grid-cols-4 gap-4">
+        <div class="grid grid-cols-6 gap-4">
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">First Name <span class="text-red-400">*</span></label>
             <InputText v-model="patientInfo.firstname" fluid required class="text-sm" />
@@ -57,7 +57,18 @@
           </div>
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">City/Municipality</label>
-            <Select v-model="patientInfo.municipality"  :virtualScrollerOptions="{ lazy: true, itemSize: 25 }" :options="municipalities" optionLabel="name" optionValue="name" filter filterBy="name" showClear placeholder="Select a Country" class="w-full">
+            <Select
+              v-model="patientInfo.municipality"
+              :virtualScrollerOptions="{ lazy: true, itemSize: 25 }"
+              :options="municipalities"
+              optionLabel="name"
+              optionValue="name"
+              filter
+              filterBy="name"
+              showClear
+              placeholder="Select a Country"
+              class="w-full"
+            >
             </Select>
           </div>
           <div class="flex flex-col gap-1.5">
@@ -111,7 +122,7 @@
         </div>
 
         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide pt-2">Case Information</p>
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-6 gap-4">
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Type <span class="text-red-400">*</span></label>
             <Select v-model="patientInfo.type" :options="admissionTypeOptions" optionLabel="label" optionValue="value" placeholder="Select admission type" required fluid class="text-sm" />
@@ -148,6 +159,59 @@
           </div>
         </div>
 
+        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide pt-2">Visual Acuity</p>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="col-span-1">
+            <div class="grid grid-cols-4 gap-4">
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-medium text-slate-700">OD</label>
+                <InputText v-model="patientInfo.od" fluid class="text-sm" />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-medium text-slate-700">PH</label>
+                <InputText v-model="patientInfo.ph_right" fluid class="text-sm" />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-medium text-slate-700">OS</label>
+                <InputText v-model="patientInfo.os" fluid class="text-sm" />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-medium text-slate-700">PH</label>
+                <InputText v-model="patientInfo.ph_left" fluid class="text-sm" />
+              </div>
+            </div>
+          </div>
+          <div class="col-span-1">
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide shrink-0">CC</span>
+              <InputText v-model="patientInfo.cc" fluid class="text-sm" />
+            </div>
+            <div class="grid grid-cols-4 gap-4">
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-medium text-slate-700">OD</label>
+                <InputText v-model="patientInfo.cc_od" fluid class="text-sm" />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-medium text-slate-700">PH</label>
+                <InputText v-model="patientInfo.cc_ph_right" fluid class="text-sm" />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-medium text-slate-700">OS</label>
+                <InputText v-model="patientInfo.cc_os" fluid class="text-sm" />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-medium text-slate-700">PH</label>
+                <InputText v-model="patientInfo.cc_ph_left" fluid class="text-sm" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="w-full">
+          <label class="text-sm font-medium text-slate-700">IOP</label>
+          <InputText v-model="patientInfo.iop" fluid class="text-sm" />
+        </div>
+
         <div class="flex gap-2 pt-1">
           <Button type="button" label="Cancel" severity="secondary" outlined fluid @click="patientModal = false" />
           <Button type="submit" :label="isUpdate ? 'Update Registration' : 'Save Registration'" fluid class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" />
@@ -156,7 +220,7 @@
     </Dialog>
 
     <!-- ADD CASE MODAL -->
-    <Dialog v-model:visible="caseModal" modal :style="{ width: '42vw' }" :breakpoints="{ '1199px': '75vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
+    <Dialog v-model:visible="caseModal" modal :style="{ width: '60vw' }" :breakpoints="{ '1199px': '75vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
       <template #header>
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
@@ -187,7 +251,7 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid  grid-cols-1 lg:grid-cols-2 gap-4">
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Admission Type <span class="text-red-400">*</span></label>
             <Select v-model="caseInfo.type" :options="admissionTypeOptions" optionLabel="label" optionValue="value" placeholder="Select admission type" required fluid class="text-sm" />
@@ -222,6 +286,59 @@
             <label class="text-sm font-medium text-slate-700">Final Diagnosis</label>
             <InputText v-model="caseInfo.final_diagnosis" fluid class="text-sm" />
           </div>
+        </div>
+
+        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide pt-2">Visual Acuity</p>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-4">
+          <div class="col-span-1">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-medium text-slate-700">OD</label>
+                <InputText v-model="caseInfo.od" fluid class="text-sm" />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-medium text-slate-700">PH</label>
+                <InputText v-model="caseInfo.ph_right" fluid class="text-sm" />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-medium text-slate-700">OS</label>
+                <InputText v-model="caseInfo.os" fluid class="text-sm" />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-medium text-slate-700">PH</label>
+                <InputText v-model="caseInfo.ph_left" fluid class="text-sm" />
+              </div>
+            </div>
+          </div>
+          <div class="col-span-1">
+            <div class="flex items-center gap-3 pt-1">
+              <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide shrink-0">CC</span>
+              <InputText v-model="caseInfo.cc" fluid class="text-sm" />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-medium text-slate-700">OD</label>
+                <InputText v-model="caseInfo.cc_od" fluid class="text-sm" />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-medium text-slate-700">PH</label>
+                <InputText v-model="caseInfo.cc_ph_right" fluid class="text-sm" />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-medium text-slate-700">OS</label>
+                <InputText v-model="caseInfo.cc_os" fluid class="text-sm" />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-medium text-slate-700">PH</label>
+                <InputText v-model="caseInfo.cc_ph_left" fluid class="text-sm" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="w-full">
+          <label class="text-sm font-medium text-slate-700">IOP</label>
+          <InputText v-model="caseInfo.iop" fluid class="text-sm" />
         </div>
 
         <div class="flex gap-2 pt-1">
@@ -569,6 +686,16 @@ const emptyPatient = (): PatientRegistration => ({
   chief_complaint: "",
   initial_diagnosis: "",
   final_diagnosis: "",
+  od: "",
+  os: "",
+  ph_right: "",
+  ph_left: "",
+  cc: "",
+  cc_od: "",
+  cc_os: "",
+  cc_ph_right: "",
+  cc_ph_left: "",
+  iop: "",
   type: "outpatient",
   patient_type_pid: "",
   station_pid: "",
@@ -689,6 +816,16 @@ const view = async (pid: string) => {
       patientInfo.chief_complaint = latestCase.chief_complaint;
       patientInfo.initial_diagnosis = latestCase.initial_diagnosis;
       patientInfo.final_diagnosis = latestCase.final_diagnosis;
+      patientInfo.od = latestCase.od;
+      patientInfo.os = latestCase.os;
+      patientInfo.ph_right = latestCase.ph_right;
+      patientInfo.ph_left = latestCase.ph_left;
+      patientInfo.cc = latestCase.cc;
+      patientInfo.cc_od = latestCase.cc_od;
+      patientInfo.cc_os = latestCase.cc_os;
+      patientInfo.cc_ph_right = latestCase.cc_ph_right;
+      patientInfo.cc_ph_left = latestCase.cc_ph_left;
+      patientInfo.iop = latestCase.iop;
       patientInfo.type = latestCase.type ?? "outpatient";
       patientInfo.patient_type_pid = latestCase.patient_type?.pid ?? "";
       patientInfo.station_pid = latestCase.station?.pid ?? "";
@@ -742,6 +879,16 @@ const defaultCaseInfo = (): PatientCase => ({
   chief_complaint: "",
   initial_diagnosis: "",
   final_diagnosis: "",
+  od: "",
+  os: "",
+  ph_right: "",
+  ph_left: "",
+  cc: "",
+  cc_od: "",
+  cc_os: "",
+  cc_ph_right: "",
+  cc_ph_left: "",
+  iop: "",
   patient_type_pid: "",
   station_pid: "",
   bed_pid: "",

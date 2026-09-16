@@ -64,6 +64,16 @@ class PatientCaseRepositories
                 'chief_complaint' => $data['chief_complaint'],
                 'initial_diagnosis' => $data['initial_diagnosis'] ?? null,
                 'final_diagnosis' => $data['final_diagnosis'] ?? null,
+                'od' => $data['od'] ?? null,
+                'os' => $data['os'] ?? null,
+                'ph_right' => $data['ph_right'] ?? null,
+                'ph_left' => $data['ph_left'] ?? null,
+                'cc' => $data['cc'] ?? null,
+                'cc_od' => $data['cc_od'] ?? null,
+                'cc_os' => $data['cc_os'] ?? null,
+                'cc_ph_right' => $data['cc_ph_right'] ?? null,
+                'cc_ph_left' => $data['cc_ph_left'] ?? null,
+                'iop' => $data['iop'] ?? null,
                 'type' => $data['type'],
             ]);
 
@@ -87,6 +97,16 @@ class PatientCaseRepositories
                 'chief_complaint' => $data['chief_complaint'],
                 'initial_diagnosis' => $data['initial_diagnosis'] ?? null,
                 'final_diagnosis' => $data['final_diagnosis'] ?? null,
+                'od' => $data['od'] ?? null,
+                'os' => $data['os'] ?? null,
+                'ph_right' => $data['ph_right'] ?? null,
+                'ph_left' => $data['ph_left'] ?? null,
+                'cc' => $data['cc'] ?? null,
+                'cc_od' => $data['cc_od'] ?? null,
+                'cc_os' => $data['cc_os'] ?? null,
+                'cc_ph_right' => $data['cc_ph_right'] ?? null,
+                'cc_ph_left' => $data['cc_ph_left'] ?? null,
+                'iop' => $data['iop'] ?? null,
             ]);
 
             return $patientCase->load(['patient', 'patientType', 'station', 'bed']);

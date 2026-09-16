@@ -229,6 +229,16 @@ export interface PatientCase {
     chief_complaint: string;
     initial_diagnosis?: string;
     final_diagnosis?: string;
+    od?: string;
+    os?: string;
+    ph_right?: string;
+    ph_left?: string;
+    cc?: string;
+    cc_od?: string;
+    cc_os?: string;
+    cc_ph_right?: string;
+    cc_ph_left?: string;
+    iop?: string;
     type?: 'inpatient' | 'outpatient';
 }
 
@@ -256,6 +266,16 @@ export interface PatientRegistration {
     chief_complaint: string;
     initial_diagnosis?: string;
     final_diagnosis?: string;
+    od?: string;
+    os?: string;
+    ph_right?: string;
+    ph_left?: string;
+    cc?: string;
+    cc_od?: string;
+    cc_os?: string;
+    cc_ph_right?: string;
+    cc_ph_left?: string;
+    iop?: string;
     type: 'inpatient' | 'outpatient';
     patient_type_pid?: string;
     station_pid?: string;
