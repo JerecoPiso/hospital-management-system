@@ -1,6 +1,6 @@
 <template>
   <!-- Stats Cards -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-7">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-7">
     <div v-for="stat in statCards" :key="stat.label" class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200 flex items-start gap-4">
       <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" :style="{ backgroundColor: stat.bgColor }">
         <component :is="stat.icon" :style="{ color: stat.color }" size="22" />
@@ -25,9 +25,9 @@
   </div>
 
   <!-- Charts Row -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-7">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-7">
     <!-- Bar Chart -->
-    <div class="lg:col-span-2 bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+    <div class="lg:col-span-3 bg-white rounded-xl p-6 border border-slate-200 shadow-sm hidden">
       <div class="flex items-center justify-between mb-6">
         <div>
           <h3 class="text-sm font-bold text-slate-800">Patient Admissions</h3>
@@ -58,9 +58,238 @@
         </div>
       </div>
     </div>
+    <div class="lg:col-span-9 bg-white rounded-xl">
+      <!-- Stock Movements -->
+      <div v-if="showMedicineTab || showSupplyTab" class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+        <div class="px-6 py-5 border-b border-slate-100 flex items-center gap-3 bg-linear-to-r from-slate-50 to-white">
+          <div class="w-10 h-10 rounded-xl bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md shrink-0">
+            <MdSwapVert class="text-white" size="18" />
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-800">Stock Movements</h3>
+            <p class="text-xs text-slate-400">Medicine & supply IN/OUT log</p>
+          </div>
+        </div>
 
+        <Tabs v-model:value="activeMovementTab">
+          <TabList>
+            <Tab v-if="showMedicineTab" value="medicine">Medicine</Tab>
+            <Tab v-if="showSupplyTab" value="supply">Supply</Tab>
+          </TabList>
+          <TabPanels :pt="{ root: { class: 'p-0' } }">
+            <!-- Medicine tab -->
+            <TabPanel v-if="showMedicineTab" value="medicine">
+              <div class="px-6 py-4 border-b border-slate-100 flex flex-wrap items-end gap-4 bg-slate-50/50">
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-xs font-medium text-slate-500">Type</label>
+                  <div class="flex items-center gap-1.5 bg-slate-100 rounded-lg p-1">
+                    <button
+                      v-for="option in movementTypeOptions"
+                      :key="option.value"
+                      type="button"
+                      @click="medicineTab.typeFilter = option.value"
+                      class="px-3 py-1.5 rounded-md text-xs font-semibold transition-colors duration-150"
+                      :class="medicineTab.typeFilter === option.value ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+                    >
+                      {{ option.label }}
+                    </button>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-xs font-medium text-slate-500">From</label>
+                  <DatePicker v-model="medicineTab.dateFrom" dateFormat="yy-mm-dd" showIcon showButtonBar placeholder="Any" class="text-sm w-40" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-xs font-medium text-slate-500">To</label>
+                  <DatePicker v-model="medicineTab.dateTo" dateFormat="yy-mm-dd" showIcon showButtonBar placeholder="Any" class="text-sm w-40" />
+                </div>
+                <div class="relative flex-1 min-w-[180px]">
+                  <FiSearch class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10" size="16" />
+                  <InputText v-model="medicineTab.search" @input="medicineTab.onSearch" placeholder="Search medicine . . ." class="w-full text-sm pl-8!" />
+                </div>
+                <button
+                  v-if="medicineTab.hasFilters"
+                  type="button"
+                  @click="medicineTab.resetFilters"
+                  class="text-xs font-semibold text-slate-500 hover:text-red-500 transition-colors duration-150 px-2 py-2"
+                >
+                  Clear filters
+                </button>
+
+                <div class="ml-auto flex flex-col items-end gap-0.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-100">
+                  <span class="text-xs text-emerald-600 font-medium">Total Income</span>
+                  <span class="text-sm font-bold text-emerald-700">₱{{ medicineTotalIncome.toFixed(2) }}</span>
+                </div>
+              </div>
+
+              <DataTable
+                :value="medicineStockMovements"
+                lazy
+                paginator
+                :rows="medicineTab.rows"
+                :first="medicineTab.first"
+                :totalRecords="medicineTab.total"
+                :loading="medicineTab.loading"
+                @page="medicineTab.onPage"
+                :rowsPerPageOptions="[10, 25, 50, 100]"
+                responsiveLayout="scroll"
+                tableStyle="min-width: 55rem"
+                :pt="{ table: { class: 'text-sm' }, thead: { class: 'bg-slate-50' }, bodyRow: { class: 'hover:bg-slate-50 transition-colors duration-150 border-b border-slate-100' } }"
+              >
+                <template #empty>
+                  <div class="flex flex-col items-center justify-center py-16 text-slate-400">
+                    <GiMedicines size="36" class="mb-3 opacity-30" />
+                    <p class="text-sm font-medium">No medicine movements match the selected filters</p>
+                  </div>
+                </template>
+
+                <Column header="Medicine">
+                  <template #body="{ data }"
+                    ><span class="text-slate-800 text-sm font-medium">{{ data.medicine_stock?.medicine?.name || "—" }}</span></template
+                  >
+                </Column>
+                <Column header="Type" class="w-24">
+                  <template #body="{ data }">
+                    <span
+                      class="text-xs font-semibold px-2.5 py-1 rounded-full"
+                      :class="data.type === 'IN' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'"
+                    >
+                      {{ data.type }}
+                    </span>
+                  </template>
+                </Column>
+                <Column field="quantity" header="Quantity" class="w-24" />
+                <Column header="Price" class="w-28">
+                  <template #body="{ data }"
+                    ><span class="text-slate-600 text-sm">₱{{ Number(data.price || 0).toFixed(2) }}</span></template
+                  >
+                </Column>
+                <!-- <Column header="Reference" class="w-32">
+              <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.reference || "—" }}</span></template>
+            </Column> -->
+                <Column header="Remarks">
+                  <template #body="{ data }"
+                    ><span class="text-slate-600 text-sm">{{ data.remarks || "—" }}</span></template
+                  >
+                </Column>
+                <Column header="Date" class="w-44">
+                  <template #body="{ data }"
+                    ><span class="text-slate-500 text-xs">{{ formatDateTime(data.created_at) }}</span></template
+                  >
+                </Column>
+              </DataTable>
+            </TabPanel>
+
+            <!-- Supply tab -->
+            <TabPanel v-if="showSupplyTab" value="supply">
+              <div class="px-6 py-4 border-b border-slate-100 flex flex-wrap items-end gap-4 bg-slate-50/50">
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-xs font-medium text-slate-500">Type</label>
+                  <div class="flex items-center gap-1.5 bg-slate-100 rounded-lg p-1">
+                    <button
+                      v-for="option in movementTypeOptions"
+                      :key="option.value"
+                      type="button"
+                      @click="supplyTab.typeFilter = option.value"
+                      class="px-3 py-1.5 rounded-md text-xs font-semibold transition-colors duration-150"
+                      :class="supplyTab.typeFilter === option.value ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+                    >
+                      {{ option.label }}
+                    </button>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-xs font-medium text-slate-500">From</label>
+                  <DatePicker v-model="supplyTab.dateFrom" dateFormat="yy-mm-dd" showIcon showButtonBar placeholder="Any" class="text-sm w-40" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-xs font-medium text-slate-500">To</label>
+                  <DatePicker v-model="supplyTab.dateTo" dateFormat="yy-mm-dd" showIcon showButtonBar placeholder="Any" class="text-sm w-40" />
+                </div>
+                <div class="relative flex-1 min-w-[180px]">
+                  <FiSearch class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10" size="16" />
+                  <InputText v-model="supplyTab.search" @input="supplyTab.onSearch" placeholder="Search supply . . ." class="w-full text-sm pl-8!" />
+                </div>
+                <button
+                  v-if="supplyTab.hasFilters"
+                  type="button"
+                  @click="supplyTab.resetFilters"
+                  class="text-xs font-semibold text-slate-500 hover:text-red-500 transition-colors duration-150 px-2 py-2"
+                >
+                  Clear filters
+                </button>
+
+                <div class="ml-auto flex flex-col items-end gap-0.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-100">
+                  <span class="text-xs text-emerald-600 font-medium">Total Income</span>
+                  <span class="text-sm font-bold text-emerald-700">₱{{ supplyTotalIncome.toFixed(2) }}</span>
+                </div>
+              </div>
+
+              <DataTable
+                :value="supplyMovements"
+                lazy
+                paginator
+                :rows="supplyTab.rows"
+                :first="supplyTab.first"
+                :totalRecords="supplyTab.total"
+                :loading="supplyTab.loading"
+                @page="supplyTab.onPage"
+                :rowsPerPageOptions="[10, 25, 50, 100]"
+                responsiveLayout="scroll"
+                tableStyle="min-width: 55rem"
+                :pt="{ table: { class: 'text-sm' }, thead: { class: 'bg-slate-50' }, bodyRow: { class: 'hover:bg-slate-50 transition-colors duration-150 border-b border-slate-100' } }"
+              >
+                <template #empty>
+                  <div class="flex flex-col items-center justify-center py-16 text-slate-400">
+                    <GiMedicalPack size="36" class="mb-3 opacity-30" />
+                    <p class="text-sm font-medium">No supply movements match the selected filters</p>
+                  </div>
+                </template>
+
+                <Column header="Supply">
+                  <template #body="{ data }"
+                    ><span class="text-slate-800 text-sm font-medium">{{ data.supply_stock?.supply?.name || "—" }}</span></template
+                  >
+                </Column>
+                <Column header="Batch #" class="w-28">
+                  <template #body="{ data }"
+                    ><span class="text-slate-600 text-sm">{{ data.supply_stock?.batch_number || "—" }}</span></template
+                  >
+                </Column>
+                <Column header="Type" class="w-24">
+                  <template #body="{ data }">
+                    <span
+                      class="text-xs font-semibold px-2.5 py-1 rounded-full"
+                      :class="data.type === 'IN' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'"
+                    >
+                      {{ data.type }}
+                    </span>
+                  </template>
+                </Column>
+                <Column field="quantity" header="Quantity" class="w-24" />
+                <Column header="Price" class="w-28">
+                  <template #body="{ data }"
+                    ><span class="text-slate-600 text-sm">₱{{ Number(data.price || 0).toFixed(2) }}</span></template
+                  >
+                </Column>
+                <Column header="Used For">
+                  <template #body="{ data }"
+                    ><span class="text-slate-600 text-sm">{{ data.used_for || "—" }}</span></template
+                  >
+                </Column>
+                <Column header="Date" class="w-44">
+                  <template #body="{ data }"
+                    ><span class="text-slate-500 text-xs">{{ formatDateTime(data.created_at) }}</span></template
+                  >
+                </Column>
+              </DataTable>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      </div>
+    </div>
     <!-- Patient Type Distribution -->
-    <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+    <div class="lg:col-span-3 bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
       <div class="mb-6">
         <h3 class="text-sm font-bold text-slate-800">Patient Types</h3>
         <p class="text-xs text-slate-400 mt-0.5">Distribution by case type</p>
@@ -96,202 +325,9 @@
       </div>
     </div>
   </div>
-  <!-- Stock Movements -->
-  <div v-if="showMedicineTab || showSupplyTab" class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm mt-7">
-    <div class="px-6 py-5 border-b border-slate-100 flex items-center gap-3 bg-linear-to-r from-slate-50 to-white">
-      <div class="w-10 h-10 rounded-xl bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md shrink-0">
-        <MdSwapVert class="text-white" size="18" />
-      </div>
-      <div>
-        <h3 class="text-base font-bold text-slate-800">Stock Movements</h3>
-        <p class="text-xs text-slate-400">Medicine & supply IN/OUT log</p>
-      </div>
-    </div>
 
-    <Tabs v-model:value="activeMovementTab">
-      <TabList>
-        <Tab v-if="showMedicineTab" value="medicine">Medicine</Tab>
-        <Tab v-if="showSupplyTab" value="supply">Supply</Tab>
-      </TabList>
-      <TabPanels :pt="{ root: { class: 'p-0' } }">
-        <!-- Medicine tab -->
-        <TabPanel v-if="showMedicineTab" value="medicine">
-          <div class="px-6 py-4 border-b border-slate-100 flex flex-wrap items-end gap-4 bg-slate-50/50">
-            <div class="flex flex-col gap-1.5">
-              <label class="text-xs font-medium text-slate-500">Type</label>
-              <div class="flex items-center gap-1.5 bg-slate-100 rounded-lg p-1">
-                <button
-                  v-for="option in movementTypeOptions"
-                  :key="option.value"
-                  type="button"
-                  @click="medicineTab.typeFilter = option.value"
-                  class="px-3 py-1.5 rounded-md text-xs font-semibold transition-colors duration-150"
-                  :class="medicineTab.typeFilter === option.value ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
-                >
-                  {{ option.label }}
-                </button>
-              </div>
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label class="text-xs font-medium text-slate-500">From</label>
-              <DatePicker v-model="medicineTab.dateFrom" dateFormat="yy-mm-dd" showIcon showButtonBar placeholder="Any" class="text-sm w-40" />
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label class="text-xs font-medium text-slate-500">To</label>
-              <DatePicker v-model="medicineTab.dateTo" dateFormat="yy-mm-dd" showIcon showButtonBar placeholder="Any" class="text-sm w-40" />
-            </div>
-            <div class="relative flex-1 min-w-[180px]">
-              <FiSearch class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10" size="16" />
-              <InputText v-model="medicineTab.search" @input="medicineTab.onSearch" placeholder="Search medicine . . ." class="w-full text-sm pl-8!" />
-            </div>
-            <button v-if="medicineTab.hasFilters" type="button" @click="medicineTab.resetFilters" class="text-xs font-semibold text-slate-500 hover:text-red-500 transition-colors duration-150 px-2 py-2">
-              Clear filters
-            </button>
-
-            <div class="ml-auto flex flex-col items-end gap-0.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-100">
-              <span class="text-xs text-emerald-600 font-medium">Total Income</span>
-              <span class="text-sm font-bold text-emerald-700">₱{{ medicineTotalIncome.toFixed(2) }}</span>
-            </div>
-          </div>
-
-          <DataTable
-            :value="medicineStockMovements"
-            lazy
-            paginator
-            :rows="medicineTab.rows"
-            :first="medicineTab.first"
-            :totalRecords="medicineTab.total"
-            :loading="medicineTab.loading"
-            @page="medicineTab.onPage"
-            :rowsPerPageOptions="[10, 25, 50, 100]"
-            responsiveLayout="scroll"
-            tableStyle="min-width: 55rem"
-            :pt="{ table: { class: 'text-sm' }, thead: { class: 'bg-slate-50' }, bodyRow: { class: 'hover:bg-slate-50 transition-colors duration-150 border-b border-slate-100' } }"
-          >
-            <template #empty>
-              <div class="flex flex-col items-center justify-center py-16 text-slate-400">
-                <GiMedicines size="36" class="mb-3 opacity-30" />
-                <p class="text-sm font-medium">No medicine movements match the selected filters</p>
-              </div>
-            </template>
-
-            <Column header="Medicine">
-              <template #body="{ data }"><span class="text-slate-800 text-sm font-medium">{{ data.medicine_stock?.medicine?.name || "—" }}</span></template>
-            </Column>
-            <Column header="Type" class="w-24">
-              <template #body="{ data }">
-                <span class="text-xs font-semibold px-2.5 py-1 rounded-full" :class="data.type === 'IN' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'">
-                  {{ data.type }}
-                </span>
-              </template>
-            </Column>
-            <Column field="quantity" header="Quantity" class="w-24" />
-            <Column header="Price" class="w-28">
-              <template #body="{ data }"><span class="text-slate-600 text-sm">₱{{ Number(data.price || 0).toFixed(2) }}</span></template>
-            </Column>
-            <!-- <Column header="Reference" class="w-32">
-              <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.reference || "—" }}</span></template>
-            </Column> -->
-            <Column header="Remarks">
-              <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.remarks || "—" }}</span></template>
-            </Column>
-            <Column header="Date" class="w-44">
-              <template #body="{ data }"><span class="text-slate-500 text-xs">{{ formatDateTime(data.created_at) }}</span></template>
-            </Column>
-          </DataTable>
-        </TabPanel>
-
-        <!-- Supply tab -->
-        <TabPanel v-if="showSupplyTab" value="supply">
-          <div class="px-6 py-4 border-b border-slate-100 flex flex-wrap items-end gap-4 bg-slate-50/50">
-            <div class="flex flex-col gap-1.5">
-              <label class="text-xs font-medium text-slate-500">Type</label>
-              <div class="flex items-center gap-1.5 bg-slate-100 rounded-lg p-1">
-                <button
-                  v-for="option in movementTypeOptions"
-                  :key="option.value"
-                  type="button"
-                  @click="supplyTab.typeFilter = option.value"
-                  class="px-3 py-1.5 rounded-md text-xs font-semibold transition-colors duration-150"
-                  :class="supplyTab.typeFilter === option.value ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
-                >
-                  {{ option.label }}
-                </button>
-              </div>
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label class="text-xs font-medium text-slate-500">From</label>
-              <DatePicker v-model="supplyTab.dateFrom" dateFormat="yy-mm-dd" showIcon showButtonBar placeholder="Any" class="text-sm w-40" />
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label class="text-xs font-medium text-slate-500">To</label>
-              <DatePicker v-model="supplyTab.dateTo" dateFormat="yy-mm-dd" showIcon showButtonBar placeholder="Any" class="text-sm w-40" />
-            </div>
-            <div class="relative flex-1 min-w-[180px]">
-              <FiSearch class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10" size="16" />
-              <InputText v-model="supplyTab.search" @input="supplyTab.onSearch" placeholder="Search supply . . ." class="w-full text-sm pl-8!" />
-            </div>
-            <button v-if="supplyTab.hasFilters" type="button" @click="supplyTab.resetFilters" class="text-xs font-semibold text-slate-500 hover:text-red-500 transition-colors duration-150 px-2 py-2">
-              Clear filters
-            </button>
-
-            <div class="ml-auto flex flex-col items-end gap-0.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-100">
-              <span class="text-xs text-emerald-600 font-medium">Total Income</span>
-              <span class="text-sm font-bold text-emerald-700">₱{{ supplyTotalIncome.toFixed(2) }}</span>
-            </div>
-          </div>
-
-          <DataTable
-            :value="supplyMovements"
-            lazy
-            paginator
-            :rows="supplyTab.rows"
-            :first="supplyTab.first"
-            :totalRecords="supplyTab.total"
-            :loading="supplyTab.loading"
-            @page="supplyTab.onPage"
-            :rowsPerPageOptions="[10, 25, 50, 100]"
-            responsiveLayout="scroll"
-            tableStyle="min-width: 55rem"
-            :pt="{ table: { class: 'text-sm' }, thead: { class: 'bg-slate-50' }, bodyRow: { class: 'hover:bg-slate-50 transition-colors duration-150 border-b border-slate-100' } }"
-          >
-            <template #empty>
-              <div class="flex flex-col items-center justify-center py-16 text-slate-400">
-                <GiMedicalPack size="36" class="mb-3 opacity-30" />
-                <p class="text-sm font-medium">No supply movements match the selected filters</p>
-              </div>
-            </template>
-
-            <Column header="Supply">
-              <template #body="{ data }"><span class="text-slate-800 text-sm font-medium">{{ data.supply_stock?.supply?.name || "—" }}</span></template>
-            </Column>
-            <Column header="Batch #" class="w-28">
-              <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.supply_stock?.batch_number || "—" }}</span></template>
-            </Column>
-            <Column header="Type" class="w-24">
-              <template #body="{ data }">
-                <span class="text-xs font-semibold px-2.5 py-1 rounded-full" :class="data.type === 'IN' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100'">
-                  {{ data.type }}
-                </span>
-              </template>
-            </Column>
-            <Column field="quantity" header="Quantity" class="w-24" />
-            <Column header="Price" class="w-28">
-              <template #body="{ data }"><span class="text-slate-600 text-sm">₱{{ Number(data.price || 0).toFixed(2) }}</span></template>
-            </Column>
-            <Column header="Used For">
-              <template #body="{ data }"><span class="text-slate-600 text-sm">{{ data.used_for || "—" }}</span></template>
-            </Column>
-            <Column header="Date" class="w-44">
-              <template #body="{ data }"><span class="text-slate-500 text-xs">{{ formatDateTime(data.created_at) }}</span></template>
-            </Column>
-          </DataTable>
-        </TabPanel>
-      </TabPanels>
-    </Tabs>
-  </div>
   <!-- Recent Admissions -->
-  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm mt-4">
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm mt-4 hidden">
     <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-linear-to-r from-slate-50 to-white">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md">
@@ -484,7 +520,7 @@ const statCards = computed(() => {
       icon: GiMedicalPack,
     },
     {
-      label: "Admissions This Month",
+      label: "Patients This Month",
       value: stats.total_admissions.toLocaleString(),
       change: changeLabel(stats.total_admissions_change, "from last month"),
       positive: stats.total_admissions_change >= 0,
@@ -492,15 +528,15 @@ const statCards = computed(() => {
       color: "#3b82f6",
       icon: FiActivity,
     },
-    {
-      label: "Bed Occupancy",
-      value: `${stats.bed_occupancy_rate}%`,
-      change: `${stats.beds_occupied} of ${stats.beds_total} beds occupied`,
-      positive: stats.bed_occupancy_rate < 90,
-      bgColor: "#f3e8ff",
-      color: "#a855f7",
-      icon: FaBed,
-    },
+    // {
+    //   label: "Bed Occupancy",
+    //   value: `${stats.bed_occupancy_rate}%`,
+    //   change: `${stats.beds_occupied} of ${stats.beds_total} beds occupied`,
+    //   positive: stats.bed_occupancy_rate < 90,
+    //   bgColor: "#f3e8ff",
+    //   color: "#a855f7",
+    //   icon: FaBed,
+    // },
     {
       label: "Low Stock Alerts",
       value: stats.low_stock_count.toLocaleString(),

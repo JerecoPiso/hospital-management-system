@@ -26,7 +26,7 @@
       </template>
       <form @submit.prevent="updateCase" class="flex flex-col gap-5 pt-2">
         <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-slate-700">Admission Date &amp; Time <span class="text-red-400">*</span></label>
+          <label class="text-sm font-medium text-slate-700">Arrival Date &amp; Time <span class="text-red-400">*</span></label>
           <DatePicker v-model="caseInfo.admission_datetime" showTime hourFormat="24" fluid required />
         </div>
         <div class="flex flex-col gap-1.5">
@@ -162,7 +162,7 @@
               <span class="text-base font-mono font-medium text-slate-800">{{ patientCase.case_number }}</span>
             </div>
             <div class="flex justify-between items-start pb-4 border-b border-slate-100">
-              <span class="text-base text-slate-500">Admission Date</span>
+              <span class="text-base text-slate-500">Arrival Date &amp; Time</span>
               <span class="text-base font-medium text-slate-800">{{ formatDateTime(patientCase.admission_datetime) }}</span>
             </div>
             <div class="pb-4 border-b border-slate-100">

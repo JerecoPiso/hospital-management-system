@@ -12,7 +12,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-        
+
           <div class="hidden md:flex items-center gap-3">
             <!-- Logo -->
             <div class="flex h-11 w-11 shrink-0 items-center justify-center">
@@ -22,7 +22,7 @@
             <!-- Facility Information -->
             <div class="flex flex-col justify-center leading-tight">
               <h1 class="text-sm font-bold tracking-wide text-slate-700">
-                {{ facilityName }}  
+                {{ facilityName }}
               </h1>
 
               <!-- <span class="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-teal-600"> Eye Care Center </span> -->
@@ -193,7 +193,7 @@
         </nav>
         <!-- Added sidebar footer with additional info -->
         <div class="fixed bottom-0 left-0 right-0 p-4 border-t border-slate-200 bg-slate-50">
-          <p class="text-xs text-slate-600 text-center">{{facilityName}}</p>
+          <p class="text-xs text-slate-600 text-center">{{ facilityName }}</p>
         </div>
       </aside>
 
@@ -258,16 +258,17 @@ const navItems = [
     label: "Dashboard",
     icon: MdDashboard,
   },
-  {
-    name: "Patients",
-    label: "Patients",
-    icon: FiUsers,
-    children: [
-      { name: "PatientRegistration", label: "Patient Registration", icon: FiUserPlus, module: "patient" },
-      { name: "OutPatients", label: "Out-Patients", icon: PiUsersThreeFill, module: "patient" },
-      { name: "InPatients", label: "In-Patients", icon: Fa6BedPulse, module: "patient" },
-    ],
-  },
+  // {
+  //   name: "Patients",
+  //   label: "Patients",
+  //   icon: FiUsers,
+  //   children: [
+  //     { name: "PatientRegistration", label: "Patients", icon: FiUserPlus, module: "patient" },
+  //     { name: "OutPatients", label: "Out-Patients", icon: PiUsersThreeFill, module: "patient" },
+  //     { name: "InPatients", label: "In-Patients", icon: Fa6BedPulse, module: "patient" },
+  //   ],
+  // },
+  { name: "PatientRegistration", label: "Patients", icon: FiUserPlus, module: "patient" },
   {
     name: "Pharmacy",
     label: "Pharmacy",

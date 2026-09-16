@@ -80,7 +80,7 @@
             <span class="ci-value">{{ patientCase.case_number || "—" }}</span>
           </div>
           <div class="ci-field">
-            <span class="ci-label">Admission Type</span>
+            <span class="ci-label">Type</span>
             <span class="ci-value ci-value--caps">{{ patientCase.type || "—" }}</span>
           </div>
           <div class="ci-field">
