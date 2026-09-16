@@ -246,7 +246,7 @@ onMounted(async () => {
   await refresh();
 });
 
-const addItem = () => info.items.push(defaultItem());
+const addItem = () => info.items.unshift(defaultItem());
 const removeItem = (index: number) => {
   if (info.items.length > 1) info.items.splice(index, 1);
 };
