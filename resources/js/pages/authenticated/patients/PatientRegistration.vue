@@ -372,6 +372,15 @@
             >
               <FiEye size="18" />
             </button>
+            <router-link
+              v-if="data.patient_cases?.length"
+              :to="{ name: 'CaseInformationPrint', params: { pid: data.patient_cases[data.patient_cases.length - 1].pid } }"
+              target="_blank"
+              title="Print case information"
+              class="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors duration-150 cursor-pointer"
+            >
+              <FiPrinter size="18" />
+            </router-link>
             <button
               v-if="can('patient-cases', 'create')"
               type="button"
@@ -452,16 +461,26 @@
                 <p class="text-slate-600 text-sm leading-relaxed line-clamp-2">{{ caseData.final_diagnosis || "—" }}</p>
               </template>
             </Column>
-            <Column header="Actions" class="w-16">
+            <Column header="Actions" class="w-24">
               <template #body="{ data: caseData }">
-                <button
-                  type="button"
-                  title="View patient chart"
-                  @click="viewChart(caseData.pid)"
-                  class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
-                >
-                  <FiEye size="18" />
-                </button>
+                <div class="flex items-center gap-1">
+                  <button
+                    type="button"
+                    title="View patient chart"
+                    @click="viewChart(caseData.pid)"
+                    class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
+                  >
+                    <FiEye size="18" />
+                  </button>
+                  <router-link
+                    :to="{ name: 'CaseInformationPrint', params: { pid: caseData.pid } }"
+                    target="_blank"
+                    title="Print case information"
+                    class="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors duration-150 cursor-pointer"
+                  >
+                    <FiPrinter size="18" />
+                  </router-link>
+                </div>
               </template>
             </Column>
           </DataTable>
@@ -475,7 +494,7 @@
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { BsPlusCircle } from "vue-icons-plus/bs";
-import { FiUserPlus, FiEye, FiSearch, FiFilePlus } from "vue-icons-plus/fi";
+import { FiUserPlus, FiEye, FiSearch, FiFilePlus, FiPrinter } from "vue-icons-plus/fi";
 import { BiEdit, BiTrash } from "vue-icons-plus/bi";
 import { usePatientStore } from "@/store/patients/PatientRegistration";
 import { usePatientCaseStore } from "@/store/patients/PatientCase";

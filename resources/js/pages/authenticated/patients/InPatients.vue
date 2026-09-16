@@ -136,17 +136,28 @@
         </template>
       </Column>
 
-      <Column header="Actions" class="w-16">
+      <Column header="Actions" class="w-24">
         <template #body="{ data }">
-          <button
-            type="button"
-            title="View patient chart"
-            :disabled="!data.patient_cases?.length"
-            @click="viewChart(data.patient_cases[data.patient_cases.length - 1].pid)"
-            class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            <FiEye size="18" />
-          </button>
+          <div class="flex items-center gap-1">
+            <button
+              type="button"
+              title="View patient chart"
+              :disabled="!data.patient_cases?.length"
+              @click="viewChart(data.patient_cases[data.patient_cases.length - 1].pid)"
+              class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <FiEye size="18" />
+            </button>
+            <router-link
+              v-if="data.patient_cases?.length"
+              :to="{ name: 'CaseInformationPrint', params: { pid: data.patient_cases[data.patient_cases.length - 1].pid } }"
+              target="_blank"
+              title="Print case information"
+              class="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors duration-150 cursor-pointer"
+            >
+              <FiPrinter size="18" />
+            </router-link>
+          </div>
         </template>
       </Column>
 
@@ -198,16 +209,26 @@
                 <span class="text-slate-600 text-sm">{{ caseData.final_diagnosis || "—" }}</span>
               </template>
             </Column>
-            <Column header="Actions" class="w-16">
+            <Column header="Actions" class="w-24">
               <template #body="{ data: caseData }">
-                <button
-                  type="button"
-                  title="View patient chart"
-                  @click="viewChart(caseData.pid)"
-                  class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
-                >
-                  <FiEye size="18" />
-                </button>
+                <div class="flex items-center gap-1">
+                  <button
+                    type="button"
+                    title="View patient chart"
+                    @click="viewChart(caseData.pid)"
+                    class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
+                  >
+                    <FiEye size="18" />
+                  </button>
+                  <router-link
+                    :to="{ name: 'CaseInformationPrint', params: { pid: caseData.pid } }"
+                    target="_blank"
+                    title="Print case information"
+                    class="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors duration-150 cursor-pointer"
+                  >
+                    <FiPrinter size="18" />
+                  </router-link>
+                </div>
               </template>
             </Column>
           </DataTable>
@@ -222,7 +243,7 @@ import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import { FaBed } from "vue-icons-plus/fa";
 import { BiBed } from "vue-icons-plus/bi";
-import { FiActivity, FiSearch, FiEye } from "vue-icons-plus/fi";
+import { FiActivity, FiSearch, FiEye, FiPrinter } from "vue-icons-plus/fi";
 import { usePatientStore } from "@/store/patients/PatientRegistration";
 import { PatientRegistration } from "@/interface/Interfaces";
 import { useApiTable } from "@/composables/apiTable";
