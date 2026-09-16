@@ -250,7 +250,7 @@
         <button
           v-if="can('patient', 'create')"
           type="button"
-          @click="patientModal = true"
+          @click="openCreateModal"
           class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 shrink-0"
         >
           <BsPlusCircle size="16" />
@@ -656,6 +656,12 @@ watch(
   }
 );
 
+const openCreateModal = () => {
+  resetForm();
+  admissionDatetimeModel.value = new Date();
+  patientModal.value = true;
+};
+
 const create = async () => {
   try {
     await patientStore.create(patientInfo);
@@ -767,6 +773,7 @@ watch(caseModal, (open) => {
 const openCaseModal = (data: PatientRegistration) => {
   selectedPatient.value = data;
   caseInfo.patient_pid = data.pid;
+  caseAdmissionDatetimeModel.value = new Date();
   caseModal.value = true;
 };
 

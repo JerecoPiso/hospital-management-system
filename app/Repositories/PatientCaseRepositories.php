@@ -72,4 +72,26 @@ class PatientCaseRepositories
             throw new \Exception("An error has occured! " . $e->getMessage());
         }
     }
+
+    public function update($id, $data)
+    {
+        try {
+            if (!$data) {
+                return null;
+            }
+
+            $patientCase = PatientCase::findOrFail($id);
+
+            $patientCase->update([
+                'admission_datetime' => Carbon::parse($data['admission_datetime'])->toDateTimeString(),
+                'chief_complaint' => $data['chief_complaint'],
+                'initial_diagnosis' => $data['initial_diagnosis'] ?? null,
+                'final_diagnosis' => $data['final_diagnosis'] ?? null,
+            ]);
+
+            return $patientCase->load(['patient', 'patientType', 'station', 'bed']);
+        } catch (\Exception $e) {
+            throw new \Exception("An error has occured! " . $e->getMessage());
+        }
+    }
 }

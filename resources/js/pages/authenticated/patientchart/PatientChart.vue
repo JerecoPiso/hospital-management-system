@@ -263,11 +263,11 @@ const navItems = [
     name: "PatientInformation",
     icon: BiSolidUserAccount,
   },
-  {
-    name: "PatientForms",
-    label: "Patient Forms",
-    icon: FaFileMedicalAlt,
-  },
+  //{
+  //  name: "PatientForms",
+  //  label: "Patient Forms",
+  //  icon: FaFileMedicalAlt,
+  //},
   // {
   //   name: "VitalSigns",
   //   label: "Vital Signs",

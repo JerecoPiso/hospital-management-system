@@ -14,9 +14,15 @@ export const usePatientCaseStore = defineStore("patientCase", () => {
         patientCase.value = response.data.data;
         return patientCase.value;
     }
+    const update = async (pid: string, data: PatientCase) => {
+        const response = await axios.put(`${baseUrl}api/patient-cases/${pid}`, data);
+        patientCase.value = response.data.data.patient_case;
+        return patientCase.value;
+    }
     return {
         create,
         view,
+        update,
         patientCase
     }
 })

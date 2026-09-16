@@ -8,4 +8,5 @@ Route::middleware(['auth:sanctum'])->prefix('patient-cases')
     ->group(function (): void {
         Route::post('/', 'store')->middleware('permission:patient-cases,create'); // add a new case for an existing patient
         Route::get('/{pid}', 'view')->middleware('permission:patient-cases,view'); // view a patient case by pid
+        Route::put('/{pid}', 'update')->middleware('permission:patient-cases,update'); // update case information
     });

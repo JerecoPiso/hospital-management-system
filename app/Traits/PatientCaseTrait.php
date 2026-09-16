@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Http\Requests\PatientCase\StoreRequest;
+use App\Http\Requests\PatientCase\UpdateRequest;
 
 trait PatientCaseTrait
 {
@@ -25,6 +26,24 @@ trait PatientCaseTrait
             $validated = $request->validated();
             $patientCase = $this->patientCaseRepo->store($validated);
             return api_response(["patient_case" => $patientCase], true, "Success", 201);
+        } catch (\Exception $e) {
+            return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
+        }
+    }
+
+    public function update($patient_case_pid, UpdateRequest $request)
+    {
+        try {
+            $validated = $request->validated();
+            $patientCase = $this->patientCaseRepo->searchByPid($patient_case_pid);
+            if (!$patientCase) {
+                return api_response([], false, "Patient case not found", 404);
+            }
+            $patientCase = $this->patientCaseRepo->update($patientCase->id, $validated);
+            if (!$patientCase) {
+                return api_response([], false, "Patient case not updated", 500);
+            }
+            return api_response(["patient_case" => $patientCase], true, "Success", 200);
         } catch (\Exception $e) {
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
         }
