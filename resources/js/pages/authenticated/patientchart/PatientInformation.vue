@@ -68,18 +68,17 @@
 
     <!-- Patient Header Card -->
     <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-      <div class="bg-linear-to-r from-emerald-500 to-teal-600 h-24"></div>
-      <div class="px-6 pb-6">
-        <div class="flex flex-col sm:flex-row gap-6 -mt-16 relative z-10">
+      <div class="bg-linear-to-r from-emerald-500 to-teal-600 px-6 py-6">
+        <div class="flex flex-col sm:flex-row gap-6 sm:items-center">
           <!-- Patient Avatar -->
           <div class="shrink-0">
-            <div class="w-32 h-32 rounded-xl border-4 border-white shadow-lg bg-linear-to-br from-teal-400 to-teal-600 flex items-center justify-center">
-              <span class="text-5xl font-bold text-white">{{ initials }}</span>
+            <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-xl border-4 border-white shadow-lg bg-linear-to-br from-teal-400 to-teal-600 flex items-center justify-center">
+              <span class="text-4xl font-bold text-white">{{ initials }}</span>
             </div>
           </div>
 
           <!-- Patient Basic Info -->
-          <div class="flex-1 pt-2">
+          <div class="flex-1 min-w-0">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <p class="text-xs font-semibold text-emerald-50 uppercase tracking-wider">Full Name</p>

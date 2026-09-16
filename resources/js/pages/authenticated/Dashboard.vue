@@ -58,7 +58,7 @@
         </div>
       </div>
     </div>
-    <div class="lg:col-span-9 bg-white rounded-xl">
+    <div class="lg:col-span-9 min-w-0 bg-white rounded-xl">
       <!-- Stock Movements -->
       <div v-if="showMedicineTab || showSupplyTab" class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="px-6 py-5 border-b border-slate-100 flex items-center gap-3 bg-linear-to-r from-slate-50 to-white">
