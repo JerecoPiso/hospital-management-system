@@ -171,121 +171,6 @@
     </div>
     <p class="text-xs text-slate-400 -mt-3">Last measured {{ formatDateTime(latestVitalSignsMeasuredAt) }}</p> -->
 
-    <!-- Main Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Left Column -->
-      <div class="space-y-6">
-        <!-- Personal & Contact Information -->
-        <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <header class="px-5 py-4 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
-              <FiUser class="text-white" size="14" />
-            </div>
-            <h3 class="text-base font-bold text-slate-800">Personal &amp; Contact Information</h3>
-          </header>
-          <div class="p-5 space-y-4">
-            <div v-for="row in personalInfo" :key="row.label" class="flex justify-between items-start gap-4 pb-4 border-b border-slate-100 last:border-0 last:pb-0">
-              <span class="text-base text-slate-500 shrink-0">{{ row.label }}</span>
-              <span class="text-base font-medium text-slate-800 text-right">{{ row.value }}</span>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <!-- Middle Column -->
-      <div class="space-y-6">
-        <!-- Admission Details & Diagnosis -->
-        <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <header class="px-5 py-4 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
-                <FiCalendar class="text-white" size="14" />
-              </div>
-              <h3 class="text-base font-bold text-slate-800">Details &amp; Diagnosis</h3>
-            </div>
-            <button
-              v-if="can('patient-cases', 'update')"
-              type="button"
-              @click="openEditCase"
-              title="Edit case information"
-              class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
-            >
-              <FiEdit2 size="15" />
-            </button>
-          </header>
-          <div class="p-5 space-y-4">
-            <div class="flex justify-between items-start pb-4 border-b border-slate-100">
-              <span class="text-base text-slate-500">Case Number</span>
-              <span class="text-base font-mono font-medium text-slate-800">{{ patientCase.case_number }}</span>
-            </div>
-            <div class="flex justify-between items-start pb-4 border-b border-slate-100">
-              <span class="text-base text-slate-500">Arrival Date &amp; Time</span>
-              <span class="text-base font-medium text-slate-800">{{ formatDateTime(patientCase.admission_datetime) }}</span>
-            </div>
-            <div class="pb-4 border-b border-slate-100">
-              <span class="text-sm font-semibold text-slate-400 uppercase tracking-wide">Chief Complaint</span>
-              <p class="text-base font-medium text-slate-800 mt-1">{{ patientCase.chief_complaint }}</p>
-            </div>
-            <div class="pb-4 border-b border-slate-100">
-              <span class="text-sm font-semibold text-slate-400 uppercase tracking-wide">Initial Diagnosis</span>
-              <p class="text-base font-medium text-slate-800 mt-1">{{ patientCase.initial_diagnosis }}</p>
-            </div>
-            <div class="pb-4 border-b border-slate-100">
-              <span class="text-sm font-semibold text-slate-400 uppercase tracking-wide">Final Diagnosis</span>
-              <p class="text-base font-medium text-slate-800 mt-1">{{ patientCase.final_diagnosis }}</p>
-            </div>
-            <div>
-              <div class="flex items-center gap-2.5 mb-3.5">
-                <div class="w-8 h-8 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
-                  <FiEye class="text-white" size="16" />
-                </div>
-                <span class="text-base font-bold text-slate-800">Visual Acuity</span>
-              </div>
-
-              <div class="grid grid-cols-2 gap-3">
-                <div class="rounded-xl bg-linear-to-br from-emerald-50 to-teal-50 border border-emerald-100 px-4 py-3">
-                  <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider">OD</p>
-                  <p class="text-xl font-bold text-slate-800 font-mono mt-1">{{ patientCase.od || "—" }}</p>
-                  <p class="text-sm text-slate-500 mt-1.5">PH <span class="font-semibold text-slate-700">{{ patientCase.ph_right || "—" }}</span></p>
-                </div>
-                <div class="rounded-xl bg-linear-to-br from-emerald-50 to-teal-50 border border-emerald-100 px-4 py-3">
-                  <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider">OS</p>
-                  <p class="text-xl font-bold text-slate-800 font-mono mt-1">{{ patientCase.os || "—" }}</p>
-                  <p class="text-sm text-slate-500 mt-1.5">PH <span class="font-semibold text-slate-700">{{ patientCase.ph_left || "—" }}</span></p>
-                </div>
-              </div>
-
-              <div class="mt-3 rounded-xl border border-slate-200 overflow-hidden">
-                <div class="flex items-center justify-between px-4 py-2.5 bg-slate-50">
-                  <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">With Correction (CC)</span>
-                  <span class="text-sm font-semibold text-slate-700">{{ patientCase.cc || "—" }}</span>
-                </div>
-                <div class="grid grid-cols-2 divide-x divide-slate-100 text-sm">
-                  <div class="px-4 py-2.5">
-                    <span class="text-slate-400">OD</span>
-                    <span class="font-semibold text-slate-800 ml-1.5">{{ patientCase.cc_od || "—" }}</span>
-                    <span class="text-slate-400 ml-3">PH</span>
-                    <span class="font-semibold text-slate-800 ml-1.5">{{ patientCase.cc_ph_right || "—" }}</span>
-                  </div>
-                  <div class="px-4 py-2.5">
-                    <span class="text-slate-400">OS</span>
-                    <span class="font-semibold text-slate-800 ml-1.5">{{ patientCase.cc_os || "—" }}</span>
-                    <span class="text-slate-400 ml-3">PH</span>
-                    <span class="font-semibold text-slate-800 ml-1.5">{{ patientCase.cc_ph_left || "—" }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="mt-3 flex items-center justify-between rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">IOP</span>
-                <span class="text-base font-bold text-slate-800 font-mono">{{ patientCase.iop || "—" }}</span>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-    </div>
-
     <!-- SOAP Note Modal -->
     <Dialog v-model:visible="soapModal" modal :style="{ width: '52vw' }" :breakpoints="{ '1199px': '80vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
       <template #header>
@@ -344,6 +229,115 @@
         </div>
       </form>
     </Dialog>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Left Column -->
+      <div class="space-y-6 h-full">
+        <!-- Personal & Contact Information -->
+        <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden h-full flex flex-col">
+          <header class="px-5 py-4 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
+              <FiUser class="text-white" size="14" />
+            </div>
+            <h3 class="text-base font-bold text-slate-800">Personal &amp; Contact Information</h3>
+          </header>
+          <div class="p-4 space-y-2 flex-1 text-sm">
+            <div v-for="row in personalInfo" :key="row.label" class="flex justify-between items-start gap-4 pb-2 border-b border-slate-100 last:border-0 last:pb-0">
+              <span class="text-slate-500 shrink-0">{{ row.label }}</span>
+              <span class="font-medium text-slate-800 text-right">{{ row.value }}</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Middle Column -->
+      <div class="space-y-6 h-full">
+        <!-- Admission Details & Diagnosis -->
+        <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden h-full flex flex-col">
+          <header class="px-5 py-4 border-b border-slate-100 bg-linear-to-r from-slate-50 to-white flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
+                <FiCalendar class="text-white" size="14" />
+              </div>
+              <h3 class="text-base font-bold text-slate-800">Details &amp; Diagnosis</h3>
+            </div>
+            <button
+              v-if="can('patient-cases', 'update')"
+              type="button"
+              @click="openEditCase"
+              title="Edit case information"
+              class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
+            >
+              <FiEdit2 size="15" />
+            </button>
+          </header>
+          <div class="p-4 space-y-2 flex-1 text-sm">
+            <div class="flex justify-between items-start pb-2 border-b border-slate-100">
+              <span class="text-slate-500">Case Number</span>
+              <span class="font-mono font-medium text-slate-800">{{ patientCase.case_number }}</span>
+            </div>
+            <div class="flex justify-between items-start pb-2 border-b border-slate-100">
+              <span class="text-slate-500">Arrival Date &amp; Time</span>
+              <span class="font-medium text-slate-800">{{ formatDateTime(patientCase.admission_datetime) }}</span>
+            </div>
+            <div class="pb-2 border-b border-slate-100">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Chief Complaint</span>
+              <p class="font-medium text-slate-800 mt-0.5">{{ patientCase.chief_complaint }}</p>
+            </div>
+            <div class="pb-2 border-b border-slate-100">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Initial Diagnosis</span>
+              <p class="font-medium text-slate-800 mt-0.5">{{ patientCase.initial_diagnosis }}</p>
+            </div>
+            <div class="pb-2 border-b border-slate-100">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Final Diagnosis</span>
+              <p class="font-medium text-slate-800 mt-0.5">{{ patientCase.final_diagnosis }}</p>
+            </div>
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-5 h-5 rounded-md bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
+                  <FiEye class="text-white" size="11" />
+                </div>
+                <span class="text-xs font-bold text-slate-700 uppercase tracking-wide">Visual Acuity</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div class="rounded-lg bg-linear-to-br from-emerald-50 to-teal-50 border border-emerald-100 px-3 py-1.5">
+                  <span class="font-bold text-emerald-600">OD</span> <span class="font-mono font-semibold text-slate-800">{{ patientCase.od || "—" }}</span>
+                  <span class="text-slate-400 ml-1.5">PH</span> <span class="font-semibold text-slate-700">{{ patientCase.ph_right || "—" }}</span>
+                </div>
+                <div class="rounded-lg bg-linear-to-br from-emerald-50 to-teal-50 border border-emerald-100 px-3 py-1.5">
+                  <span class="font-bold text-emerald-600">OS</span> <span class="font-mono font-semibold text-slate-800">{{ patientCase.os || "—" }}</span>
+                  <span class="text-slate-400 ml-1.5">PH</span> <span class="font-semibold text-slate-700">{{ patientCase.ph_left || "—" }}</span>
+                </div>
+              </div>
+
+              <div class="mt-1.5 rounded-lg border border-slate-200 overflow-hidden">
+                <div class="flex items-center justify-between px-3 py-1 bg-slate-50">
+                  <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">With Correction (CC)</span>
+                  <span class="font-semibold text-slate-700">{{ patientCase.cc || "—" }}</span>
+                </div>
+                <div class="grid grid-cols-2 divide-x divide-slate-100">
+                  <div class="px-3 py-1.5">
+                    <span class="text-slate-400">OD</span> <span class="font-semibold text-slate-800">{{ patientCase.cc_od || "—" }}</span>
+                    <span class="text-slate-400 ml-2">PH</span> <span class="font-semibold text-slate-800">{{ patientCase.cc_ph_right || "—" }}</span>
+                  </div>
+                  <div class="px-3 py-1.5">
+                    <span class="text-slate-400">OS</span> <span class="font-semibold text-slate-800">{{ patientCase.cc_os || "—" }}</span>
+                    <span class="text-slate-400 ml-2">PH</span> <span class="font-semibold text-slate-800">{{ patientCase.cc_ph_left || "—" }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-1.5 flex items-center justify-between rounded-lg bg-slate-50 border border-slate-200 px-3 py-1">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">IOP</span>
+                <span class="font-bold text-slate-800 font-mono">{{ patientCase.iop || "—" }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
 
     <!-- SOAP Notes -->
     <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
