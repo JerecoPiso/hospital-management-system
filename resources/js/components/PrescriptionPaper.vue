@@ -3,7 +3,7 @@
     <div ref="paperRef" class="rx-paper">
       <!-- Letterhead -->
       <div class="flex w-full justify-center align-middle">
-        <img :src="`${appURL}storage/images/patterson.png`" alt="Logo" class="rx-logo" />
+        <img :src="`${appURL}storage/images/patterson.jpg`" alt="Logo" class="rx-logo" />
       </div>
       <div class="rx-letterhead">
         <div class="rx-clinic">

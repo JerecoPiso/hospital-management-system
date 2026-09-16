@@ -3,7 +3,7 @@
     <!-- Hospital Letterhead -->
     <div class="pf-letterhead">
       <div class="flex w-full justify-center align-middle">
-        <img :src="`${appURL}storage/images/patterson.png`" alt="Logo" class="print:h-26 h-26 print:w-auto w-auto rounded-md" />
+        <img :src="`${appURL}storage/images/patterson.jpg`" alt="Logo" class="print:h-26 h-26 print:w-auto w-auto rounded-md" />
       </div>
       <!-- <p class="pf-clinic-name">{{ hospitalName }}</p> -->
       <p class="pf-clinic-line">{{ hospitalAddress }}</p>

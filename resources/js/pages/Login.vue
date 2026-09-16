@@ -11,9 +11,9 @@
             </svg>
           </div> -->
           <div class="flex justify-center ">
-            <img :src="`${appURL}storage/images/patterson.png`" alt="Logo" class="w-40 h-36 rounded-xl" />
+            <img :src="`${appURL}storage/images/patterson.jpg`" alt="Logo" class="w-40 h-36 rounded-xl" />
           </div>
-          <!-- <h1 class="text-xl font-bold text-slate-900 mb-2">{{ facilityName }}</h1> -->
+          <h1 class="text-xl font-bold text-slate-900 mb-2">{{ facilityName }}</h1>
           <p class="text-slate-600 text-sm mt-4">Secure access for healthcare professionals</p>
         </div>
 
