@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ env('VITE_FACILITY_NAME', 'Hospital Management System') }}</title>
-    <link rel="icon" type="image/svg+xml" href="/hospital-management-system/favicon.svg">
-    <link rel="alternate icon" href="/hospital-management-system/favicon.ico">
-    @vite('resources/css/app.css')
-</head>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{{ env('VITE_FACILITY_NAME', 'Hospital Management System') }}</title>
+        <link
+            rel="icon"
+            type="image/x-icon"
+            href="{{ asset('favicon.ico') }}"
+        >
+        @vite('resources/css/app.css')
+    </head>
 
-<body>
-    <div id="app"></div>
+    <body>
+        <div id="app"></div>
 
-    @vite('resources/js/app.ts')
-</body>
+        @vite('resources/js/app.ts')
+    </body>
 
 </html>
