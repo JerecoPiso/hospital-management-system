@@ -101,6 +101,12 @@ const router = createRouter({
             meta: { requiresAuth: true },
         },
         {
+            path: "/print/case/:pid",
+            name: "CaseInformationPrint",
+            component: () => import("../pages/print/CaseInformationPrint.vue"),
+            meta: { requiresAuth: true },
+        },
+        {
             path: "/forbidden",
             name: "Forbidden",
             component: () => import("../pages/Forbidden.vue"),
