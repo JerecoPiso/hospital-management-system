@@ -319,7 +319,7 @@ const navItems = [
         icon: FaUsers,
         module: "users",
       },
-      // { name: "Roles", label: "Roles & Permissions", icon: FiSettings, module: "roles" },
+      { name: "Roles", label: "Roles & Permissions", icon: FiSettings, module: "roles" },
       // { name: "Buildings", label: "Buildings", icon: FaBuilding, module: "buildings" },
       // { name: "Floors", label: "Floors", icon: MdLayers, module: "floors" },
       // { name: "Wards", label: "Wards", icon: Fa6Hospital, module: "wards" },

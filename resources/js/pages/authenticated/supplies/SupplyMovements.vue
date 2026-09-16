@@ -53,7 +53,7 @@
           <FiSearch class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10" size="16" />
           <InputText v-model="search" @input="onSearch" placeholder="Search . . ." class="w-full text-sm pl-8!" />
         </div>
-        <button
+        <!-- <button
           v-if="can('supply-movements', 'create')"
           type="button"
           @click="modalOpen = true"
@@ -61,7 +61,7 @@
         >
           <BsPlusCircle size="16" />
           Record Movement
-        </button>
+        </button> -->
       </div>
     </div>
 
