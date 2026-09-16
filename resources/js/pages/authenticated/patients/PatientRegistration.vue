@@ -113,7 +113,7 @@
         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide pt-2">Case Information</p>
         <div class="grid grid-cols-3 gap-4">
           <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-medium text-slate-700">Admission Type <span class="text-red-400">*</span></label>
+            <label class="text-sm font-medium text-slate-700">Type <span class="text-red-400">*</span></label>
             <Select v-model="patientInfo.type" :options="admissionTypeOptions" optionLabel="label" optionValue="value" placeholder="Select admission type" required fluid class="text-sm" />
           </div>
           <div class="flex flex-col gap-1.5">
@@ -121,7 +121,7 @@
             <Select v-model="patientInfo.patient_type_pid" :options="patientTypes" optionLabel="name" optionValue="pid" placeholder="Select patient type" filter showClear fluid class="text-sm" />
           </div>
           <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-medium text-slate-700">Admission Date/Time <span class="text-red-400">*</span></label>
+            <label class="text-sm font-medium text-slate-700">Admission/Arrival Date/Time <span class="text-red-400">*</span></label>
             <DatePicker v-model="admissionDatetimeModel" showTime hourFormat="24" dateFormat="yy-mm-dd" placeholder="YYYY-MM-DD HH:mm" fluid class="text-sm" />
           </div>
           <template v-if="patientInfo.type === 'inpatient'">
