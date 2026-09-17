@@ -14,53 +14,53 @@
       </template>
       <form @submit.prevent="isUpdate ? update() : create()" class="flex flex-col gap-5 pt-2">
         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Patient Information</p>
-        <div class="grid grid-cols-4 gap-4">
-          <div class="flex flex-col gap-1.5">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">First Name <span class="text-red-400">*</span></label>
             <InputText v-model="patientInfo.firstname" fluid required class="text-sm" />
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Last Name <span class="text-red-400">*</span></label>
             <InputText v-model="patientInfo.lastname" fluid required class="text-sm" />
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Middle Name</label>
             <InputText v-model="patientInfo.middlename" fluid class="text-sm" />
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Suffix</label>
             <InputText v-model="patientInfo.suffix" fluid class="text-sm" />
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Birthdate <span class="text-red-400">*</span></label>
             <DatePicker v-model="birthdateModel" dateFormat="yy-mm-dd" placeholder="YYYY-MM-DD" fluid class="text-sm" />
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Gender</label>
             <Select v-model="patientInfo.gender" :options="genders" placeholder="Select gender" fluid class="text-sm" />
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Civil Status</label>
             <Select v-model="patientInfo.civil_status" :options="civilStatuses" optionLabel="label" optionValue="value" placeholder="Select a language" class="w-full" />
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Contact Number</label>
             <InputText v-model="patientInfo.contact_number" fluid class="text-sm" />
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Region</label>
             <Select v-model="patientInfo.region" :options="regions" optionLabel="name" optionValue="name" filter filterBy="name" showClear placeholder="Select a Country" class="w-full"> </Select>
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Province</label>
             <Select v-model="patientInfo.province" :options="provinces" optionLabel="name" optionValue="name" filter filterBy="name" showClear placeholder="Select a Country" class="w-full"> </Select>
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">City/Municipality</label>
             <Select v-model="patientInfo.municipality"  :virtualScrollerOptions="{ lazy: true, itemSize: 25 }" :options="municipalities" optionLabel="name" optionValue="name" filter filterBy="name" showClear placeholder="Select a Country" class="w-full">
             </Select>
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Barangay</label>
             <Select
               v-model="patientInfo.barangay"
@@ -76,15 +76,15 @@
             >
             </Select>
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Email Address</label>
             <InputText v-model="patientInfo.email_address" type="email" fluid class="text-sm" />
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Religion</label>
             <Select v-model="patientInfo.religion" :options="religions" optionLabel="label" optionValue="value" placeholder="Select religion" class="w-full" />
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Birthplace</label>
             <Select
               v-model="patientInfo.birthplace"
@@ -100,36 +100,36 @@
               class="w-full"
             />
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Occupation</label>
             <InputText v-model="patientInfo.occupation" fluid class="text-sm" />
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Spouse Name</label>
             <InputText v-model="patientInfo.spouse_name" fluid class="text-sm" />
           </div>
         </div>
 
         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide pt-2">Case Information</p>
-        <div class="grid grid-cols-3 gap-4">
-          <div class="flex flex-col gap-1.5">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Type <span class="text-red-400">*</span></label>
             <Select v-model="patientInfo.type" :options="admissionTypeOptions" optionLabel="label" optionValue="value" placeholder="Select admission type" required fluid class="text-sm" />
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Patient Type</label>
             <Select v-model="patientInfo.patient_type_pid" :options="patientTypes" optionLabel="name" optionValue="pid" placeholder="Select patient type" filter showClear fluid class="text-sm" />
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Admission/Arrival Date/Time <span class="text-red-400">*</span></label>
             <DatePicker v-model="admissionDatetimeModel" showTime hourFormat="24" dateFormat="yy-mm-dd" placeholder="YYYY-MM-DD HH:mm" fluid class="text-sm" />
           </div>
           <template v-if="patientInfo.type === 'inpatient'">
-            <div class="flex flex-col gap-1.5">
+            <div class="col-span-1 flex flex-col gap-1.5">
               <label class="text-sm font-medium text-slate-700">Station</label>
               <Select v-model="patientInfo.station_pid" :options="stations" :optionLabel="stationOptionLabel" optionValue="pid" placeholder="Select station" filter showClear fluid class="text-sm" />
             </div>
-            <div class="flex flex-col gap-1.5">
+            <div class="col-span-1 flex flex-col gap-1.5">
               <label class="text-sm font-medium text-slate-700">Bed</label>
               <Select v-model="patientInfo.bed_pid" :options="beds" :optionLabel="bedOptionLabel" optionValue="pid" placeholder="Select bed" filter showClear fluid class="text-sm" />
             </div>
@@ -187,38 +187,38 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
-          <div class="flex flex-col gap-1.5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Admission Type <span class="text-red-400">*</span></label>
             <Select v-model="caseInfo.type" :options="admissionTypeOptions" optionLabel="label" optionValue="value" placeholder="Select admission type" required fluid class="text-sm" />
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Patient Type</label>
             <Select v-model="caseInfo.patient_type_pid" :options="patientTypes" optionLabel="name" optionValue="pid" placeholder="Select patient type" filter showClear fluid class="text-sm" />
           </div>
-          <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-medium text-slate-700">Admission Date/Time <span class="text-red-400">*</span></label>
+          <div class="col-span-1 flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Arrival Date/Time <span class="text-red-400">*</span></label>
             <DatePicker v-model="caseAdmissionDatetimeModel" showTime hourFormat="24" dateFormat="yy-mm-dd" placeholder="YYYY-MM-DD HH:mm" fluid class="text-sm" />
           </div>
           <template v-if="caseInfo.type === 'inpatient'">
-            <div class="flex flex-col gap-1.5">
+            <div class="col-span-1 flex flex-col gap-1.5">
               <label class="text-sm font-medium text-slate-700">Station</label>
               <Select v-model="caseInfo.station_pid" :options="stations" :optionLabel="stationOptionLabel" optionValue="pid" placeholder="Select station" filter showClear fluid class="text-sm" />
             </div>
-            <div class="flex flex-col gap-1.5">
+            <div class="col-span-1 flex flex-col gap-1.5">
               <label class="text-sm font-medium text-slate-700">Bed</label>
               <Select v-model="caseInfo.bed_pid" :options="beds" :optionLabel="bedOptionLabel" optionValue="pid" placeholder="Select bed" filter showClear fluid class="text-sm" />
             </div>
           </template>
-          <div class="col-span-2 flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Chief Complaint <span class="text-red-400">*</span></label>
             <InputText v-model="caseInfo.chief_complaint" fluid required class="text-sm" />
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Initial Diagnosis</label>
             <InputText v-model="caseInfo.initial_diagnosis" fluid class="text-sm" />
           </div>
-          <div class="flex flex-col gap-1.5">
+          <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Final Diagnosis</label>
             <InputText v-model="caseInfo.final_diagnosis" fluid class="text-sm" />
           </div>
