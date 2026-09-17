@@ -91,7 +91,7 @@
             </div>
             <div>
               <p class="text-slate-800 text-sm font-medium leading-tight">{{ patientName(data) || "—" }}</p>
-              <p class="text-slate-400 text-xs mt-0.5">{{ data.patientCase?.case_number || "—" }}</p>
+              <p class="text-slate-400 text-xs mt-0.5">{{ data.patient_case?.case_number || "—" }}</p>
             </div>
           </div>
         </template>
@@ -199,7 +199,7 @@ const reportStatusOptions = [
 const radiologyOrders = computed<RadiologyOrder[]>(() => radiologyOrderWorklistStore.radiologyOrders);
 
 const patientName = (row: RadiologyOrder) => {
-  const p = row.patientCase?.patient;
+  const p = row.patient_case?.patient;
   if (!p) return "";
   return `${p.firstname ?? ""} ${p.lastname ?? ""}`.trim();
 };
