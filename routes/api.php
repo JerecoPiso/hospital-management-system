@@ -21,6 +21,7 @@ require __DIR__ . '/api/floors.php';
 require __DIR__ . '/api/historyAndPhysicalExaminationFormOne.php';
 require __DIR__ . '/api/historyAndPhysicalExaminationFormTwo.php';
 require __DIR__ . '/api/icds.php';
+require __DIR__ . '/api/invoices.php';
 require __DIR__ . '/api/labRequests.php';
 require __DIR__ . '/api/labTestCategories.php';
 require __DIR__ . '/api/labTestParameters.php';

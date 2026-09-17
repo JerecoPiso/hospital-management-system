@@ -50,4 +50,5 @@ return [
     // ['key' => 'lab-requests', 'label' => 'Lab Requests'],
     // ['key' => 'radiology-orders', 'label' => 'Radiology Orders'],
     // ['key' => 'fee-charges', 'label' => 'Patient Fee Charges'],
+    // ['key' => 'invoices', 'label' => 'Invoices & Billing'],
 ];

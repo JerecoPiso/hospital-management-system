@@ -470,7 +470,7 @@ export interface FeeCategory {
 export interface FeeSchedule {
     pid?: string;
     fee_category_pid: string;
-    feeCategory?: FeeCategory;
+    fee_category?: FeeCategory;
     code: string;
     name: string;
     standard_fee: number | any;
@@ -547,6 +547,43 @@ export interface FeeCharge {
     charge_date: string;
     remarks?: string | null;
     items: FeeChargeItem[];
+}
+
+export interface InvoiceItem {
+    pid?: string;
+    category?: string;
+    description: string;
+    quantity: number | any;
+    unit_price: number | any;
+    subtotal: number | any;
+}
+
+export interface Payment {
+    pid?: string;
+    receipt_number?: string;
+    amount_paid: number | any;
+    payment_method: string;
+    reference_number?: string | null;
+    received_by?: User;
+    paid_at?: string;
+}
+
+export interface Invoice {
+    pid?: string;
+    invoice_number?: string;
+    patient_case_pid: string;
+    patient_case?: PatientCase;
+    created_by?: User;
+    subtotal?: number | any;
+    discount_amount?: number | any;
+    tax_amount?: number | any;
+    total_amount?: number | any;
+    paid_amount?: number | any;
+    balance?: number | any;
+    status?: string;
+    items?: InvoiceItem[];
+    payments?: Payment[];
+    created_at?: string;
 }
 
 export interface Soap {

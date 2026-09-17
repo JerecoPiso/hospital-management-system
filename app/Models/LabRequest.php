@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -42,5 +43,10 @@ class LabRequest extends Model
     public function results(): HasMany
     {
         return $this->hasMany(LabResult::class);
+    }
+
+    public function invoiceItem(): MorphOne
+    {
+        return $this->morphOne(InvoiceItem::class, 'billable');
     }
 }
