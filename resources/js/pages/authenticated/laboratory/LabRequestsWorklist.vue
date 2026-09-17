@@ -79,7 +79,9 @@
       </template>
 
       <Column header="Request #" class="w-36">
-        <template #body="{ data }"><span class="text-slate-700 text-sm font-mono">{{ data.request_number }}</span></template>
+        <template #body="{ data }"
+          ><span class="text-slate-700 text-sm font-mono">{{ data.request_number }}</span></template
+        >
       </Column>
 
       <Column header="Patient">
@@ -130,9 +132,26 @@
 
       <Column header="Actions" class="w-20">
         <template #body="{ data }">
-          <button v-if="can('lab-requests', 'update')" type="button" title="Enter results" @click="openResults(data)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
-            <GiMicroscope size="18" />
-          </button>
+          <div class="flex gap-1">
+            <router-link
+              v-if="can('lab-requests', 'view')"
+              :to="{ name: 'LabRequestPrint', params: { pid: data.pid } }"
+              target="_blank"
+              title="Print request"
+              class="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors duration-150 cursor-pointer"
+            >
+              <FiPrinter size="18" />
+            </router-link>
+            <button
+              v-if="can('lab-requests', 'update')"
+              type="button"
+              title="Enter results"
+              @click="openResults(data)"
+              class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
+            >
+              <GiMicroscope size="18" />
+            </button>
+          </div>
         </template>
       </Column>
     </DataTable>
@@ -141,7 +160,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { FiSearch } from "vue-icons-plus/fi";
+import { FiSearch, FiPrinter } from "vue-icons-plus/fi";
 import { GiTestTubes, GiMicroscope } from "vue-icons-plus/gi";
 import { useLabRequestWorklistStore } from "@/store/LabRequestWorklist";
 import { LabRequest } from "@/interface/Interfaces";
