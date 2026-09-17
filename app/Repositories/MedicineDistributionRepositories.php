@@ -62,7 +62,7 @@ class MedicineDistributionRepositories
                 $medicineDistribution = MedicineDistribution::create($data);
 
                 MedicineStockMovement::create([
-                    'medicine_id' => $medicineStock->medicine_id,
+                    'medicine_stock_id' => $medicineStock->id,
                     'type' => 'OUT',
                     'quantity' => $data['quantity'],
                     'reference' => $medicineDistribution->pid,

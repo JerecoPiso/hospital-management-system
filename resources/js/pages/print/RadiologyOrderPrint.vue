@@ -16,7 +16,7 @@
     <div v-else-if="!radiologyOrder?.pid" class="print-state">Radiology order not found.</div>
 
     <div v-else class="print-paper">
-      <PrintFormHeader :patient-case="radiologyOrder.patientCase" form-title="Radiology Order" form-subtitle="Imaging Procedure Order" />
+      <PrintFormHeader :patient-case="radiologyOrder.patient_case" form-title="Radiology Order" form-subtitle="Imaging Procedure Order" />
 
       <div class="ro-section">
         <span class="ro-heading">Order Information</span>
