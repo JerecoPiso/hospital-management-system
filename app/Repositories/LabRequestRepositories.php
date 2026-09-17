@@ -26,6 +26,9 @@ class LabRequestRepositories
         if (!empty($filter['status'])) {
             $query->where('status', $filter['status']);
         }
+        if (!empty($filter['priority'])) {
+            $query->where('priority', $filter['priority']);
+        }
 
         return api_list($query, $filter, [
             'request_number',

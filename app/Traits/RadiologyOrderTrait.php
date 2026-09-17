@@ -12,7 +12,7 @@ trait RadiologyOrderTrait
     public function list(Request $request)
     {
         try {
-            $orders = $this->radiologyOrderRepo->list($request->only(['patient_case_pid', 'status', 'search', 'per_page', 'page']));
+            $orders = $this->radiologyOrderRepo->list($request->only(['patient_case_pid', 'status', 'priority', 'search', 'per_page', 'page']));
             return api_list_response($orders['items'], $orders['meta']);
         } catch (\Exception $e) {
             return api_response([], false, $e->getMessage(), $e->getCode() ?: 500);

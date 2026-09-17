@@ -121,6 +121,16 @@
           ><span class="text-slate-600 text-sm">{{ data.batch_number || "—" }}</span></template
         >
       </Column>
+      <Column field="purchase_price" header="Purchase Price" class="w-32">
+        <template #body="{ data }"
+          ><span class="text-slate-600 text-sm">{{ data.purchase_price || "—" }}</span></template
+        >
+      </Column>
+      <Column  header="Selling Price" class="w-32">
+        <template #body="{ data }"
+          ><span class="text-slate-600 text-sm">{{ data.medicine?.price || "—" }}</span></template
+        >
+      </Column>
       <Column field="quantity" header="Quantity" class="w-24">
         <template #body="{ data }"
           ><span class="text-slate-700 text-sm font-medium">{{ data.quantity }}</span></template
@@ -163,7 +173,7 @@
 </template>
 
 <script setup lang="ts">
-import AutoComplete from 'primevue/autocomplete';
+import AutoComplete from "primevue/autocomplete";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { BsPlusCircle } from "vue-icons-plus/bs";
 import { FiSearch } from "vue-icons-plus/fi";
