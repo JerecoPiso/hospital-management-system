@@ -33,7 +33,7 @@
         <span class="pf-value">{{ ageSex }}</span>
       </div>
         <div class="pf-field">
-        <span class="pf-label">Admission/Visit Date</span>
+        <span class="pf-label">Visit Date</span>
         <span class="pf-value">{{ admissionDate }}</span>
       </div>
       <!-- <div class="pf-field">

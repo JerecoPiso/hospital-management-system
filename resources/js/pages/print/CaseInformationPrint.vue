@@ -115,6 +115,58 @@
           </div>
         </div>
       </div>
+
+      <div class="ci-section">
+        <span class="ci-heading">Visual Acuity</span>
+        <div class="ci-grid ci-grid--2">
+          <div class="ci-subgroup">
+            <span class="ci-sublabel">Without Correction</span>
+            <div class="ci-grid ci-grid--2">
+              <div class="ci-field">
+                <span class="ci-label">OD</span>
+                <span class="ci-value">{{ patientCase.od || "—" }}</span>
+              </div>
+              <div class="ci-field">
+                <span class="ci-label">PH</span>
+                <span class="ci-value">{{ patientCase.ph_right || "—" }}</span>
+              </div>
+              <div class="ci-field">
+                <span class="ci-label">OS</span>
+                <span class="ci-value">{{ patientCase.os || "—" }}</span>
+              </div>
+              <div class="ci-field">
+                <span class="ci-label">PH</span>
+                <span class="ci-value">{{ patientCase.ph_left || "—" }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="ci-subgroup">
+            <span class="ci-sublabel">With Correction (CC {{ patientCase.cc || "—" }})</span>
+            <div class="ci-grid ci-grid--2">
+              <div class="ci-field">
+                <span class="ci-label">OD</span>
+                <span class="ci-value">{{ patientCase.cc_od || "—" }}</span>
+              </div>
+              <div class="ci-field">
+                <span class="ci-label">PH</span>
+                <span class="ci-value">{{ patientCase.cc_ph_right || "—" }}</span>
+              </div>
+              <div class="ci-field">
+                <span class="ci-label">OS</span>
+                <span class="ci-value">{{ patientCase.cc_os || "—" }}</span>
+              </div>
+              <div class="ci-field">
+                <span class="ci-label">PH</span>
+                <span class="ci-value">{{ patientCase.cc_ph_left || "—" }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ci-field" style="margin-top: 14px;">
+          <span class="ci-label">IOP</span>
+          <span class="ci-value">{{ patientCase.iop || "—" }}</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -249,6 +301,21 @@ const goBack = () => {
 }
 .ci-grid--3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.ci-grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.ci-subgroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ci-sublabel {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #0f766e;
 }
 .ci-field {
   display: flex;

@@ -11,7 +11,7 @@
 
   <div v-else class="space-y-6 mb-12">
     <!-- Edit Case Information Modal -->
-    <Dialog v-model:visible="caseModal" modal :style="{ width: '42vw' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
+    <Dialog v-model:visible="caseModal" modal :style="{ width: '60vw' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
       <template #header>
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
@@ -24,71 +24,78 @@
         </div>
       </template>
       <form @submit.prevent="updateCase" class="flex flex-col gap-5 pt-2">
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-slate-700">Arrival Date &amp; Time <span class="text-red-400">*</span></label>
-          <DatePicker v-model="caseInfo.admission_datetime" showTime hourFormat="24" fluid required />
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-slate-700">Chief Complaint <span class="text-red-400">*</span></label>
-          <Textarea v-model="caseInfo.chief_complaint" rows="2" autoResize fluid required class="text-sm" />
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-slate-700">Initial Diagnosis</label>
-          <Textarea v-model="caseInfo.initial_diagnosis" rows="2" autoResize fluid class="text-sm" />
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-slate-700">Final Diagnosis</label>
-          <Textarea v-model="caseInfo.final_diagnosis" rows="2" autoResize fluid class="text-sm" />
+        <div class="grid grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Arrival Date &amp; Time <span class="text-red-400">*</span></label>
+            <DatePicker v-model="caseInfo.admission_datetime" showTime hourFormat="24" fluid required />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Chief Complaint <span class="text-red-400">*</span></label>
+            <Textarea v-model="caseInfo.chief_complaint" rows="1" autoResize fluid required class="text-sm" />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Initial Diagnosis</label>
+            <Textarea v-model="caseInfo.initial_diagnosis" rows="1" autoResize fluid class="text-sm" />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Final Diagnosis</label>
+            <Textarea v-model="caseInfo.final_diagnosis" rows="1" autoResize fluid class="text-sm" />
+          </div>
         </div>
 
         <div class="flex flex-col gap-3 pt-2 border-t border-slate-100">
           <span class="text-sm font-semibold text-slate-700 uppercase tracking-wide">Visual Acuity</span>
-          <div class="grid grid-cols-2 gap-4">
-            <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium text-slate-700">OD</label>
-              <InputText v-model="caseInfo.od" fluid class="text-sm" />
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="col-span-1">
+              <div class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-slate-700">OD</label>
+                  <InputText v-model="caseInfo.od" fluid class="text-sm" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-slate-700">PH</label>
+                  <InputText v-model="caseInfo.ph_right" fluid class="text-sm" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-slate-700">OS</label>
+                  <InputText v-model="caseInfo.os" fluid class="text-sm" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-sm font-medium text-slate-700">PH</label>
+                  <InputText v-model="caseInfo.ph_left" fluid class="text-sm" />
+                </div>
+              </div>
             </div>
-            <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium text-slate-700">PH</label>
-              <InputText v-model="caseInfo.ph_right" fluid class="text-sm" />
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium text-slate-700">OS</label>
-              <InputText v-model="caseInfo.os" fluid class="text-sm" />
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium text-slate-700">PH</label>
-              <InputText v-model="caseInfo.ph_left" fluid class="text-sm" />
+            <div class="col-span-1">
+              <div class="flex flex-col gap-3 pt-2">
+                <div class="flex items-center gap-3">
+                  <span class="text-sm font-semibold text-slate-700 uppercase tracking-wide">CC</span>
+                  <InputText v-model="caseInfo.cc" fluid class="text-sm flex-1" />
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-sm font-medium text-slate-700">OD</label>
+                    <InputText v-model="caseInfo.cc_od" fluid class="text-sm" />
+                  </div>
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-sm font-medium text-slate-700">PH</label>
+                    <InputText v-model="caseInfo.cc_ph_right" fluid class="text-sm" />
+                  </div>
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-sm font-medium text-slate-700">OS</label>
+                    <InputText v-model="caseInfo.cc_os" fluid class="text-sm" />
+                  </div>
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-sm font-medium text-slate-700">PH</label>
+                    <InputText v-model="caseInfo.cc_ph_left" fluid class="text-sm" />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="flex flex-col gap-3 pt-2 border-t border-slate-100">
-          <div class="flex items-center gap-3">
-            <span class="text-sm font-semibold text-slate-700 uppercase tracking-wide">CC</span>
-            <InputText v-model="caseInfo.cc" fluid class="text-sm flex-1" />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium text-slate-700">OD</label>
-              <InputText v-model="caseInfo.cc_od" fluid class="text-sm" />
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium text-slate-700">PH</label>
-              <InputText v-model="caseInfo.cc_ph_right" fluid class="text-sm" />
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium text-slate-700">OS</label>
-              <InputText v-model="caseInfo.cc_os" fluid class="text-sm" />
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium text-slate-700">PH</label>
-              <InputText v-model="caseInfo.cc_ph_left" fluid class="text-sm" />
-            </div>
-          </div>
-        </div>
-
-        <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-100">
+        <div class="flex flex-col gap-1.5">
           <label class="text-sm font-medium text-slate-700">IOP</label>
           <InputText v-model="caseInfo.iop" fluid class="text-sm" />
         </div>
@@ -242,7 +249,7 @@
             </div>
             <h3 class="text-base font-bold text-slate-800">Personal &amp; Contact Information</h3>
           </header>
-          <div class="p-4 space-y-2 flex-1 text-sm">
+          <div class="p-4 space-y-6 flex-1 text-sm">
             <div v-for="row in personalInfo" :key="row.label" class="flex justify-between items-start gap-4 pb-2 border-b border-slate-100 last:border-0 last:pb-0">
               <span class="text-slate-500 shrink-0">{{ row.label }}</span>
               <span class="font-medium text-slate-800 text-right">{{ row.value }}</span>
@@ -302,29 +309,29 @@
               </div>
 
               <div class="grid grid-cols-2 gap-2">
-                <div class="rounded-lg bg-linear-to-br from-emerald-50 to-teal-50 border border-emerald-100 px-3 py-1.5">
+                <div class="flex justify-between rounded-lg bg-linear-to-br from-emerald-50 to-teal-50 border border-emerald-100 px-3 py-1.5">
                   <span class="font-bold text-emerald-600">OD</span> <span class="font-mono font-semibold text-slate-800">{{ patientCase.od || "—" }}</span>
-                  <span class="text-slate-400 ml-1.5">PH</span> <span class="font-semibold text-slate-700">{{ patientCase.ph_right || "—" }}</span>
+                  <span class="font-bold text-emerald-600 ml-5">PH</span> <span class="font-semibold text-slate-700">{{ patientCase.ph_right || "—" }}</span>
                 </div>
-                <div class="rounded-lg bg-linear-to-br from-emerald-50 to-teal-50 border border-emerald-100 px-3 py-1.5">
+                <div class="flex justify-between rounded-lg bg-linear-to-br from-emerald-50 to-teal-50 border border-emerald-100 px-3 py-1.5">
                   <span class="font-bold text-emerald-600">OS</span> <span class="font-mono font-semibold text-slate-800">{{ patientCase.os || "—" }}</span>
-                  <span class="text-slate-400 ml-1.5">PH</span> <span class="font-semibold text-slate-700">{{ patientCase.ph_left || "—" }}</span>
+                  <span class="font-bold text-emerald-600 ml-5">PH</span> <span class="font-semibold text-slate-700">{{ patientCase.ph_left || "—" }}</span>
                 </div>
               </div>
 
               <div class="mt-1.5 rounded-lg border border-slate-200 overflow-hidden">
                 <div class="flex items-center justify-between px-3 py-1 bg-slate-50">
-                  <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">With Correction (CC)</span>
+                  <span class="text-[10px] font-bold text-slate-700 uppercase tracking-wider">With Correction (CC)</span>
                   <span class="font-semibold text-slate-700">{{ patientCase.cc || "—" }}</span>
                 </div>
                 <div class="grid grid-cols-2 divide-x divide-slate-100">
-                  <div class="px-3 py-1.5">
-                    <span class="text-slate-400">OD</span> <span class="font-semibold text-slate-800">{{ patientCase.cc_od || "—" }}</span>
-                    <span class="text-slate-400 ml-2">PH</span> <span class="font-semibold text-slate-800">{{ patientCase.cc_ph_right || "—" }}</span>
+                  <div class="flex justify-between px-3 py-1.5">
+                    <span class="font-bold text-emerald-600">OD</span> <span class="font-semibold text-slate-800">{{ patientCase.cc_od || "—" }}</span>
+                    <span class="font-bold text-emerald-600 ml-5">PH</span> <span class="font-semibold text-slate-800">{{ patientCase.cc_ph_right || "—" }}</span>
                   </div>
-                  <div class="px-3 py-1.5">
-                    <span class="text-slate-400">OS</span> <span class="font-semibold text-slate-800">{{ patientCase.cc_os || "—" }}</span>
-                    <span class="text-slate-400 ml-2">PH</span> <span class="font-semibold text-slate-800">{{ patientCase.cc_ph_left || "—" }}</span>
+                  <div class="flex justify-between px-3 py-1.5">
+                    <span class="font-bold text-emerald-600">OS</span> <span class="font-semibold text-slate-800">{{ patientCase.cc_os || "—" }}</span>
+                    <span class="font-bold text-emerald-600 ml-5">PH</span> <span class="font-semibold text-slate-800">{{ patientCase.cc_ph_left || "—" }}</span>
                   </div>
                 </div>
               </div>
@@ -410,24 +417,24 @@
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <span class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Subjective</span>
-              <p class="text-base text-slate-700 mt-1">{{ note.subjective || "—" }}</p>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-sm font-medium text-emerald-700 uppercase tracking-wide">Subjective</span>
+              <p class="text-base text-slate-700 mt-1 ml-0.5">{{ note.subjective || "—" }}</p>
             </div>
             <div>
-              <span class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Objective</span>
-              <p class="text-base text-slate-700 mt-1">{{ note.objective || "—" }}</p>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-sm font-medium text-emerald-700 uppercase tracking-wide">Objective</span>
+              <p class="text-base text-slate-700 mt-1 ml-0.5">{{ note.objective || "—" }}</p>
             </div>
             <div>
-              <span class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Assessment</span>
-              <p class="text-base text-slate-700 mt-1">{{ note.assessment || "—" }}</p>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-sm font-medium text-emerald-700 uppercase tracking-wide">Assessment</span>
+              <p class="text-base text-slate-700 mt-1 ml-0.5">{{ note.assessment || "—" }}</p>
             </div>
             <div>
-              <span class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Plan</span>
-              <p class="text-base text-slate-700 mt-1">{{ note.plan || "—" }}</p>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-sm font-medium text-emerald-700 uppercase tracking-wide">Plan</span>
+              <p class="text-base text-slate-700 mt-1 ml-0.5">{{ note.plan || "—" }}</p>
             </div>
             <div v-if="note.remarks" class="sm:col-span-2">
-              <span class="text-sm font-semibold text-slate-400 uppercase tracking-wide">Remarks</span>
-              <p class="text-base text-slate-700 mt-1">{{ note.remarks }}</p>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-sm font-medium text-emerald-700 uppercase tracking-wide">Remarks</span>
+              <p class="text-base text-slate-700 mt-1 ml-0.5">{{ note.remarks }}</p>
             </div>
           </div>
         </div>
