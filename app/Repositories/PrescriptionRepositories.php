@@ -213,6 +213,7 @@ class PrescriptionRepositories
 
             $prescription->items()->create([
                 'medicine_id' => $medicine->id,
+                'price' => $medicine->price,
                 'frequency' => $item['frequency'] ?? null,
                 'duration' => $item['duration'] ?? null,
                 'duration_unit' => $item['duration_unit'] ?? null,

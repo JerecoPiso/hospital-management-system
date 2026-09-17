@@ -203,8 +203,9 @@ import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import { useRouter, useRoute } from "vue-router";
-import { GiMedicines, GiMedicalPack } from "vue-icons-plus/gi";
-import { FaBookMedical, FaUsers, FaFileMedicalAlt, FaUtensils } from "vue-icons-plus/fa";
+import { GiMedicines, GiMedicalPack, GiTestTubes } from "vue-icons-plus/gi";
+import { FaBookMedical, FaUsers, FaFileMedicalAlt, FaUtensils, FaXRay } from "vue-icons-plus/fa";
+import { BsCashCoin } from "vue-icons-plus/bs";
 import { BsJournalMedical } from "vue-icons-plus/bs";
 import { BiSolidUserAccount } from "vue-icons-plus/bi";
 import { FiActivity, FiSettings } from "vue-icons-plus/fi";
@@ -297,6 +298,24 @@ const navItems = [
     label: "Supply Charges",
     icon: GiMedicalPack,
     module: "supply-charges",
+  },
+  {
+    name: "LabRequests",
+    label: "Lab Requests",
+    icon: GiTestTubes,
+    module: "lab-requests",
+  },
+  {
+    name: "RadiologyOrders",
+    label: "Radiology Orders",
+    icon: FaXRay,
+    module: "radiology-orders",
+  },
+  {
+    name: "FeeCharges",
+    label: "Fee Charges",
+    icon: BsCashCoin,
+    module: "fee-charges",
   },
 
   {

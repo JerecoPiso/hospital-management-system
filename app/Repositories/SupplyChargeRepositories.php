@@ -70,6 +70,7 @@ class SupplyChargeRepositories
 
                     $supplyCharge->items()->create([
                         'supply_id' => $supply->id,
+                        'price' => $supply->selling_price,
                         'quantity' => $item['quantity'],
                         'remarks' => $item['remarks'] ?? null,
                     ]);

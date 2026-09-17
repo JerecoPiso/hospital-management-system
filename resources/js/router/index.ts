@@ -57,6 +57,31 @@ const router = createRouter({
                     ],
                 },
                 {
+                    path: "laboratory",
+                    component: RouterView,
+                    children: [
+                        { path: "categories", name: "LabTestCategories", component: () => import("../pages/authenticated/laboratory/LabTestCategories.vue"), meta: { module: "lab-test-categories" } },
+                        { path: "tests", name: "LabTests", component: () => import("../pages/authenticated/laboratory/LabTests.vue"), meta: { module: "lab-tests" } },
+                        { path: "parameters", name: "LabTestParameters", component: () => import("../pages/authenticated/laboratory/LabTestParameters.vue"), meta: { module: "lab-test-parameters" } },
+                    ],
+                },
+                {
+                    path: "radiology",
+                    component: RouterView,
+                    children: [
+                        { path: "modalities", name: "RadiologyModalities", component: () => import("../pages/authenticated/radiology/RadiologyModalities.vue"), meta: { module: "radiology-modalities" } },
+                        { path: "procedures", name: "RadiologyProcedures", component: () => import("../pages/authenticated/radiology/RadiologyProcedures.vue"), meta: { module: "radiology-procedures" } },
+                    ],
+                },
+                {
+                    path: "fees",
+                    component: RouterView,
+                    children: [
+                        { path: "categories", name: "FeeCategories", component: () => import("../pages/authenticated/fees/FeeCategories.vue"), meta: { module: "fee-categories" } },
+                        { path: "schedules", name: "FeeSchedules", component: () => import("../pages/authenticated/fees/FeeSchedules.vue"), meta: { module: "fee-schedules" } },
+                    ],
+                },
+                {
                     path: "settings",
                     component: RouterView,
                     children: [
@@ -85,6 +110,9 @@ const router = createRouter({
                 { path: "nurses-notes", name: "NursesNotes", component: () => import("../pages/authenticated/patientchart/NursesNotes.vue"), meta: { module: "nurses-notes" } },
                 { path: "therapeutic", name: "Therapeutic", component: () => import("../pages/authenticated/patientchart/Therapeutic.vue"), meta: { module: "prescriptions" } },
                 { path: "supply-charges", name: "SupplyCharges", component: () => import("../pages/authenticated/patientchart/SupplyCharges.vue"), meta: { module: "supply-charges" } },
+                { path: "lab-requests", name: "LabRequests", component: () => import("../pages/authenticated/patientchart/LabRequests.vue"), meta: { module: "lab-requests" } },
+                { path: "radiology-orders", name: "RadiologyOrders", component: () => import("../pages/authenticated/patientchart/RadiologyOrders.vue"), meta: { module: "radiology-orders" } },
+                { path: "fee-charges", name: "FeeCharges", component: () => import("../pages/authenticated/patientchart/FeeCharges.vue"), meta: { module: "fee-charges" } },
                 { path: "vital-signs", name: "VitalSigns", component: () => import("../pages/authenticated/patientchart/VitalSigns.vue"), meta: { module: "vital-signs" } },
                 { path: "diet", name: "PatientDiet", component: () => import("../pages/authenticated/patientchart/Diet.vue"), meta: { module: "patient-case-diets" } },
                 { path: "patient-forms", name: "PatientForms", component: () => import("../pages/authenticated/patientchart/PatientForms.vue") },

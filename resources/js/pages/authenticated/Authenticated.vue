@@ -211,11 +211,11 @@ import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import { useRouter, useRoute } from "vue-router";
-import { MdDashboard, MdLayers, MdLocationOn, MdSwapVert } from "vue-icons-plus/md";
+import { MdDashboard, MdLayers, MdLocationOn, MdSwapVert, MdMedicalServices } from "vue-icons-plus/md";
 import { FiUsers, FiSettings, FiUserPlus, FiActivity } from "vue-icons-plus/fi";
-import { GiMedicalPack, GiMedicines } from "vue-icons-plus/gi";
-import { FaUsers, FaBuilding, FaBed, FaUtensils, FaCapsules, FaBookMedical } from "vue-icons-plus/fa";
-import { BsFillDoorOpenFill } from "vue-icons-plus/bs";
+import { GiMedicalPack, GiMedicines, GiTestTubes, GiMicroscope } from "vue-icons-plus/gi";
+import { FaUsers, FaBuilding, FaBed, FaUtensils, FaCapsules, FaBookMedical, FaFlask, FaXRay, FaMoneyBillWave } from "vue-icons-plus/fa";
+import { BsFillDoorOpenFill, BsCashCoin } from "vue-icons-plus/bs";
 import { BiCategoryAlt, BiBox, BiFoodMenu } from "vue-icons-plus/bi";
 import { PiUsersThreeFill } from "vue-icons-plus/pi";
 import { Fa6BedPulse, Fa6Hospital, Fa6TruckFast } from "vue-icons-plus/fa6";
@@ -304,6 +304,34 @@ const navItems = [
     children: [
       { name: "DietaryList", label: "Dietary List", icon: BiFoodMenu, module: "patient-case-diets" },
       { name: "Diets", label: "Diets", icon: FaUtensils, module: "diets" },
+    ],
+  },
+  {
+    name: "Laboratory",
+    label: "Laboratory",
+    icon: GiTestTubes,
+    children: [
+      { name: "LabTestCategories", label: "Categories", icon: FaFlask, module: "lab-test-categories" },
+      { name: "LabTests", label: "Tests", icon: GiTestTubes, module: "lab-tests" },
+      { name: "LabTestParameters", label: "Parameters", icon: GiMicroscope, module: "lab-test-parameters" },
+    ],
+  },
+  {
+    name: "Radiology",
+    label: "Radiology",
+    icon: FaXRay,
+    children: [
+      { name: "RadiologyModalities", label: "Modalities", icon: FaXRay, module: "radiology-modalities" },
+      { name: "RadiologyProcedures", label: "Procedures", icon: MdMedicalServices, module: "radiology-procedures" },
+    ],
+  },
+  {
+    name: "Fees",
+    label: "Fees",
+    icon: BsCashCoin,
+    children: [
+      { name: "FeeCategories", label: "Categories", icon: BsCashCoin, module: "fee-categories" },
+      { name: "FeeSchedules", label: "Schedules", icon: FaMoneyBillWave, module: "fee-schedules" },
     ],
   },
 
