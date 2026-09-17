@@ -97,6 +97,7 @@ export interface PrescriptionItem {
     pid?: string;
     medicine_pid: string;
     medicine?: Medicines;
+    price?: number | any;
     frequency?: string | null;
     duration?: number | null;
     duration_unit?: string | null;
@@ -331,6 +332,7 @@ export interface SupplyChargeItem {
     pid?: string;
     supply_pid: string;
     supply?: Supply;
+    price?: number | any;
     quantity: number | null;
     remarks?: string | null;
 }
@@ -341,7 +343,7 @@ export interface SupplyCharge {
     patientCase?: PatientCase;
     // Laravel serializes the `patientCase` relation as snake_case.
     patient_case?: PatientCase;
-    chargedBy?: User | null;
+    charged_by?: User | null;
     charge_date: string;
     remarks?: string | null;
     items: SupplyChargeItem[];
@@ -416,6 +418,140 @@ export interface Icd {
     code: string;
     name: string;
     status?: boolean;
+}
+
+export interface LabTestCategory {
+    pid?: string;
+    name: string;
+    description?: string | null;
+}
+
+export interface LabTest {
+    pid?: string;
+    category_pid: string;
+    category?: LabTestCategory;
+    code: string;
+    name: string;
+    price: number | any;
+    is_active?: boolean;
+}
+
+export interface LabTestParameter {
+    pid?: string;
+    lab_test_pid: string;
+    lab_test?: LabTest;
+    parameter_name: string;
+    unit?: string | null;
+    reference_range?: string | null;
+    min_val?: number | any;
+    max_val?: number | any;
+}
+
+export interface RadiologyModality {
+    pid?: string;
+    code: string;
+    name: string;
+    room_number?: string | null;
+    is_active?: boolean;
+}
+
+export interface RadiologyProcedure {
+    pid?: string;
+    modality_pid: string;
+    modality?: RadiologyModality;
+    code: string;
+    name: string;
+    body_part?: string | null;
+    price: number | any;
+    estimated_duration_minutes?: number | any;
+}
+
+export interface FeeCategory {
+    pid?: string;
+    name: string;
+    description?: string | null;
+}
+
+export interface FeeSchedule {
+    pid?: string;
+    fee_category_pid: string;
+    feeCategory?: FeeCategory;
+    code: string;
+    name: string;
+    standard_fee: number | any;
+    is_active?: boolean;
+}
+
+export interface LabResult {
+    pid?: string;
+    parameter_pid: string;
+    parameter?: LabTestParameter;
+    result_value: string;
+    is_abnormal?: boolean;
+    enteredBy?: User;
+    verifiedBy?: User;
+    verified_at?: string | null;
+}
+
+export interface LabRequest {
+    pid?: string;
+    patient_case_pid: string;
+    patient_case?: PatientCase;
+    doctor?: User;
+    lab_test_pid: string;
+    lab_test?: LabTest;
+    request_number?: string;
+    price?: number | any;
+    status?: string;
+    priority?: string;
+    clinical_notes?: string | null;
+    results?: LabResult[];
+}
+
+export interface RadiologyReport {
+    pid?: string;
+    findings: string;
+    impression: string;
+    status?: string;
+    finalized_at?: string | null;
+    radiologist?: User;
+}
+
+export interface RadiologyOrder {
+    pid?: string;
+    patient_case_pid: string;
+    patientCase?: PatientCase;
+    doctor?: User;
+    procedure_pid: string;
+    procedure?: RadiologyProcedure;
+    order_number?: string;
+    price?: number | any;
+    status?: string;
+    priority?: string;
+    clinical_history?: string | null;
+    scheduled_at?: string | null;
+    performed_at?: string | null;
+    technician?: User;
+    report?: RadiologyReport | null;
+}
+
+export interface FeeChargeItem {
+    pid?: string;
+    fee_schedule_pid: string;
+    fee_schedule?: FeeSchedule;
+    quantity: number | any;
+    unit_fee?: number | any;
+    remarks?: string | null;
+}
+
+export interface FeeCharge {
+    pid?: string;
+    patient_case_pid: string;
+    patientCase?: PatientCase;
+    charged_by?: User;
+    charge_date: string;
+    remarks?: string | null;
+    items: FeeChargeItem[];
 }
 
 export interface Soap {

@@ -23,7 +23,7 @@
               optionValue="pid"
               placeholder="Select medicine stock"
               filter
-              fluid
+              fluid 
               class="text-sm"
             />
           </div>
