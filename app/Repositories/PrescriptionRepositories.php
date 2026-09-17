@@ -149,11 +149,11 @@ class PrescriptionRepositories
                 continue;
             }
 
-            $this->deductFromStockFefo($item->medicine_id, $quantity, $prescription->pid);
+            $this->deductFromStockFefo($item->medicine_id, $quantity, $prescription->pid, $item->price);
         }
     }
 
-    private function deductFromStockFefo(int $medicineId, int $quantity, string $reference)
+    private function deductFromStockFefo(int $medicineId, int $quantity, string $reference, float $unitPrice = 0)
     {
         $remaining = $quantity;
 
@@ -174,7 +174,8 @@ class PrescriptionRepositories
 
             MedicineStockMovement::create([
                 'medicine_stock_id' => $batch->id,
-                'price' => $batch->medicine->price,
+                // 'price' => $batch->medicine->price,
+                'price' => $unitPrice,
                 'type' => 'OUT',
                 'quantity' => $deduct,
                 'reference' => $reference,

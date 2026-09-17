@@ -75,7 +75,7 @@ class SupplyChargeRepositories
                         'remarks' => $item['remarks'] ?? null,
                     ]);
 
-                    $this->deductFromStockFefo($supply->id, (int) round((float) $item['quantity']), $supplyCharge->pid, $patientCase->case_number);
+                    $this->deductFromStockFefo($supply->id, (int) round((float) $item['quantity']), $supplyCharge->pid, $patientCase->case_number, $supply->selling_price);
                 }
 
                 return $supplyCharge->load(['patientCase.patient', 'chargedBy', 'items.supply']);
@@ -85,7 +85,7 @@ class SupplyChargeRepositories
         }
     }
 
-    private function deductFromStockFefo(int $supplyId, int $quantity, string $reference, ?string $caseNumber)
+    private function deductFromStockFefo(int $supplyId, int $quantity, string $reference, ?string $caseNumber, float $selling_price = 0)
     {
         if ($quantity <= 0) {
             return;
@@ -111,7 +111,8 @@ class SupplyChargeRepositories
             SupplyMovement::create([
                 'supply_stock_id' => $batch->id,
                 'quantity' => $deduct,
-                'price' => $batch->supply->selling_price,
+                // 'price' => $batch->supply->selling_price,
+                'price' => $selling_price,
                 'type' => 'OUT',
                 'used_for' => 'Charged to patient' . ($caseNumber ? " (case {$caseNumber})" : '') . ($batch->batch_number ? " — batch {$batch->batch_number}" : ''),
             ]);

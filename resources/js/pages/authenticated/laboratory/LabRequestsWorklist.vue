@@ -49,6 +49,8 @@
       </div>
       <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
         <Select v-model="statusFilter" :options="statusFilterOptions" optionLabel="label" optionValue="value" placeholder="All statuses" class="text-sm w-full sm:w-48" @change="reload" />
+        <Select v-model="statusPriority" :options="statusPriorityOptions" optionLabel="label" optionValue="value" placeholder="All" class="text-sm w-full sm:w-48" @change="reload" />
+
         <div class="relative w-full sm:w-64">
           <FiSearch class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 z-10" size="16" />
           <InputText v-model="search" @input="onSearch" placeholder="Search patient / test . . ." class="w-full text-sm pl-8!" />
@@ -173,6 +175,8 @@ const { can } = usePermission();
 const labRequestWorklistStore = useLabRequestWorklistStore();
 
 const statusFilter = ref<string | null>(null);
+const statusPriority = ref<string | null>(null);
+
 const statusFilterOptions = [
   { label: "All statuses", value: null },
   { label: "Pending", value: "pending" },
@@ -180,6 +184,12 @@ const statusFilterOptions = [
   { label: "In Progress", value: "in_progress" },
   { label: "Completed", value: "completed" },
   { label: "Cancelled", value: "cancelled" },
+];
+const statusPriorityOptions = [
+  { label: "All", value: null },
+  { label: "Routine", value: "routine" },
+  { label: "Urgent", value: "urgent" },
+  { label: "Stat", value: "stat" },
 ];
 const statusOptions = statusFilterOptions.filter((o) => o.value !== null) as { label: string; value: string }[];
 
@@ -219,7 +229,7 @@ const statusSeverity = (status?: string) => {
 const { search, rows, first, total, loading, onPage, onSearch, reload } = useApiTable(
   async (params) => {
     try {
-      await labRequestWorklistStore.read({ ...params, status: statusFilter.value || undefined });
+      await labRequestWorklistStore.read({ ...params, status: statusFilter.value || undefined, priority: statusPriority.value || undefined });
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to retrieve lab requests");
     }
