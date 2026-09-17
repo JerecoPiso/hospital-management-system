@@ -131,7 +131,7 @@
                 :totalRecords="medicineTab.total"
                 :loading="medicineTab.loading"
                 @page="medicineTab.onPage"
-                :rowsPerPageOptions="[10, 25, 50, 100]"
+                :rowsPerPageOptions="[10, 15, 25, 50, 100]"
                 responsiveLayout="scroll"
                 tableStyle="min-width: 55rem"
                 :pt="{ table: { class: 'text-sm' }, thead: { class: 'bg-slate-50' }, bodyRow: { class: 'hover:bg-slate-50 transition-colors duration-150 border-b border-slate-100' } }"
@@ -234,7 +234,7 @@
                 :totalRecords="supplyTab.total"
                 :loading="supplyTab.loading"
                 @page="supplyTab.onPage"
-                :rowsPerPageOptions="[10, 25, 50, 100]"
+                :rowsPerPageOptions="[10, 15, 25, 50, 100]"
                 responsiveLayout="scroll"
                 tableStyle="min-width: 55rem"
                 :pt="{ table: { class: 'text-sm' }, thead: { class: 'bg-slate-50' }, bodyRow: { class: 'hover:bg-slate-50 transition-colors duration-150 border-b border-slate-100' } }"
@@ -325,7 +325,6 @@
       </div>
     </div>
   </div>
-
   <!-- Recent Admissions -->
   <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm mt-4 hidden">
     <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-linear-to-r from-slate-50 to-white">
