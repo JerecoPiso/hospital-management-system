@@ -126,6 +126,11 @@
           ><span class="text-slate-600 text-sm">{{ data.purchase_price || "—" }}</span></template
         >
       </Column>
+      <Column  header="Selling Price" class="w-32">
+        <template #body="{ data }"
+          ><span class="text-slate-600 text-sm">{{ data.supply?.selling_price || "—" }}</span></template
+        >
+      </Column>
       <Column field="quantity" header="Quantity" class="w-24">
         <template #body="{ data }"
           ><span class="text-slate-700 text-sm font-medium">{{ data.quantity }}</span></template
