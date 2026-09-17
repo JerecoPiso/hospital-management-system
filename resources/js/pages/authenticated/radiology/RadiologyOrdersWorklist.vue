@@ -76,7 +76,9 @@
       </template>
 
       <Column header="Order #" class="w-36">
-        <template #body="{ data }"><span class="text-slate-700 text-sm font-mono">{{ data.order_number }}</span></template>
+        <template #body="{ data }"
+          ><span class="text-slate-700 text-sm font-mono">{{ data.order_number }}</span></template
+        >
       </Column>
 
       <Column header="Patient">
@@ -128,9 +130,26 @@
 
       <Column header="Actions" class="w-20">
         <template #body="{ data }">
-          <button v-if="can('radiology-orders', 'update')" type="button" title="Enter report" @click="openReport(data)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
-            <MdMedicalServices size="18" />
-          </button>
+          <div class="flex gap-1">
+            <router-link
+              v-if="can('radiology-procedures', 'view')"
+              :to="{ name: 'RadiologyOrderPrint', params: { pid: data.pid } }"
+              target="_blank"
+              title="Print order"
+              class="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors duration-150 cursor-pointer"
+            >
+              <FiPrinter size="18" />
+            </router-link>
+            <button
+              v-if="can('radiology-orders', 'update')"
+              type="button"
+              title="Enter report"
+              @click="openReport(data)"
+              class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
+            >
+              <MdMedicalServices size="18" />
+            </button>
+          </div>
         </template>
       </Column>
     </DataTable>
@@ -139,7 +158,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
-import { FiSearch } from "vue-icons-plus/fi";
+import { FiSearch, FiPrinter } from "vue-icons-plus/fi";
 import { FaXRay } from "vue-icons-plus/fa";
 import { MdMedicalServices } from "vue-icons-plus/md";
 import { useRadiologyOrderWorklistStore } from "@/store/RadiologyOrderWorklist";

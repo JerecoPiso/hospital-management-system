@@ -70,8 +70,16 @@ class MedicineStockMovementRepositories
     public function store($data)
     {
         try {
-            $medicine = MedicineStock::where('pid', $data['medicine_stock_pid'])->firstOrFail();
-            $data['medicine_stock_id'] = $medicine->id;
+            $medicineStock = MedicineStock::where('pid', $data['medicine_stock_pid'])->firstOrFail();
+            if ($data['type'] === 'OUT' && $medicineStock->quantity < $data['quantity']) {
+                throw new \Exception("Insufficient stock: only {$medicineStock->quantity}  available.");
+            }
+
+            $medicineStock->quantity += $data['type'] === 'IN' ? $data['quantity'] : -$data['quantity'];
+            $medicineStock->save();
+
+            $data['medicine_stock_id'] = $medicineStock->id;
+
             unset($data['medicine_stock_pid']);
 
             $medicineStockMovement = MedicineStockMovement::create($data);

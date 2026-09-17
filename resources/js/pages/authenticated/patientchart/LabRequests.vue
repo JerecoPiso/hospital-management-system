@@ -147,6 +147,9 @@
             <button type="button" title="View results" @click="openResults(data)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
               <GiMicroscope size="18" />
             </button>
+            <router-link v-if="can('lab-requests', 'view')" :to="{ name: 'LabRequestPrint', params: { pid: data.pid } }" target="_blank" title="Print request" class="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors duration-150 cursor-pointer">
+              <FiPrinter size="18" />
+            </router-link>
             <button v-if="can('lab-requests', 'delete')" type="button" title="Delete request" @click="archive(data.pid)" class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer">
               <BiTrash size="18" />
             </button>
@@ -162,6 +165,7 @@ import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { BsPlusCircle } from "vue-icons-plus/bs";
 import { BiTrash } from "vue-icons-plus/bi";
+import { FiPrinter } from "vue-icons-plus/fi";
 import { GiTestTubes, GiMicroscope } from "vue-icons-plus/gi";
 import { useLabRequestStore } from "@/store/patientchart/LabRequests";
 import { usePatientCaseStore } from "@/store/patients/PatientCase";

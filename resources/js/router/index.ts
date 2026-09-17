@@ -137,6 +137,18 @@ const router = createRouter({
             meta: { requiresAuth: true },
         },
         {
+            path: "/print/lab-request/:pid",
+            name: "LabRequestPrint",
+            component: () => import("../pages/print/LabRequestPrint.vue"),
+            meta: { requiresAuth: true },
+        },
+        {
+            path: "/print/radiology-order/:pid",
+            name: "RadiologyOrderPrint",
+            component: () => import("../pages/print/RadiologyOrderPrint.vue"),
+            meta: { requiresAuth: true },
+        },
+        {
             path: "/forbidden",
             name: "Forbidden",
             component: () => import("../pages/Forbidden.vue"),

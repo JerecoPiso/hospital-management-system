@@ -1,7 +1,7 @@
 export interface DoctorsOrder {
     pid?: string;
     patient_case_pid: string;
-    patientCase?: PatientCase;
+    patient_case?: PatientCase;
     order: string;
     progress_notes: string;
 }
@@ -9,7 +9,7 @@ export interface DoctorsOrder {
 export interface NursesNotes {
     pid?: string;
     patient_case_pid: string;
-    patientCase?: PatientCase;
+    patient_case?: PatientCase;
     focus: string;
     data: string;
     action: string;
@@ -19,7 +19,7 @@ export interface NursesNotes {
 export interface VitalSigns {
     pid?: string;
     patient_case_pid: string;
-    patientCase?: PatientCase;
+    patient_case?: PatientCase;
     type?: string;
     measured_at?: Date | null;
     systolic?: string | null;
@@ -110,8 +110,6 @@ export interface PrescriptionItem {
 export interface Prescription {
     pid?: string;
     patient_case_pid: string;
-    patientCase?: PatientCase;
-    // Laravel serializes the `patientCase` relation as snake_case.
     patient_case?: PatientCase;
     doctor?: User;
     prescription_date: string;
@@ -139,7 +137,6 @@ export interface DietServed {
 export interface PatientCaseDiet {
     pid?: string;
     patient_case_pid: string;
-    // Laravel serializes the `patientCase` relation as snake_case.
     patient_case?: PatientCase;
     diet_pid: string;
     diet?: Diet;
@@ -153,7 +150,7 @@ export interface PatientCaseDiet {
 export interface HistoryAndPhysicalExaminationFormOne {
     pid?: string;
     patient_case_pid: string;
-    patientCase?: PatientCase;
+    patient_case?: PatientCase;
     chief_complaint: string;
     history_of_present_illness: string;
     past_medical_history?: string;
@@ -179,7 +176,7 @@ export interface HistoryAndPhysicalExaminationFormOne {
 export interface HistoryAndPhysicalExaminationFormTwo {
     pid?: string;
     patient_case_pid: string;
-    patientCase?: PatientCase;
+    patient_case?: PatientCase;
     general_appearance?: string;
     general_appearance_others?: string;
     skin?: string;
@@ -311,7 +308,7 @@ export interface SupplyStock {
 export interface SupplyMovement {
     pid?: string;
     supply_stock_pid: string;
-    supplyStock?: SupplyStock;
+    supply_stock?: SupplyStock;
     quantity: number;
     type: 'IN' | 'OUT';
     used_for?: string | null;
@@ -320,7 +317,7 @@ export interface SupplyMovement {
 export interface SupplyDistribution {
     pid?: string;
     supply_pid: string;
-    supplyStock?: SupplyStock;
+    supply_stock?: SupplyStock;
     station_pid: string;
     station?: Station;
     quantity: number;
@@ -340,8 +337,6 @@ export interface SupplyChargeItem {
 export interface SupplyCharge {
     pid?: string;
     patient_case_pid: string;
-    patientCase?: PatientCase;
-    // Laravel serializes the `patientCase` relation as snake_case.
     patient_case?: PatientCase;
     charged_by?: User | null;
     charge_date: string;
@@ -520,7 +515,7 @@ export interface RadiologyReport {
 export interface RadiologyOrder {
     pid?: string;
     patient_case_pid: string;
-    patientCase?: PatientCase;
+    patient_case?: PatientCase;
     doctor?: User;
     procedure_pid: string;
     procedure?: RadiologyProcedure;
@@ -547,7 +542,7 @@ export interface FeeChargeItem {
 export interface FeeCharge {
     pid?: string;
     patient_case_pid: string;
-    patientCase?: PatientCase;
+    patient_case?: PatientCase;
     charged_by?: User;
     charge_date: string;
     remarks?: string | null;
@@ -557,8 +552,6 @@ export interface FeeCharge {
 export interface Soap {
     pid?: string;
     patient_case_pid: string;
-    patientCase?: PatientCase;
-    // Laravel serializes the `patientCase` relation as snake_case.
     patient_case?: PatientCase;
     doctor?: User;
     icd_pid: string;
