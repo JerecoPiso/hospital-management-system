@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -48,5 +49,10 @@ class RadiologyOrder extends Model
     public function report(): HasOne
     {
         return $this->hasOne(RadiologyReport::class);
+    }
+
+    public function invoiceItem(): MorphOne
+    {
+        return $this->morphOne(InvoiceItem::class, 'billable');
     }
 }

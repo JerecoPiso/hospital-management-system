@@ -149,6 +149,12 @@ const router = createRouter({
             meta: { requiresAuth: true },
         },
         {
+            path: "/print/invoice/:pid",
+            name: "InvoicePrint",
+            component: () => import("../pages/print/InvoicePrint.vue"),
+            meta: { requiresAuth: true },
+        },
+        {
             path: "/forbidden",
             name: "Forbidden",
             component: () => import("../pages/Forbidden.vue"),

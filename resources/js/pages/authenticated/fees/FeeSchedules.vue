@@ -74,7 +74,7 @@
                 </div>
             </template>
             <Column header="Category">
-                <template #body="{ data }"><span class="text-slate-800 text-sm font-medium">{{ data.feeCategory?.name || '—' }}</span></template>
+                <template #body="{ data }"><span class="text-slate-800 text-sm font-medium">{{ data.fee_category?.name || '—' }}</span></template>
             </Column>
             <Column field="code" header="Code" class="w-36">
                 <template #body="{ data }"><span class="text-slate-700 text-sm font-mono">{{ data.code }}</span></template>
@@ -162,7 +162,7 @@ const create = async () => {
 const edit = async (pid: string) => {
     try {
         await feeScheduleStore.view(pid);
-        Object.assign(info, feeScheduleStore.schedule, { fee_category_pid: feeScheduleStore.schedule.feeCategory?.pid || '' });
+        Object.assign(info, feeScheduleStore.schedule, { fee_category_pid: feeScheduleStore.schedule.fee_category?.pid || '' });
         isUpdate.value = true;
         modalOpen.value = true;
     } catch (err: any) {

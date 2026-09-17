@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -31,5 +32,10 @@ class SupplyChargeItem extends Model
     public function supply(): BelongsTo
     {
         return $this->belongsTo(Supply::class);
+    }
+
+    public function invoiceItem(): MorphOne
+    {
+        return $this->morphOne(InvoiceItem::class, 'billable');
     }
 }
