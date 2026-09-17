@@ -323,7 +323,7 @@ export interface SupplyCharge {
     patientCase?: PatientCase;
     // Laravel serializes the `patientCase` relation as snake_case.
     patient_case?: PatientCase;
-    chargedBy?: User | null;
+    charged_by?: User | null;
     charge_date: string;
     remarks?: string | null;
     items: SupplyChargeItem[];
@@ -419,7 +419,7 @@ export interface LabTest {
 export interface LabTestParameter {
     pid?: string;
     lab_test_pid: string;
-    labTest?: LabTest;
+    lab_test?: LabTest;
     parameter_name: string;
     unit?: string | null;
     reference_range?: string | null;
@@ -476,10 +476,10 @@ export interface LabResult {
 export interface LabRequest {
     pid?: string;
     patient_case_pid: string;
-    patientCase?: PatientCase;
+    patient_case?: PatientCase;
     doctor?: User;
     lab_test_pid: string;
-    labTest?: LabTest;
+    lab_test?: LabTest;
     request_number?: string;
     price?: number | any;
     status?: string;
@@ -518,7 +518,7 @@ export interface RadiologyOrder {
 export interface FeeChargeItem {
     pid?: string;
     fee_schedule_pid: string;
-    feeSchedule?: FeeSchedule;
+    fee_schedule?: FeeSchedule;
     quantity: number | any;
     unit_fee?: number | any;
     remarks?: string | null;
@@ -528,7 +528,7 @@ export interface FeeCharge {
     pid?: string;
     patient_case_pid: string;
     patientCase?: PatientCase;
-    chargedBy?: User;
+    charged_by?: User;
     charge_date: string;
     remarks?: string | null;
     items: FeeChargeItem[];

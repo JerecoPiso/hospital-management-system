@@ -14,6 +14,9 @@ export const useFeeChargeStore = defineStore("feeCharge", () => {
     const create = async (data: FeeCharge) => {
         await axios.post(`${baseUrl}api/fee-charges`, data);
     }
+    const update = async (data: FeeCharge) => {
+        await axios.put(`${baseUrl}api/fee-charges/${data.pid}`, data);
+    }
     const read = async (patient_case_pid?: string) => {
         const response = await axios.get(`${baseUrl}api/fee-charges`, {
             params: patient_case_pid ? { patient_case_pid } : {}
@@ -29,6 +32,7 @@ export const useFeeChargeStore = defineStore("feeCharge", () => {
     }
     return {
         create,
+        update,
         read,
         view,
         archive,

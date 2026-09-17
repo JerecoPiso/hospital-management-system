@@ -60,6 +60,7 @@ const router = createRouter({
                     path: "laboratory",
                     component: RouterView,
                     children: [
+                        { path: "requests", name: "LabRequestsWorklist", component: () => import("../pages/authenticated/laboratory/LabRequestsWorklist.vue"), meta: { module: "lab-requests" } },
                         { path: "categories", name: "LabTestCategories", component: () => import("../pages/authenticated/laboratory/LabTestCategories.vue"), meta: { module: "lab-test-categories" } },
                         { path: "tests", name: "LabTests", component: () => import("../pages/authenticated/laboratory/LabTests.vue"), meta: { module: "lab-tests" } },
                         { path: "parameters", name: "LabTestParameters", component: () => import("../pages/authenticated/laboratory/LabTestParameters.vue"), meta: { module: "lab-test-parameters" } },
@@ -69,6 +70,7 @@ const router = createRouter({
                     path: "radiology",
                     component: RouterView,
                     children: [
+                        { path: "orders", name: "RadiologyOrdersWorklist", component: () => import("../pages/authenticated/radiology/RadiologyOrdersWorklist.vue"), meta: { module: "radiology-orders" } },
                         { path: "modalities", name: "RadiologyModalities", component: () => import("../pages/authenticated/radiology/RadiologyModalities.vue"), meta: { module: "radiology-modalities" } },
                         { path: "procedures", name: "RadiologyProcedures", component: () => import("../pages/authenticated/radiology/RadiologyProcedures.vue"), meta: { module: "radiology-procedures" } },
                     ],

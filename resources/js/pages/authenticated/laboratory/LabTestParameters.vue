@@ -78,7 +78,7 @@
                 </div>
             </template>
             <Column header="Lab Test">
-                <template #body="{ data }"><span class="text-slate-800 text-sm font-medium">{{ data.labTest?.name || '—' }}</span></template>
+                <template #body="{ data }"><span class="text-slate-800 text-sm font-medium">{{ data.lab_test?.name || '—' }}</span></template>
             </Column>
             <Column header="Parameter">
                 <template #body="{ data }"><span class="text-slate-700 text-sm">{{ data.parameter_name || '—' }}</span></template>
@@ -164,7 +164,7 @@ const create = async () => {
 const edit = async (pid: string) => {
     try {
         await labTestParameterStore.view(pid);
-        Object.assign(info, labTestParameterStore.parameter, { lab_test_pid: labTestParameterStore.parameter.labTest?.pid || '' });
+        Object.assign(info, labTestParameterStore.parameter, { lab_test_pid: labTestParameterStore.parameter.lab_test?.pid || '' });
         isUpdate.value = true;
         modalOpen.value = true;
     } catch (err: any) {

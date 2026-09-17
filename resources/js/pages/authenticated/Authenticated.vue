@@ -311,6 +311,7 @@ const navItems = [
     label: "Laboratory",
     icon: GiTestTubes,
     children: [
+      { name: "LabRequestsWorklist", label: "Requests", icon: GiMicroscope, module: "lab-requests" },
       { name: "LabTestCategories", label: "Categories", icon: FaFlask, module: "lab-test-categories" },
       { name: "LabTests", label: "Tests", icon: GiTestTubes, module: "lab-tests" },
       { name: "LabTestParameters", label: "Parameters", icon: GiMicroscope, module: "lab-test-parameters" },
@@ -321,6 +322,7 @@ const navItems = [
     label: "Radiology",
     icon: FaXRay,
     children: [
+      { name: "RadiologyOrdersWorklist", label: "Orders", icon: MdMedicalServices, module: "radiology-orders" },
       { name: "RadiologyModalities", label: "Modalities", icon: FaXRay, module: "radiology-modalities" },
       { name: "RadiologyProcedures", label: "Procedures", icon: MdMedicalServices, module: "radiology-procedures" },
     ],

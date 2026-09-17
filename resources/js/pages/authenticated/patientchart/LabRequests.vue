@@ -41,40 +41,35 @@
       </form>
     </Dialog>
 
-    <!-- Enter Results Dialog -->
-    <Dialog v-model:visible="resultsModalOpen" modal :style="{ width: '48vw' }" :breakpoints="{ '1199px': '85vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
+    <!-- View Results Dialog (read-only) -->
+    <Dialog v-model:visible="resultsModalOpen" modal :style="{ width: '46vw' }" :breakpoints="{ '1199px': '85vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
       <template #header>
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
             <GiMicroscope class="text-white" size="16" />
           </div>
           <div>
-            <h2 class="text-base font-semibold text-slate-800">Enter Results</h2>
-            <p class="text-xs text-slate-400 mt-0.5">{{ activeRequest?.labTest?.name || "—" }} &bull; {{ activeRequest?.request_number || "—" }}</p>
+            <h2 class="text-base font-semibold text-slate-800">Lab Results</h2>
+            <p class="text-xs text-slate-400 mt-0.5">{{ activeRequest?.lab_test?.name || "—" }} &bull; {{ activeRequest?.request_number || "—" }}</p>
           </div>
         </div>
       </template>
-      <form @submit.prevent="submitResults" class="flex flex-col gap-4 pt-2">
-        <div v-if="resultRows.length === 0" class="text-sm text-slate-400 italic py-6 text-center">This test has no defined parameters yet.</div>
-        <div v-for="row in resultRows" :key="row.parameter_pid" class="rounded-lg border border-slate-200 p-3 grid grid-cols-12 gap-3 items-end bg-slate-50/50">
-          <div class="col-span-4">
+      <div class="flex flex-col gap-3 pt-2">
+        <div v-if="resultRows.length === 0" class="text-sm text-slate-400 italic py-6 text-center">No results have been recorded for this request yet.</div>
+        <div v-for="row in resultRows" :key="row.parameter_pid" class="rounded-lg border border-slate-200 p-3 flex items-center justify-between gap-3 bg-slate-50/50">
+          <div>
             <span class="text-sm font-medium text-slate-700">{{ row.parameter_name }}</span>
             <p class="text-xs text-slate-400">{{ row.reference_range || "No reference range" }}{{ row.unit ? ` (${row.unit})` : "" }}</p>
           </div>
-          <div class="col-span-5 flex flex-col gap-1.5">
-            <label class="text-xs font-medium text-slate-600">Result</label>
-            <InputText v-model="row.result_value" fluid class="text-sm" />
-          </div>
-          <div class="col-span-3 flex items-center gap-2 pb-1.5">
-            <input :id="`abn-${row.parameter_pid}`" type="checkbox" v-model="row.is_abnormal" class="w-4 h-4 rounded border-slate-300 text-red-500 focus:ring-red-400" />
-            <label :for="`abn-${row.parameter_pid}`" class="text-xs font-medium text-slate-600">Abnormal</label>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-semibold" :class="row.is_abnormal ? 'text-red-600' : 'text-slate-800'">{{ row.result_value || "—" }}</span>
+            <Tag v-if="row.is_abnormal" value="Abnormal" severity="danger" />
           </div>
         </div>
-        <div class="flex gap-2 pt-1">
-          <Button type="button" label="Cancel" severity="secondary" outlined fluid @click="resultsModalOpen = false" />
-          <Button type="submit" label="Save Results" fluid :disabled="resultRows.length === 0" class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" />
+        <div class="flex pt-1">
+          <Button type="button" label="Close" fluid class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" @click="resultsModalOpen = false" />
         </div>
-      </form>
+      </div>
     </Dialog>
 
     <!-- Header -->
@@ -110,7 +105,7 @@
       :rows="15"
       :rowsPerPageOptions="[10, 15, 25, 50, 100]"
       responsiveLayout="scroll"
-      tableStyle="min-width: 65rem"
+      tableStyle="min-width: 60rem"
       :pt="{ table: { class: 'text-sm' }, thead: { class: 'bg-slate-50' }, bodyRow: { class: 'hover:bg-slate-50 transition-colors duration-150 border-b border-slate-100' } }"
     >
       <template #empty>
@@ -127,8 +122,8 @@
 
       <Column header="Test">
         <template #body="{ data }">
-          <span class="text-slate-800 text-sm font-medium">{{ data.labTest?.name || "—" }}</span>
-          <p class="text-xs text-slate-400">{{ data.labTest?.category?.name || "—" }}</p>
+          <span class="text-slate-800 text-sm font-medium">{{ data.lab_test?.name || "—" }}</span>
+          <p class="text-xs text-slate-400">{{ data.lab_test?.category?.name || "—" }}</p>
         </template>
       </Column>
 
@@ -136,19 +131,8 @@
         <template #body="{ data }"><Tag :value="data.priority" :severity="prioritySeverity(data.priority)" /></template>
       </Column>
 
-      <Column header="Status" class="w-44">
-        <template #body="{ data }">
-          <Select
-            v-if="can('lab-requests', 'update')"
-            :modelValue="data.status"
-            @update:modelValue="(val) => setStatus(data, val)"
-            :options="statusOptions"
-            optionLabel="label"
-            optionValue="value"
-            class="text-sm w-full"
-          />
-          <Tag v-else :value="data.status" :severity="statusSeverity(data.status)" />
-        </template>
+      <Column header="Status" class="w-36">
+        <template #body="{ data }"><Tag :value="data.status" :severity="statusSeverity(data.status)" /></template>
       </Column>
 
       <Column header="Ordered By" class="w-40">
@@ -160,7 +144,7 @@
       <Column header="Actions" class="w-24">
         <template #body="{ data }">
           <div class="flex items-center gap-1">
-            <button v-if="can('lab-requests', 'update')" type="button" title="Enter results" @click="openResults(data)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
+            <button type="button" title="View results" @click="openResults(data)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
               <GiMicroscope size="18" />
             </button>
             <button v-if="can('lab-requests', 'delete')" type="button" title="Delete request" @click="archive(data.pid)" class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer">
@@ -208,13 +192,6 @@ const priorityOptions = [
   { label: "Routine", value: "routine" },
   { label: "Urgent", value: "urgent" },
   { label: "Stat", value: "stat" },
-];
-const statusOptions = [
-  { label: "Pending", value: "pending" },
-  { label: "Sample Collected", value: "sample_collected" },
-  { label: "In Progress", value: "in_progress" },
-  { label: "Completed", value: "completed" },
-  { label: "Cancelled", value: "cancelled" },
 ];
 
 const modalOpen = ref<boolean>(false);
@@ -290,17 +267,6 @@ const create = async () => {
   }
 };
 
-const setStatus = async (row: LabRequest, status: string) => {
-  if (!row.pid) return;
-  try {
-    await labRequestStore.updateStatus(row.pid, status);
-    toast.success("Status updated successfully");
-    await refresh();
-  } catch (err: any) {
-    toast.error(err.response?.data?.message || "Failed to update status");
-  }
-};
-
 interface ResultRow {
   parameter_pid: string;
   parameter_name: string;
@@ -321,7 +287,7 @@ const openResults = async (row: LabRequest) => {
     const full = labRequestStore.labRequest;
     activeRequest.value = full;
 
-    const parameters = full.labTest?.parameters || [];
+    const parameters = full.lab_test?.parameters || [];
     resultRows.value = parameters.map((param: any) => {
       const existing = (full.results || []).find((r: any) => r.parameter?.pid === param.pid);
       return {
@@ -337,21 +303,6 @@ const openResults = async (row: LabRequest) => {
     resultsModalOpen.value = true;
   } catch (err: any) {
     toast.error(err.response?.data?.message || "Failed to retrieve lab request");
-  }
-};
-
-const submitResults = async () => {
-  if (!activeRequest.value?.pid) return;
-  try {
-    await labRequestStore.saveResults(
-      activeRequest.value.pid,
-      resultRows.value.map((row) => ({ parameter_pid: row.parameter_pid, result_value: row.result_value, is_abnormal: row.is_abnormal }))
-    );
-    toast.success("Results saved successfully");
-    resultsModalOpen.value = false;
-    await refresh();
-  } catch (err: any) {
-    toast.error(err.response?.data?.message || "Failed to save results");
   }
 };
 

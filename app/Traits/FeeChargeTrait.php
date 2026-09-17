@@ -28,6 +28,24 @@ trait FeeChargeTrait
         }
     }
 
+    public function update($fee_charge_pid, StoreRequest $request)
+    {
+        try {
+            $validated = $request->validated();
+            $feeCharge = $this->feeChargeRepo->searchByPid($fee_charge_pid);
+            if (!$feeCharge) {
+                return api_response([], false, "Fee charge not found", 404);
+            }
+            $feeCharge = $this->feeChargeRepo->update($feeCharge->id, $validated);
+            if (!$feeCharge) {
+                return api_response([], false, "Fee charge not updated", 500);
+            }
+            return api_response(["fee_charge" => $feeCharge], true, "Success", 200);
+        } catch (\Exception $e) {
+            return api_response([], false, $e->getMessage(), $e->getCode() ?: 500);
+        }
+    }
+
     public function view($fee_charge_pid)
     {
         try {

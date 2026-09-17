@@ -45,7 +45,7 @@
       </form>
     </Dialog>
 
-    <!-- Enter Report Dialog -->
+    <!-- View Report Dialog (read-only) -->
     <Dialog v-model:visible="reportModalOpen" modal :style="{ width: '46vw' }" :breakpoints="{ '1199px': '85vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
       <template #header>
         <div class="flex items-center gap-3">
@@ -58,24 +58,26 @@
           </div>
         </div>
       </template>
-      <form @submit.prevent="submitReport" class="flex flex-col gap-4 pt-2">
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-slate-700">Findings <span class="text-red-400">*</span></label>
-          <Textarea v-model="reportInfo.findings" rows="5" autoResize fluid required placeholder="Describe the imaging findings..." class="text-sm" />
+      <div class="flex flex-col gap-4 pt-2">
+        <div v-if="!activeOrder?.report" class="text-sm text-slate-400 italic py-6 text-center">No report has been recorded for this order yet.</div>
+        <template v-else>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</span>
+            <Tag :value="activeOrder.report.status" :severity="activeOrder.report.status === 'finalized' ? 'success' : 'warn'" />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Findings</label>
+            <p class="text-sm text-slate-700 whitespace-pre-line rounded-lg border border-slate-200 bg-slate-50/50 p-3">{{ activeOrder.report.findings }}</p>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Impression</label>
+            <p class="text-sm text-slate-700 whitespace-pre-line rounded-lg border border-slate-200 bg-slate-50/50 p-3">{{ activeOrder.report.impression }}</p>
+          </div>
+        </template>
+        <div class="flex pt-1">
+          <Button type="button" label="Close" fluid class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" @click="reportModalOpen = false" />
         </div>
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-slate-700">Impression <span class="text-red-400">*</span></label>
-          <Textarea v-model="reportInfo.impression" rows="3" autoResize fluid required placeholder="Overall impression..." class="text-sm" />
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-slate-700">Status</label>
-          <Select v-model="reportInfo.status" :options="reportStatusOptions" optionLabel="label" optionValue="value" fluid class="text-sm" />
-        </div>
-        <div class="flex gap-2 pt-1">
-          <Button type="button" label="Cancel" severity="secondary" outlined fluid @click="reportModalOpen = false" />
-          <Button type="submit" label="Save Report" fluid class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" />
-        </div>
-      </form>
+      </div>
     </Dialog>
 
     <!-- Header -->
@@ -111,7 +113,7 @@
       :rows="15"
       :rowsPerPageOptions="[10, 15, 25, 50, 100]"
       responsiveLayout="scroll"
-      tableStyle="min-width: 68rem"
+      tableStyle="min-width: 62rem"
       :pt="{ table: { class: 'text-sm' }, thead: { class: 'bg-slate-50' }, bodyRow: { class: 'hover:bg-slate-50 transition-colors duration-150 border-b border-slate-100' } }"
     >
       <template #empty>
@@ -137,19 +139,8 @@
         <template #body="{ data }"><Tag :value="data.priority" :severity="prioritySeverity(data.priority)" /></template>
       </Column>
 
-      <Column header="Status" class="w-44">
-        <template #body="{ data }">
-          <Select
-            v-if="can('radiology-orders', 'update')"
-            :modelValue="data.status"
-            @update:modelValue="(val) => setStatus(data, val)"
-            :options="statusOptions"
-            optionLabel="label"
-            optionValue="value"
-            class="text-sm w-full"
-          />
-          <Tag v-else :value="data.status" :severity="statusSeverity(data.status)" />
-        </template>
+      <Column header="Status" class="w-32">
+        <template #body="{ data }"><Tag :value="data.status" :severity="statusSeverity(data.status)" /></template>
       </Column>
 
       <Column header="Ordered By" class="w-40">
@@ -168,7 +159,7 @@
       <Column header="Actions" class="w-24">
         <template #body="{ data }">
           <div class="flex items-center gap-1">
-            <button v-if="can('radiology-orders', 'update')" type="button" title="Enter report" @click="openReport(data)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
+            <button type="button" title="View report" @click="openReport(data)" class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer">
               <MdMedicalServices size="18" />
             </button>
             <button v-if="can('radiology-orders', 'delete')" type="button" title="Delete order" @click="archive(data.pid)" class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer">
@@ -217,17 +208,6 @@ const priorityOptions = [
   { label: "Routine", value: "routine" },
   { label: "Urgent", value: "urgent" },
   { label: "Stat", value: "stat" },
-];
-const statusOptions = [
-  { label: "Ordered", value: "ordered" },
-  { label: "Scheduled", value: "scheduled" },
-  { label: "Completed", value: "completed" },
-  { label: "Cancelled", value: "cancelled" },
-];
-const reportStatusOptions = [
-  { label: "Draft", value: "draft" },
-  { label: "Finalized", value: "finalized" },
-  { label: "Amended", value: "amended" },
 ];
 
 const modalOpen = ref<boolean>(false);
@@ -309,52 +289,17 @@ const create = async () => {
   }
 };
 
-const setStatus = async (row: RadiologyOrder, status: string) => {
-  if (!row.pid) return;
-  try {
-    await radiologyOrderStore.updateStatus(row.pid, { status });
-    toast.success("Status updated successfully");
-    await refresh();
-  } catch (err: any) {
-    toast.error(err.response?.data?.message || "Failed to update status");
-  }
-};
-
 const reportModalOpen = ref<boolean>(false);
 const activeOrder = ref<RadiologyOrder | null>(null);
-const defaultReportInfo = () => ({ findings: "", impression: "", status: "draft" });
-const reportInfo = reactive(defaultReportInfo());
-
-watch(reportModalOpen, (open) => {
-  if (!open) Object.assign(reportInfo, defaultReportInfo());
-});
 
 const openReport = async (row: RadiologyOrder) => {
   if (!row.pid) return;
   try {
     await radiologyOrderStore.view(row.pid);
-    const full = radiologyOrderStore.radiologyOrder;
-    activeOrder.value = full;
-    Object.assign(reportInfo, {
-      findings: full.report?.findings || "",
-      impression: full.report?.impression || "",
-      status: full.report?.status || "draft",
-    });
+    activeOrder.value = radiologyOrderStore.radiologyOrder;
     reportModalOpen.value = true;
   } catch (err: any) {
     toast.error(err.response?.data?.message || "Failed to retrieve radiology order");
-  }
-};
-
-const submitReport = async () => {
-  if (!activeOrder.value?.pid) return;
-  try {
-    await radiologyOrderStore.saveReport(activeOrder.value.pid, reportInfo);
-    toast.success("Report saved successfully");
-    reportModalOpen.value = false;
-    await refresh();
-  } catch (err: any) {
-    toast.error(err.response?.data?.message || "Failed to save report");
   }
 };
 

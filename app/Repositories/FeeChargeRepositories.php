@@ -84,6 +84,48 @@ class FeeChargeRepositories
         }
     }
 
+    /**
+     * Items are replaced wholesale rather than diffed, and each kept/new item
+     * re-snapshots unit_fee from the current fee schedule price, matching the
+     * behaviour of store().
+     */
+    public function update($charge_id, $data)
+    {
+        try {
+            if (!$data) {
+                return null;
+            }
+
+            return DB::transaction(function () use ($charge_id, $data) {
+                $charge = FeeCharge::findOrFail($charge_id);
+
+                $charge->update([
+                    'charge_date' => Carbon::parse($data['charge_date'])->format('Y-m-d H:i:s'),
+                    'remarks' => $data['remarks'] ?? null,
+                ]);
+
+                if (isset($data['items'])) {
+                    $charge->items()->delete();
+
+                    foreach ($data['items'] as $item) {
+                        $feeSchedule = FeeSchedule::where('pid', $item['fee_schedule_pid'])->firstOrFail();
+
+                        $charge->items()->create([
+                            'fee_schedule_id' => $feeSchedule->id,
+                            'quantity' => $item['quantity'],
+                            'unit_fee' => $feeSchedule->standard_fee,
+                            'remarks' => $item['remarks'] ?? null,
+                        ]);
+                    }
+                }
+
+                return $charge->load($this->with);
+            });
+        } catch (\Exception $e) {
+            throw new \Exception("An error has occured! " . $e->getMessage());
+        }
+    }
+
     public function delete($data)
     {
         try {

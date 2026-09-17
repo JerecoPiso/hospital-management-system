@@ -13,12 +13,12 @@
             <BsCashCoin class="text-white" size="16" />
           </div>
           <div>
-            <h2 class="text-base font-semibold text-slate-800">Charge Fees</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Bill one or more fee schedule items to this patient case</p>
+            <h2 class="text-base font-semibold text-slate-800">{{ isUpdate ? "Edit Fee Charge" : "Charge Fees" }}</h2>
+            <p class="text-xs text-slate-400 mt-0.5">{{ isUpdate ? "Update this fee charge" : "Bill one or more fee schedule items to this patient case" }}</p>
           </div>
         </div>
       </template>
-      <form @submit.prevent="create" class="flex flex-col gap-5 pt-2">
+      <form @submit.prevent="isUpdate ? update() : create()" class="flex flex-col gap-5 pt-2">
         <div class="grid grid-cols-1 gap-x-4 gap-y-4">
           <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Charge Date <span class="text-red-400">*</span></label>
@@ -82,7 +82,7 @@
 
         <div class="flex gap-2 pt-1">
           <Button type="button" label="Cancel" severity="secondary" outlined fluid @click="modalOpen = false" />
-          <Button type="submit" label="Save Charge" fluid class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" />
+          <Button type="submit" :label="isUpdate ? 'Update Charge' : 'Save Charge'" fluid class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" />
         </div>
       </form>
     </Dialog>
@@ -138,7 +138,7 @@
 
       <Column header="Charged By" class="w-44">
         <template #body="{ data }">
-          <span class="text-slate-700 text-sm">{{ `${data.chargedBy?.firstname ?? ""} ${data.chargedBy?.lastname ?? ""}`.trim() || "—" }}</span>
+          <span class="text-slate-700 text-sm">{{ `${data.charged_by?.firstname ?? ""} ${data.charged_by?.lastname ?? ""}`.trim() || "—" }}</span>
         </template>
       </Column>
 
@@ -146,7 +146,7 @@
         <template #body="{ data }">
           <ul class="space-y-0.5">
             <li v-for="(item, idx) in data.items" :key="idx" class="text-slate-700 text-sm">
-              {{ item.feeSchedule?.name || "—" }}
+              {{ item.fee_schedule?.name || "—" }}
               <span class="text-slate-400 text-xs">x{{ item.quantity }} @ ₱{{ Number(item.unit_fee).toFixed(2) }}</span>
             </li>
           </ul>
@@ -164,17 +164,28 @@
         </template>
       </Column>
 
-      <Column header="Actions" class="w-16">
+      <Column header="Actions" class="w-24">
         <template #body="{ data }">
-          <button
-            v-if="can('fee-charges', 'delete')"
-            type="button"
-            title="Delete charge"
-            @click="archive(data.pid)"
-            class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer"
-          >
-            <BiTrash size="18" />
-          </button>
+          <div class="flex items-center gap-1">
+            <button
+              v-if="can('fee-charges', 'update')"
+              type="button"
+              title="Edit charge"
+              @click="edit(data.pid)"
+              class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
+            >
+              <BiEdit size="18" />
+            </button>
+            <button
+              v-if="can('fee-charges', 'delete')"
+              type="button"
+              title="Delete charge"
+              @click="archive(data.pid)"
+              class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer"
+            >
+              <BiTrash size="18" />
+            </button>
+          </div>
         </template>
       </Column>
     </DataTable>
@@ -185,7 +196,7 @@
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { BsPlusCircle, BsCashCoin } from "vue-icons-plus/bs";
-import { BiTrash } from "vue-icons-plus/bi";
+import { BiEdit, BiTrash } from "vue-icons-plus/bi";
 import { useFeeChargeStore } from "@/store/patientchart/FeeCharges";
 import { usePatientCaseStore } from "@/store/patients/PatientCase";
 import { useFeeScheduleStore } from "@/store/FeeSchedule";
@@ -213,6 +224,7 @@ const feeScheduleOptionLabel = (data: FeeSchedule) => `${data.code} — ${data.n
 const unitFeeFor = (pid?: string) => feeSchedules.value.find((f) => f.pid === pid)?.standard_fee ?? 0;
 
 const modalOpen = ref<boolean>(false);
+const isUpdate = ref<boolean>(false);
 const chargeDateModel = ref<Date | null>(null);
 
 const defaultItem = (): FeeChargeItem => ({ fee_schedule_pid: "", quantity: 1, remarks: "" });
@@ -231,6 +243,7 @@ watch(modalOpen, (open) => {
   if (!open) {
     Object.assign(info, defaultInfo());
     chargeDateModel.value = null;
+    isUpdate.value = false;
   }
 });
 watch(chargeDateModel, (val) => {
@@ -282,6 +295,40 @@ const create = async () => {
     await refresh();
   } catch (err: any) {
     toast.error(err.response?.data?.message || "Failed to charge fees");
+  }
+};
+
+const edit = async (pid: string) => {
+  try {
+    await feeChargeStore.view(pid);
+    const full = feeChargeStore.feeCharge;
+    Object.assign(info, {
+      pid: full.pid,
+      patient_case_pid: patientCasePid.value || "",
+      charge_date: full.charge_date,
+      remarks: full.remarks || "",
+      items: (full.items || []).map((item) => ({
+        fee_schedule_pid: item.fee_schedule?.pid || "",
+        quantity: item.quantity,
+        remarks: item.remarks || "",
+      })),
+    });
+    chargeDateModel.value = full.charge_date ? new Date(full.charge_date) : null;
+    isUpdate.value = true;
+    modalOpen.value = true;
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Failed to retrieve fee charge");
+  }
+};
+
+const update = async () => {
+  try {
+    await feeChargeStore.update(info);
+    toast.success("Fee charge updated successfully");
+    modalOpen.value = false;
+    await refresh();
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Failed to update fee charge");
   }
 };
 
