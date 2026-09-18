@@ -154,7 +154,7 @@
       <Column header="Actions" class="w-24">
         <template #body="{ data }">
           <div class="flex items-center gap-1">
-            <button
+            <!-- <button
               v-if="can('supply-charges', 'update')"
               type="button"
               title="Edit charge"
@@ -162,7 +162,7 @@
               class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
             >
               <BiEdit size="18" />
-            </button>
+            </button> -->
             <button
               v-if="can('supply-charges', 'delete')"
               type="button"
