@@ -243,12 +243,24 @@
         </div>
 
         <div class="flex flex-col gap-1.5 rounded-lg bg-slate-50 border border-slate-200 p-4 text-sm">
-          <div class="flex justify-between text-slate-500"><span>Subtotal</span><span>₱{{ Number(viewingInvoice?.subtotal || 0).toFixed(2) }}</span></div>
-          <div v-if="Number(viewingInvoice?.discount_amount || 0) > 0" class="flex justify-between text-slate-500"><span>Discount</span><span>-₱{{ Number(viewingInvoice?.discount_amount || 0).toFixed(2) }}</span></div>
-          <div v-if="Number(viewingInvoice?.tax_amount || 0) > 0" class="flex justify-between text-slate-500"><span>Tax</span><span>₱{{ Number(viewingInvoice?.tax_amount || 0).toFixed(2) }}</span></div>
-          <div class="flex justify-between text-slate-800 font-bold pt-1.5 border-t border-slate-200"><span>Total</span><span>₱{{ Number(viewingInvoice?.total_amount || 0).toFixed(2) }}</span></div>
-          <div class="flex justify-between text-emerald-600"><span>Paid</span><span>₱{{ Number(viewingInvoice?.paid_amount || 0).toFixed(2) }}</span></div>
-          <div class="flex justify-between text-red-500 font-semibold"><span>Balance</span><span>₱{{ Number(viewingInvoice?.balance || 0).toFixed(2) }}</span></div>
+          <div class="flex justify-between text-slate-500">
+            <span>Subtotal</span><span>₱{{ Number(viewingInvoice?.subtotal || 0).toFixed(2) }}</span>
+          </div>
+          <div v-if="Number(viewingInvoice?.discount_amount || 0) > 0" class="flex justify-between text-slate-500">
+            <span>Discount</span><span>-₱{{ Number(viewingInvoice?.discount_amount || 0).toFixed(2) }}</span>
+          </div>
+          <div v-if="Number(viewingInvoice?.tax_amount || 0) > 0" class="flex justify-between text-slate-500">
+            <span>Tax</span><span>₱{{ Number(viewingInvoice?.tax_amount || 0).toFixed(2) }}</span>
+          </div>
+          <div class="flex justify-between text-slate-800 font-bold pt-1.5 border-t border-slate-200">
+            <span>Total</span><span>₱{{ Number(viewingInvoice?.total_amount || 0).toFixed(2) }}</span>
+          </div>
+          <div class="flex justify-between text-emerald-600">
+            <span>Paid</span><span>₱{{ Number(viewingInvoice?.paid_amount || 0).toFixed(2) }}</span>
+          </div>
+          <div class="flex justify-between text-red-500 font-semibold">
+            <span>Balance</span><span>₱{{ Number(viewingInvoice?.balance || 0).toFixed(2) }}</span>
+          </div>
         </div>
 
         <div class="flex gap-2 pt-1">
@@ -537,7 +549,243 @@
           </div>
         </div>
       </div>
+
+      <!-- Bed Assignment Dialog -->
+      <Dialog v-model:visible="bedModal" modal :style="{ width: '38vw' }" :breakpoints="{ '1199px': '75vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
+        <template #header>
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
+              <FaBed class="text-white" size="15" />
+            </div>
+            <div>
+              <h2 class="text-base font-semibold text-slate-800">{{ isBedUpdate ? "Edit Bed Assignment" : "Assign Bed" }}</h2>
+              <p class="text-xs text-slate-400 mt-0.5">{{ isBedUpdate ? "Update this bed assignment" : "Assign a bed to this patient case" }}</p>
+            </div>
+          </div>
+        </template>
+        <form @submit.prevent="isBedUpdate ? updateBedAssignment() : createBedAssignment()" class="flex flex-col gap-5 pt-2">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Bed <span class="text-red-400">*</span></label>
+            <Select v-model="bedForm.bed_pid" :options="beds" :optionLabel="bedOptionLabel" optionValue="pid" placeholder="Select bed" filter required fluid class="text-sm" />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-slate-700">Started At <span class="text-red-400">*</span></label>
+              <DatePicker v-model="bedStartedAtModel" showTime hourFormat="24" dateFormat="yy-mm-dd" fluid class="text-sm" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-slate-700">Ended At</label>
+              <DatePicker v-model="bedEndedAtModel" showTime hourFormat="24" dateFormat="yy-mm-dd" placeholder="Leave empty if active" showButtonBar fluid class="text-sm" />
+            </div>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Remarks</label>
+            <Textarea v-model="bedForm.remarks" rows="3" autoResize fluid placeholder="Optional remarks..." class="text-sm" />
+          </div>
+          <div class="flex gap-2 pt-1">
+            <Button type="button" label="Cancel" severity="secondary" outlined fluid @click="bedModal = false" />
+            <Button type="submit" :label="isBedUpdate ? 'Update Assignment' : 'Assign Bed'" fluid class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" />
+          </div>
+        </form>
+      </Dialog>
+
+      <!-- Discharge Dialog -->
+      <Dialog v-model:visible="dischargeModal" modal :style="{ width: '34vw' }" :breakpoints="{ '1199px': '75vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
+        <template #header>
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
+              <FiLogOut class="text-white" size="15" />
+            </div>
+            <div>
+              <h2 class="text-base font-semibold text-slate-800">{{ isDischargeUpdate ? "Edit Discharge" : "Discharge Patient" }}</h2>
+              <p class="text-xs text-slate-400 mt-0.5">{{ isDischargeUpdate ? "Update discharge details" : "Record discharge details for this case" }}</p>
+            </div>
+          </div>
+        </template>
+        <form @submit.prevent="isDischargeUpdate ? updateDischarge() : createDischarge()" class="flex flex-col gap-5 pt-2">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Discharge Date/Time <span class="text-red-400">*</span></label>
+            <DatePicker v-model="dischargeDatetimeModel" showTime hourFormat="24" dateFormat="yy-mm-dd" required fluid class="text-sm" />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Disposition <span class="text-red-400">*</span></label>
+            <Select v-model="dischargeForm.disposition" :options="dispositionOptions" placeholder="Select disposition" required fluid class="text-sm" />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Condition <span class="text-red-400">*</span></label>
+            <Select v-model="dischargeForm.discharge_condition" :options="conditionOptions" placeholder="Select condition" required fluid class="text-sm" />
+          </div>
+          <div class="flex gap-2 pt-1">
+            <Button type="button" label="Cancel" severity="secondary" outlined fluid @click="dischargeModal = false" />
+            <Button type="submit" :label="isDischargeUpdate ? 'Update Discharge' : 'Save Discharge'" fluid class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" />
+          </div>
+        </form>
+      </Dialog>
+
+      <div class="grid col-san-1 lg:grid-cols-3 gap-5">
+        <div class="col-span-2">
+          <!-- Bed Assignment -->
+          <div v-if="can('patient-case-beds', 'view')" class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+            <div class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-linear-to-r from-slate-50 to-white">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md">
+                  <FaBed class="text-white" size="18" />
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-slate-800">Bed Assignment</h3>
+                  <p class="text-xs text-slate-400">{{ activeBedAssignment ? `Currently in ${bedLabel(activeBedAssignment.bed)}` : "No active bed assignment" }}</p>
+                </div>
+              </div>
+              <button
+                v-if="can('patient-case-beds', 'create')"
+                type="button"
+                @click="openCreateBed"
+                class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95"
+              >
+                <BsPlusCircle size="16" />
+                Assign Bed
+              </button>
+            </div>
+
+            <div v-if="bedAssignmentsLoading" class="p-8 text-center text-sm text-slate-400">Loading bed assignments...</div>
+            <div v-else-if="!patientCaseBeds.length" class="flex flex-col items-center justify-center py-12 text-slate-400">
+              <FaBed size="32" class="mb-3 opacity-30" />
+              <p class="text-sm font-medium">No bed assignment recorded</p>
+              <p class="text-xs mt-1">Click "Assign Bed" to assign one</p>
+            </div>
+            <div v-else class="overflow-x-auto">
+              <table class="w-full">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-100">
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Bed</th>
+                    <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Price</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Started</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Ended</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Assigned By</th>
+                    <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="row in patientCaseBeds" :key="row.pid" class="border-b border-slate-100 hover:bg-slate-50 transition-colors duration-150 last:border-0">
+                    <td class="px-6 py-4 text-sm text-slate-700">{{ bedLabel(row.bed) }}</td>
+                    <td class="px-6 py-4 text-sm text-right text-slate-600">₱{{ Number(row.price || 0).toFixed(2) }}</td>
+                    <td class="px-6 py-4 text-sm text-slate-500">{{ formatDateTime(row.started_at) }}</td>
+                    <td class="px-6 py-4 text-sm">
+                      <span v-if="!row.ended_at" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100"
+                        >Active</span
+                      >
+                      <span v-else class="text-slate-500">{{ formatDateTime(row.ended_at) }}</span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-600">{{ userName(row.assigned_by) || "—" }}</td>
+                    <td class="px-6 py-4 text-right">
+                      <div class="flex items-center justify-end gap-1">
+                        <button
+                          v-if="can('patient-case-beds', 'update') && !row.ended_at"
+                          type="button"
+                          title="End assignment"
+                          @click="endBedAssignment(row)"
+                          class="p-1.5 rounded-md text-amber-600 hover:bg-amber-50 hover:text-amber-700 transition-colors duration-150 cursor-pointer"
+                        >
+                          <FiLogOut size="16" />
+                        </button>
+                        <button
+                          v-if="can('patient-case-beds', 'update')"
+                          type="button"
+                          title="Edit"
+                          @click="editBedAssignment(row.pid)"
+                          class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
+                        >
+                          <BiEdit size="18" />
+                        </button>
+                        <button
+                          v-if="can('patient-case-beds', 'delete')"
+                          type="button"
+                          title="Delete"
+                          @click="archiveBedAssignment(row.pid)"
+                          class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer"
+                        >
+                          <BiTrash size="18" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-span-1">
+          <!-- Discharge -->
+          <div v-if="can('patient-case-discharges', 'view')" class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+            <div class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-linear-to-r from-slate-50 to-white">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md">
+                  <FiLogOut class="text-white" size="18" />
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-slate-800">Discharge</h3>
+                  <p class="text-xs text-slate-400">{{ discharge ? "This case has been discharged" : "Discharge details for this case" }}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  v-if="can('patient-case-discharges', 'create') && !discharge"
+                  type="button"
+                  @click="openCreateDischarge"
+                  class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95"
+                >
+                  <BsPlusCircle size="16" />
+                  Discharge Patient
+                </button>
+                <button
+                  v-if="can('patient-case-discharges', 'update') && discharge"
+                  type="button"
+                  @click="editDischarge"
+                  class="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium shadow-sm transition-colors"
+                >
+                  <BiEdit size="15" />
+                  Edit
+                </button>
+                <button
+                  v-if="can('patient-case-discharges', 'delete') && discharge"
+                  type="button"
+                  @click="archiveDischarge"
+                  class="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white border border-slate-200 hover:bg-red-50 text-red-500 text-sm font-medium shadow-sm transition-colors"
+                >
+                  <BiTrash size="15" />
+                  Delete
+                </button>
+              </div>
+            </div>
+
+            <div v-if="dischargeLoading" class="p-8 text-center text-sm text-slate-400">Loading discharge information...</div>
+            <div v-else-if="!discharge" class="flex flex-col items-center justify-center py-12 text-slate-400">
+              <FiLogOut size="32" class="mb-3 opacity-30" />
+              <p class="text-sm font-medium">Patient has not been discharged</p>
+            </div>
+            <div v-else class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Discharge Date/Time</p>
+                <p class="text-sm font-medium text-slate-800 mt-1">{{ formatDateTime(discharge.discharge_datetime) }}</p>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Disposition</p>
+                <p class="text-sm font-medium text-slate-800 mt-1">{{ discharge.disposition }}</p>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Condition</p>
+                <p class="text-sm font-medium text-slate-800 mt-1">{{ discharge.discharge_condition || "—" }}</p>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Discharged By</p>
+                <p class="text-sm font-medium text-slate-800 mt-1">{{ userName(discharge.discharged_by) || "—" }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
+
     <!-- Billing & Invoices -->
     <div v-if="can('invoices', 'view')" class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
       <div class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-linear-to-r from-slate-50 to-white">
@@ -633,12 +881,15 @@
 <script setup>
 import { ref, reactive, computed, onMounted, watch, markRaw } from "vue";
 import { useRoute } from "vue-router";
-import { FiUser, FiUsers, FiCalendar, FiEdit2, FiPrinter, FiMapPin, FiHeart, FiActivity, FiThermometer, FiDroplet, FiFileText, FiCreditCard, FiEye } from "vue-icons-plus/fi";
+import { FiUser, FiUsers, FiCalendar, FiEdit2, FiPrinter, FiMapPin, FiHeart, FiActivity, FiThermometer, FiDroplet, FiFileText, FiCreditCard, FiEye, FiLogOut } from "vue-icons-plus/fi";
 import { FaTextHeight, FaWeight } from "vue-icons-plus/fa";
 import { BsJournalMedical, BsPlusCircle } from "vue-icons-plus/bs";
 import { BiEdit, BiTrash } from "vue-icons-plus/bi";
 import { usePatientCaseStore } from "@/store/patients/PatientCase";
 import { useInvoiceStore } from "@/store/patientchart/Invoices";
+import { usePatientCaseBedStore } from "@/store/patientchart/PatientCaseBed";
+import { usePatientCaseDischargeStore } from "@/store/patientchart/PatientCaseDischarge";
+import { useBedStore } from "@/store/Bed";
 import { useAppToast } from "@/composables/toast";
 import { useConfirmToast } from "@/composables/confirm";
 import { useVitalSignsStore } from "@/store/patientchart/VitalSigns";
@@ -655,6 +906,9 @@ const invoiceStore = useInvoiceStore();
 const vitalSignStore = useVitalSignsStore();
 const soapStore = useSoapStore();
 const icdStore = useIcdStore();
+const patientCaseBedStore = usePatientCaseBedStore();
+const patientCaseDischargeStore = usePatientCaseDischargeStore();
+const bedStore = useBedStore();
 
 const patientCasePid = computed(() => route.params.patient_case_pid);
 const patientCase = computed(() => patientCaseStore.patientCase);
@@ -926,6 +1180,244 @@ const updateCase = async () => {
     toast.error(err.response?.data?.message || "Failed to update case information");
   }
   await loadInvoices();
+  await Promise.all([loadBeds(), loadBedAssignments(), loadDischarge()]);
+};
+
+const userName = (user) => {
+  if (!user) return "";
+  return `${user.firstname ?? ""} ${user.lastname ?? ""}`.trim();
+};
+
+const formatForApi = (date) => {
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+};
+
+// Bed Assignment
+const patientCaseBeds = computed(() => patientCaseBedStore.patientCaseBeds);
+const beds = computed(() => bedStore.beds);
+const activeBedAssignment = computed(() => patientCaseBeds.value.find((b) => !b.ended_at));
+const bedAssignmentsLoading = ref(false);
+const bedModal = ref(false);
+const isBedUpdate = ref(false);
+const defaultBedForm = () => ({ pid: "", patient_case_pid: "", bed_pid: "", started_at: "", ended_at: null, remarks: "" });
+const bedForm = reactive(defaultBedForm());
+const bedStartedAtModel = ref(new Date());
+const bedEndedAtModel = ref(null);
+
+watch(bedModal, (open) => {
+  if (!open) {
+    Object.assign(bedForm, defaultBedForm());
+    isBedUpdate.value = false;
+    bedStartedAtModel.value = new Date();
+    bedEndedAtModel.value = null;
+  }
+});
+
+const bedOptionLabel = (data) => `${data.room?.ward?.name ? data.room.ward.name + " — " : ""}${data.room?.room_number || ""} / Bed ${data.bed_number}`;
+const bedLabel = (bed) => (bed ? `${bed.room?.ward?.name ? bed.room.ward.name + " — " : ""}${bed.room?.room_number || ""} / Bed ${bed.bed_number}` : "—");
+
+const loadBedAssignments = async () => {
+  if (!patientCasePid.value || !can("patient-case-beds", "view")) return;
+  bedAssignmentsLoading.value = true;
+  try {
+    await patientCaseBedStore.read(patientCasePid.value);
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Failed to retrieve bed assignments");
+  } finally {
+    bedAssignmentsLoading.value = false;
+  }
+};
+
+const loadBeds = async () => {
+  if (!can("patient-case-beds", "create") && !can("patient-case-beds", "update")) return;
+  try {
+    await bedStore.read();
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Failed to retrieve beds");
+  }
+};
+
+const openCreateBed = () => {
+  Object.assign(bedForm, defaultBedForm());
+  isBedUpdate.value = false;
+  bedStartedAtModel.value = new Date();
+  bedEndedAtModel.value = null;
+  bedModal.value = true;
+};
+
+const createBedAssignment = async () => {
+  try {
+    bedForm.patient_case_pid = patientCasePid.value;
+    bedForm.started_at = formatForApi(bedStartedAtModel.value);
+    bedForm.ended_at = bedEndedAtModel.value ? formatForApi(bedEndedAtModel.value) : null;
+    await patientCaseBedStore.create(bedForm);
+    toast.success("Bed assigned successfully");
+    bedModal.value = false;
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Failed to assign bed");
+  }
+};
+
+const editBedAssignment = async (pid) => {
+  try {
+    await patientCaseBedStore.view(pid);
+    const current = patientCaseBedStore.patientCaseBed;
+    Object.assign(bedForm, {
+      pid: current.pid,
+      patient_case_pid: patientCasePid.value,
+      bed_pid: current.bed?.pid || "",
+      remarks: current.remarks || "",
+    });
+    bedStartedAtModel.value = current.started_at ? new Date(current.started_at) : new Date();
+    bedEndedAtModel.value = current.ended_at ? new Date(current.ended_at) : null;
+    isBedUpdate.value = true;
+    bedModal.value = true;
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Failed to retrieve bed assignment");
+  }
+};
+
+const updateBedAssignment = async () => {
+  try {
+    bedForm.patient_case_pid = patientCasePid.value;
+    bedForm.started_at = formatForApi(bedStartedAtModel.value);
+    bedForm.ended_at = bedEndedAtModel.value ? formatForApi(bedEndedAtModel.value) : null;
+    await patientCaseBedStore.update(bedForm);
+    toast.success("Bed assignment updated successfully");
+    bedModal.value = false;
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Failed to update bed assignment");
+  }
+};
+
+const endBedAssignment = (row) => {
+  showConfirm({
+    message: "End this bed assignment now?",
+    header: "End Assignment",
+    onAccept: async () => {
+      try {
+        await patientCaseBedStore.update({
+          pid: row.pid,
+          patient_case_pid: patientCasePid.value,
+          bed_pid: row.bed?.pid,
+          started_at: row.started_at,
+          ended_at: formatForApi(new Date()),
+          remarks: row.remarks,
+        });
+        toast.success("Bed assignment ended");
+      } catch (err) {
+        toast.error(err.response?.data?.message || "Failed to end bed assignment");
+      }
+    },
+  });
+};
+
+const archiveBedAssignment = (pid) => {
+  showConfirm({
+    message: "Are you sure you want to delete this bed assignment record?",
+    header: "Delete Confirmation",
+    onAccept: async () => {
+      try {
+        await patientCaseBedStore.archive(pid, patientCasePid.value);
+        toast.success("Bed assignment deleted");
+      } catch (err) {
+        toast.error(err.response?.data?.message || "Failed to delete bed assignment");
+      }
+    },
+  });
+};
+
+// Discharge
+const patientCaseDischarges = computed(() => patientCaseDischargeStore.patientCaseDischarges);
+const discharge = computed(() => patientCaseDischarges.value?.[0] || null);
+const dischargeLoading = ref(false);
+const dischargeModal = ref(false);
+const isDischargeUpdate = ref(false);
+const defaultDischargeForm = () => ({ pid: "", patient_case_pid: "", discharge_datetime: "", disposition: "", discharge_condition: "" });
+const dischargeForm = reactive(defaultDischargeForm());
+const dischargeDatetimeModel = ref(new Date());
+const dispositionOptions = ["Home", "Transferred", "DAMA", "Absconded", "Death", "Other"];
+const conditionOptions = ["Improved", "Stable", "Recovered", "Unchanged", "Other"];
+
+watch(dischargeModal, (open) => {
+  if (!open) {
+    Object.assign(dischargeForm, defaultDischargeForm());
+    isDischargeUpdate.value = false;
+    dischargeDatetimeModel.value = new Date();
+  }
+});
+
+const loadDischarge = async () => {
+  if (!patientCasePid.value || !can("patient-case-discharges", "view")) return;
+  dischargeLoading.value = true;
+  try {
+    await patientCaseDischargeStore.read(patientCasePid.value);
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Failed to retrieve discharge information");
+  } finally {
+    dischargeLoading.value = false;
+  }
+};
+
+const openCreateDischarge = () => {
+  Object.assign(dischargeForm, defaultDischargeForm());
+  isDischargeUpdate.value = false;
+  dischargeDatetimeModel.value = new Date();
+  dischargeModal.value = true;
+};
+
+const createDischarge = async () => {
+  try {
+    dischargeForm.patient_case_pid = patientCasePid.value;
+    dischargeForm.discharge_datetime = formatForApi(dischargeDatetimeModel.value);
+    await patientCaseDischargeStore.create(dischargeForm);
+    toast.success("Patient discharged successfully");
+    dischargeModal.value = false;
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Failed to discharge patient");
+  }
+};
+
+const editDischarge = () => {
+  if (!discharge.value) return;
+  Object.assign(dischargeForm, {
+    pid: discharge.value.pid,
+    patient_case_pid: patientCasePid.value,
+    disposition: discharge.value.disposition || "",
+    discharge_condition: discharge.value.discharge_condition || "",
+  });
+  dischargeDatetimeModel.value = discharge.value.discharge_datetime ? new Date(discharge.value.discharge_datetime) : new Date();
+  isDischargeUpdate.value = true;
+  dischargeModal.value = true;
+};
+
+const updateDischarge = async () => {
+  try {
+    dischargeForm.patient_case_pid = patientCasePid.value;
+    dischargeForm.discharge_datetime = formatForApi(dischargeDatetimeModel.value);
+    await patientCaseDischargeStore.update(dischargeForm);
+    toast.success("Discharge updated successfully");
+    dischargeModal.value = false;
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Failed to update discharge");
+  }
+};
+
+const archiveDischarge = () => {
+  if (!discharge.value) return;
+  showConfirm({
+    message: "Are you sure you want to delete this discharge record?",
+    header: "Delete Confirmation",
+    onAccept: async () => {
+      try {
+        await patientCaseDischargeStore.archive(discharge.value.pid, patientCasePid.value);
+        toast.success("Discharge record deleted");
+      } catch (err) {
+        toast.error(err.response?.data?.message || "Failed to delete discharge record");
+      }
+    },
+  });
 };
 
 // Billing & Invoices

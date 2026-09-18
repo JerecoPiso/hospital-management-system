@@ -23,6 +23,10 @@
                         <InputText v-model="info.bed_number" placeholder="e.g. A, B, 1, 2" required fluid class="text-sm" />
                     </div>
                     <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-medium text-slate-700">Price</label>
+                        <InputNumber v-model="info.price" mode="currency" currency="PHP" locale="en-PH" :min="0" fluid class="text-sm" />
+                    </div>
+                    <div class="flex flex-col gap-1.5">
                         <label class="text-sm font-medium text-slate-700">Status</label>
                         <Select v-model="info.status" :options="statusOptions" placeholder="Select status" fluid class="text-sm" />
                     </div>
@@ -73,6 +77,9 @@
             <Column header="Ward">
                 <template #body="{ data }"><span class="text-slate-500 text-sm">{{ data.room?.ward?.name || '—' }}</span></template>
             </Column>
+            <Column header="Price" class="w-28">
+                <template #body="{ data }"><span class="text-slate-700 text-sm">₱{{ Number(data.price || 0).toFixed(2) }}</span></template>
+            </Column>
             <Column header="Status" class="w-32">
                 <template #body="{ data }">
                     <Tag :value="data.status" :severity="statusSeverity(data.status)" />
@@ -120,7 +127,7 @@ const roomOptionLabel = (data: Room) => `${data.room_number}${data.ward?.name ? 
 const statusOptions = ['available', 'occupied', 'cleaning', 'maintenance'];
 const modalOpen = ref<boolean>(false);
 const isUpdate = ref<boolean>(false);
-const defaultInfo = (): Bed => ({ room_pid: '', bed_number: '', status: 'available' });
+const defaultInfo = (): Bed => ({ room_pid: '', bed_number: '', price: 0, status: 'available' });
 const info = reactive<Bed>(defaultInfo());
 
 watch(modalOpen, (open) => { if (!open) { Object.assign(info, defaultInfo()); isUpdate.value = false; } });

@@ -12,9 +12,9 @@ trait NursesNotesTrait
         try {
             $filters = [];
             if ($request->has('patient_case_pid') || filled($request->input('patient_case_pid'))) {
-                $note = $this->patientCaseRepo->searchByPid($request->input('patient_case_pid'));
-                if ($note) {
-                    $filters['patient_case_id'] = $note->id;
+                $case = $this->patientCaseRepo->searchByPid($request->input('patient_case_pid'));
+                if ($case) {
+                    $filters['patient_case_id'] = $case->id;
                 }
             }
             $notes = $this->nurseNotesRepo->list($filters);
@@ -34,10 +34,10 @@ trait NursesNotesTrait
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
         }
     }
-    public function view($order_pid)
+    public function view($noted_pid)
     {
         try {
-            $note = $this->nurseNotesRepo->searchByPid($order_pid);
+            $note = $this->nurseNotesRepo->searchByPid($noted_pid);
             if (!$note) {
                 return api_response([], false, "Nurses Notes not found", 404);
             }
@@ -47,11 +47,11 @@ trait NursesNotesTrait
         }
     }
 
-    public function update($order_pid, StoreRequest $request)
+    public function update($noted_pid, StoreRequest $request)
     {
         try {
             $validated = $request->validated();
-            $note = $this->nurseNotesRepo->searchByPid($order_pid);
+            $note = $this->nurseNotesRepo->searchByPid($noted_pid);
             if (!$note) {
                 return api_response([], false, "Nurses Notes not found", 404);
             }
@@ -65,10 +65,10 @@ trait NursesNotesTrait
         }
     }
 
-    public function delete($order_pid)
+    public function delete($noted_pid)
     {
         try {
-            $note = $this->nurseNotesRepo->searchByPid($order_pid);
+            $note = $this->nurseNotesRepo->searchByPid($noted_pid);
             if (!$note) {
                 return api_response([], false, "Nurses Notes not found", 404);
             }

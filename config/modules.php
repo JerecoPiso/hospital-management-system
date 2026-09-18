@@ -39,6 +39,8 @@ return [
     // ['key' => 'wards', 'label' => 'Wards'],
     // ['key' => 'rooms', 'label' => 'Rooms'],
     // ['key' => 'beds', 'label' => 'Beds'],
+    // ['key' => 'patient-case-beds', 'label' => 'Bed Assignment'],
+    // ['key' => 'patient-case-discharges', 'label' => 'Patient Discharge'],
     // ['key' => 'stations', 'label' => 'Stations'],
     // ['key' => 'lab-test-categories', 'label' => 'Lab Test Categories'],
     // ['key' => 'lab-tests', 'label' => 'Lab Tests'],

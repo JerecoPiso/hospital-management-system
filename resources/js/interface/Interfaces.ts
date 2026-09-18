@@ -382,7 +382,33 @@ export interface Bed {
     room_pid: string;
     room?: Room;
     bed_number: string;
+    price?: number | string;
     status?: 'available' | 'occupied' | 'cleaning' | 'maintenance';
+}
+
+export interface PatientCaseBed {
+    pid?: string;
+    patient_case_pid: string;
+    patient_case?: PatientCase;
+    bed_pid: string;
+    bed?: Bed;
+    price?: number | string;
+    started_at: string;
+    ended_at?: string | null;
+    assigned_by?: User;
+    remarks?: string | null;
+    created_at?: string;
+}
+
+export interface PatientCaseDischarge {
+    pid?: string;
+    patient_case_pid: string;
+    patient_case?: PatientCase;
+    discharge_datetime: string;
+    disposition: string;
+    discharge_condition?: string | null;
+    discharged_by?: User;
+    created_at?: string;
 }
 
 export interface Station {
