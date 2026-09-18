@@ -10,64 +10,6 @@
   </div>
 
   <div v-else class="space-y-6 mb-12">
-    <!-- Header with Actions -->
-    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-      <div>
-        <h1 class="text-2xl font-bold text-slate-900">Patient Information</h1>
-        <p class="text-sm text-slate-500 mt-0.5">Patient profile and current case record</p>
-      </div>
-      <!-- <div class="flex gap-3">
-        <button @click="editProfile" class="px-4 py-2.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-sm font-medium text-slate-700 transition-colors shadow-sm flex items-center gap-2">
-          <FiEdit2 size="15" />
-          Edit Profile
-        </button>
-        <button @click="printSummary" class="px-4 py-2.5 bg-linear-to-r from-emerald-500 to-teal-600 text-white rounded-lg hover:brightness-105 text-sm font-medium transition-all shadow-sm flex items-center gap-2">
-          <FiPrinter size="15" />
-          Print Summary
-        </button>
-      </div> -->
-    </div>
-
-    <!-- Patient Header Card -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-      <div class="bg-linear-to-r from-emerald-500 to-teal-600 h-24"></div>
-      <div class="px-6 pb-6">
-        <div class="flex flex-col sm:flex-row gap-6 -mt-16 relative z-10">
-          <!-- Patient Avatar -->
-          <div class="shrink-0">
-            <div class="w-32 h-32 rounded-xl border-4 border-white shadow-lg bg-linear-to-br from-teal-400 to-teal-600 flex items-center justify-center">
-              <span class="text-5xl font-bold text-white">{{ initials }}</span>
-            </div>
-          </div>
-
-          <!-- Patient Basic Info -->
-          <div class="flex-1 pt-2">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div>
-                <p class="text-xs font-semibold text-emerald-50 uppercase tracking-wider">Full Name</p>
-                <p class="text-lg font-bold text-white mt-1 upp">{{ fullName }}</p>
-              </div>
-              <div>
-                <p class="text-xs font-semibold text-emerald-50 uppercase tracking-wider">Medical Record No.</p>
-                <p class="text-lg font-mono text-white mt-1">{{ patient.medical_record_number }}</p>
-              </div>
-              <div>
-                <p class="text-xs font-semibold text-emerald-50 uppercase tracking-wider">Age / Gender</p>
-                <p class="text-lg font-bold text-white mt-1">{{ age }} yrs &bull; {{ patient.gender }}</p>
-              </div>
-              <div>
-                <p class="text-xs font-semibold text-emerald-50 uppercase tracking-wider">Patient Type</p>
-                <span class="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">
-                  <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
-                  {{ patientTypeLabel }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Payment Dialog -->
     <Dialog v-model:visible="paymentModalOpen" modal :style="{ width: '32vw' }" :breakpoints="{ '1199px': '80vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
       <template #header>
@@ -178,6 +120,136 @@
       </div>
     </Dialog>
 
+    <!-- Bed Assignment Dialog -->
+    <Dialog v-model:visible="bedModal" modal :style="{ width: '38vw' }" :breakpoints="{ '1199px': '75vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
+      <template #header>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
+            <FaBed class="text-white" size="15" />
+          </div>
+          <div>
+            <h2 class="text-base font-semibold text-slate-800">{{ isBedUpdate ? "Edit Bed Assignment" : "Assign Bed" }}</h2>
+            <p class="text-xs text-slate-400 mt-0.5">{{ isBedUpdate ? "Update this bed assignment" : "Assign a bed to this patient case" }}</p>
+          </div>
+        </div>
+      </template>
+      <form @submit.prevent="isBedUpdate ? updateBedAssignment() : createBedAssignment()" class="flex flex-col gap-5 pt-2">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-slate-700">Bed <span class="text-red-400">*</span></label>
+          <Select v-model="bedForm.bed_pid" :options="beds" :optionLabel="bedOptionLabel" optionValue="pid" placeholder="Select bed" filter required fluid class="text-sm" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Started At <span class="text-red-400">*</span></label>
+            <DatePicker v-model="bedStartedAtModel" showTime hourFormat="24" dateFormat="yy-mm-dd" fluid class="text-sm" />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-slate-700">Ended At</label>
+            <DatePicker v-model="bedEndedAtModel" showTime hourFormat="24" dateFormat="yy-mm-dd" placeholder="Leave empty if active" showButtonBar fluid class="text-sm" />
+          </div>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-slate-700">Remarks</label>
+          <Textarea v-model="bedForm.remarks" rows="3" autoResize fluid placeholder="Optional remarks..." class="text-sm" />
+        </div>
+        <div class="flex gap-2 pt-1">
+          <Button type="button" label="Cancel" severity="secondary" outlined fluid @click="bedModal = false" />
+          <Button type="submit" :label="isBedUpdate ? 'Update Assignment' : 'Assign Bed'" fluid class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" />
+        </div>
+      </form>
+    </Dialog>
+
+    <!-- Discharge Dialog -->
+    <Dialog v-model:visible="dischargeModal" modal :style="{ width: '34vw' }" :breakpoints="{ '1199px': '75vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
+      <template #header>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
+            <FiLogOut class="text-white" size="15" />
+          </div>
+          <div>
+            <h2 class="text-base font-semibold text-slate-800">{{ isDischargeUpdate ? "Edit Discharge" : "Discharge Patient" }}</h2>
+            <p class="text-xs text-slate-400 mt-0.5">{{ isDischargeUpdate ? "Update discharge details" : "Record discharge details for this case" }}</p>
+          </div>
+        </div>
+      </template>
+      <form @submit.prevent="isDischargeUpdate ? updateDischarge() : createDischarge()" class="flex flex-col gap-5 pt-2">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-slate-700">Discharge Date/Time <span class="text-red-400">*</span></label>
+          <DatePicker v-model="dischargeDatetimeModel" showTime hourFormat="24" dateFormat="yy-mm-dd" required fluid class="text-sm" />
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-slate-700">Disposition <span class="text-red-400">*</span></label>
+          <Select v-model="dischargeForm.disposition" :options="dispositionOptions" placeholder="Select disposition" required fluid class="text-sm" />
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-slate-700">Condition <span class="text-red-400">*</span></label>
+          <Select v-model="dischargeForm.discharge_condition" :options="conditionOptions" placeholder="Select condition" required fluid class="text-sm" />
+        </div>
+        <div class="flex gap-2 pt-1">
+          <Button type="button" label="Cancel" severity="secondary" outlined fluid @click="dischargeModal = false" />
+          <Button type="submit" :label="isDischargeUpdate ? 'Update Discharge' : 'Save Discharge'" fluid class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" />
+        </div>
+      </form>
+    </Dialog>
+
+    <!-- Header with Actions -->
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900">Patient Information</h1>
+        <p class="text-sm text-slate-500 mt-0.5">Patient profile and current case record</p>
+      </div>
+      <!-- <div class="flex gap-3">
+        <button @click="editProfile" class="px-4 py-2.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-sm font-medium text-slate-700 transition-colors shadow-sm flex items-center gap-2">
+          <FiEdit2 size="15" />
+          Edit Profile
+        </button>
+        <button @click="printSummary" class="px-4 py-2.5 bg-linear-to-r from-emerald-500 to-teal-600 text-white rounded-lg hover:brightness-105 text-sm font-medium transition-all shadow-sm flex items-center gap-2">
+          <FiPrinter size="15" />
+          Print Summary
+        </button>
+      </div> -->
+    </div>
+
+    <!-- Patient Header Card -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="bg-linear-to-r from-emerald-500 to-teal-600 h-24"></div>
+      <div class="px-6 pb-6">
+        <div class="flex flex-col sm:flex-row gap-6 -mt-16 relative z-10">
+          <!-- Patient Avatar -->
+          <div class="shrink-0">
+            <div class="w-32 h-32 rounded-xl border-4 border-white shadow-lg bg-linear-to-br from-teal-400 to-teal-600 flex items-center justify-center">
+              <span class="text-5xl font-bold text-white">{{ initials }}</span>
+            </div>
+          </div>
+
+          <!-- Patient Basic Info -->
+          <div class="flex-1 pt-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <p class="text-xs font-semibold text-emerald-50 uppercase tracking-wider">Full Name</p>
+                <p class="text-lg font-bold text-white mt-1 upp">{{ fullName }}</p>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-emerald-50 uppercase tracking-wider">Medical Record No.</p>
+                <p class="text-lg font-mono text-white mt-1">{{ patient.medical_record_number }}</p>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-emerald-50 uppercase tracking-wider">Age / Gender</p>
+                <p class="text-lg font-bold text-white mt-1">{{ age }} yrs &bull; {{ patient.gender }}</p>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-emerald-50 uppercase tracking-wider">Patient Type</p>
+                <span class="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25">
+                  <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+                  {{ patientTypeLabel }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Vital Signs -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
       <div v-for="stat in vitalStats" :key="stat.label" class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200 flex items-start gap-3">
@@ -190,6 +262,7 @@
         </div>
       </div>
     </div>
+    
     <p class="text-xs text-slate-400 -mt-3">Last measured {{ formatDateTime(latestVitalSignsMeasuredAt) }}</p>
 
     <!-- Main Content Grid -->
@@ -295,78 +368,6 @@
         </section>
       </div>
     </div>
-
-    <!-- Bed Assignment Dialog -->
-    <Dialog v-model:visible="bedModal" modal :style="{ width: '38vw' }" :breakpoints="{ '1199px': '75vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
-      <template #header>
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
-            <FaBed class="text-white" size="15" />
-          </div>
-          <div>
-            <h2 class="text-base font-semibold text-slate-800">{{ isBedUpdate ? "Edit Bed Assignment" : "Assign Bed" }}</h2>
-            <p class="text-xs text-slate-400 mt-0.5">{{ isBedUpdate ? "Update this bed assignment" : "Assign a bed to this patient case" }}</p>
-          </div>
-        </div>
-      </template>
-      <form @submit.prevent="isBedUpdate ? updateBedAssignment() : createBedAssignment()" class="flex flex-col gap-5 pt-2">
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-slate-700">Bed <span class="text-red-400">*</span></label>
-          <Select v-model="bedForm.bed_pid" :options="beds" :optionLabel="bedOptionLabel" optionValue="pid" placeholder="Select bed" filter required fluid class="text-sm" />
-        </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-medium text-slate-700">Started At <span class="text-red-400">*</span></label>
-            <DatePicker v-model="bedStartedAtModel" showTime hourFormat="24" dateFormat="yy-mm-dd" fluid class="text-sm" />
-          </div>
-          <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-medium text-slate-700">Ended At</label>
-            <DatePicker v-model="bedEndedAtModel" showTime hourFormat="24" dateFormat="yy-mm-dd" placeholder="Leave empty if active" showButtonBar fluid class="text-sm" />
-          </div>
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-slate-700">Remarks</label>
-          <Textarea v-model="bedForm.remarks" rows="3" autoResize fluid placeholder="Optional remarks..." class="text-sm" />
-        </div>
-        <div class="flex gap-2 pt-1">
-          <Button type="button" label="Cancel" severity="secondary" outlined fluid @click="bedModal = false" />
-          <Button type="submit" :label="isBedUpdate ? 'Update Assignment' : 'Assign Bed'" fluid class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" />
-        </div>
-      </form>
-    </Dialog>
-
-    <!-- Discharge Dialog -->
-    <Dialog v-model:visible="dischargeModal" modal :style="{ width: '34vw' }" :breakpoints="{ '1199px': '75vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
-      <template #header>
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
-            <FiLogOut class="text-white" size="15" />
-          </div>
-          <div>
-            <h2 class="text-base font-semibold text-slate-800">{{ isDischargeUpdate ? "Edit Discharge" : "Discharge Patient" }}</h2>
-            <p class="text-xs text-slate-400 mt-0.5">{{ isDischargeUpdate ? "Update discharge details" : "Record discharge details for this case" }}</p>
-          </div>
-        </div>
-      </template>
-      <form @submit.prevent="isDischargeUpdate ? updateDischarge() : createDischarge()" class="flex flex-col gap-5 pt-2">
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-slate-700">Discharge Date/Time <span class="text-red-400">*</span></label>
-          <DatePicker v-model="dischargeDatetimeModel" showTime hourFormat="24" dateFormat="yy-mm-dd" required fluid class="text-sm" />
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-slate-700">Disposition <span class="text-red-400">*</span></label>
-          <Select v-model="dischargeForm.disposition" :options="dispositionOptions" placeholder="Select disposition" required fluid class="text-sm" />
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-medium text-slate-700">Condition <span class="text-red-400">*</span></label>
-          <Select v-model="dischargeForm.discharge_condition" :options="conditionOptions" placeholder="Select condition" required fluid class="text-sm" />
-        </div>
-        <div class="flex gap-2 pt-1">
-          <Button type="button" label="Cancel" severity="secondary" outlined fluid @click="dischargeModal = false" />
-          <Button type="submit" :label="isDischargeUpdate ? 'Update Discharge' : 'Save Discharge'" fluid class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" />
-        </div>
-      </form>
-    </Dialog>
 
     <div class="grid col-san-1 lg:grid-cols-3 gap-5">
       <div class="col-span-2">
