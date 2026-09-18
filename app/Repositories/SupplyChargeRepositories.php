@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\PatientCase;
 use App\Models\Supply;
 use App\Models\SupplyCharge;
+use App\Models\SupplyChargeItem;
 use App\Models\SupplyMovement;
 use App\Models\SupplyStock;
 use Illuminate\Support\Facades\DB;
@@ -12,9 +13,11 @@ use Carbon\Carbon;
 
 class SupplyChargeRepositories
 {
+    private array $with = ['patientCase.patient', 'chargedBy', 'items.supply'];
+
     public function list($filter = [])
     {
-        $supplyCharge = SupplyCharge::with(['patientCase.patient', 'chargedBy', 'items.supply'])->orderBy('id', 'desc');
+        $supplyCharge = SupplyCharge::with($this->with)->orderBy('id', 'desc');
 
         if (!empty($filter['patient_case_pid'])) {
             $supplyCharge->whereHas('patientCase', function ($q) use ($filter) {
@@ -36,7 +39,7 @@ class SupplyChargeRepositories
     public function searchByPid($pid)
     {
         try {
-            $supplyCharge = SupplyCharge::with(['patientCase.patient', 'chargedBy', 'items.supply'])->where('pid', $pid)->first();
+            $supplyCharge = SupplyCharge::with($this->with)->where('pid', $pid)->first();
 
             if (!$supplyCharge) {
                 return [];
@@ -65,27 +68,75 @@ class SupplyChargeRepositories
                     'remarks' => $data['remarks'] ?? null,
                 ]);
 
-                foreach ($data['items'] as $item) {
-                    $supply = Supply::where('pid', $item['supply_pid'])->firstOrFail();
+                $this->syncItems($supplyCharge, $data['items'], $patientCase->case_number);
 
-                    $supplyCharge->items()->create([
-                        'supply_id' => $supply->id,
-                        'price' => $supply->selling_price,
-                        'quantity' => $item['quantity'],
-                        'remarks' => $item['remarks'] ?? null,
-                    ]);
-
-                    $this->deductFromStockFefo($supply->id, (int) round((float) $item['quantity']), $supplyCharge->pid, $patientCase->case_number, $supply->selling_price);
-                }
-
-                return $supplyCharge->load(['patientCase.patient', 'chargedBy', 'items.supply']);
+                return $supplyCharge->load($this->with);
             });
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
     }
 
-    private function deductFromStockFefo(int $supplyId, int $quantity, string $reference, ?string $caseNumber, float $selling_price = 0)
+    /**
+     * Items are replaced wholesale rather than diffed: stock deducted for the
+     * old items is returned first, then the new item set is charged and
+     * deducted from stock the same way store() does.
+     */
+    public function update($supply_charge_id, $data)
+    {
+        try {
+            if (!$data) {
+                return null;
+            }
+
+            return DB::transaction(function () use ($supply_charge_id, $data) {
+                $supplyCharge = SupplyCharge::with('items')->findOrFail($supply_charge_id);
+
+                $update = [
+                    'charge_date' => Carbon::parse($data['charge_date'])->format('Y-m-d H:i:s'),
+                    'remarks' => $data['remarks'] ?? null,
+                ];
+
+                if (!empty($data['patient_case_pid'])) {
+                    $update['patient_case_id'] = PatientCase::where('pid', $data['patient_case_pid'])->firstOrFail()->id;
+                }
+
+                $supplyCharge->update($update);
+
+                if (isset($data['items'])) {
+                    foreach ($supplyCharge->items as $item) {
+                        $this->restoreStockForItem($item);
+                    }
+                    $supplyCharge->items()->delete();
+
+                    $patientCase = PatientCase::findOrFail($supplyCharge->patient_case_id);
+                    $this->syncItems($supplyCharge, $data['items'], $patientCase->case_number);
+                }
+
+                return $supplyCharge->load($this->with);
+            });
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
+
+    private function syncItems(SupplyCharge $supplyCharge, array $items, ?string $caseNumber)
+    {
+        foreach ($items as $item) {
+            $supply = Supply::where('pid', $item['supply_pid'])->firstOrFail();
+
+            $chargeItem = $supplyCharge->items()->create([
+                'supply_id' => $supply->id,
+                'price' => $supply->selling_price,
+                'quantity' => $item['quantity'],
+                'remarks' => $item['remarks'] ?? null,
+            ]);
+
+            $this->deductFromStockFefo($supply->id, (int) round((float) $item['quantity']), $chargeItem->id, $caseNumber, $supply->selling_price);
+        }
+    }
+
+    private function deductFromStockFefo(int $supplyId, int $quantity, int $supplyChargeItemId, ?string $caseNumber, float $selling_price = 0)
     {
         if ($quantity <= 0) {
             return;
@@ -110,6 +161,7 @@ class SupplyChargeRepositories
 
             SupplyMovement::create([
                 'supply_stock_id' => $batch->id,
+                'supply_charge_item_id' => $supplyChargeItemId,
                 'quantity' => $deduct,
                 // 'price' => $batch->supply->selling_price,
                 'price' => $selling_price,
@@ -126,6 +178,39 @@ class SupplyChargeRepositories
         }
     }
 
+    /**
+     * Reverses exactly the batches a charge item's deduction drew from, using
+     * the OUT movements recorded for it, and logs an offsetting IN movement
+     * per batch for the audit trail.
+     */
+    private function restoreStockForItem(SupplyChargeItem $item)
+    {
+        $movements = SupplyMovement::where('supply_charge_item_id', $item->id)
+            ->where('type', 'OUT')
+            ->lockForUpdate()
+            ->get();
+
+        foreach ($movements as $movement) {
+            $batch = SupplyStock::lockForUpdate()->find($movement->supply_stock_id);
+
+            if (!$batch) {
+                continue;
+            }
+
+            $batch->quantity += $movement->quantity;
+            $batch->save();
+
+            SupplyMovement::create([
+                'supply_stock_id' => $batch->id,
+                'supply_charge_item_id' => $item->id,
+                'quantity' => $movement->quantity,
+                'price' => $movement->price,
+                'type' => 'IN',
+                'used_for' => 'Returned to stock — supply charge item removed' . ($batch->batch_number ? " (batch {$batch->batch_number})" : ''),
+            ]);
+        }
+    }
+
     public function delete($data)
     {
         try {
@@ -133,10 +218,16 @@ class SupplyChargeRepositories
                 return;
             }
 
-            $data->items()->delete();
-            $data->delete();
+            return DB::transaction(function () use ($data) {
+                foreach ($data->items as $item) {
+                    $this->restoreStockForItem($item);
+                }
 
-            return true;
+                $data->items()->delete();
+                $data->delete();
+
+                return true;
+            });
         } catch (\Exception $e) {
             throw new \Exception("An error has occured! " . $e->getMessage());
         }

@@ -12,7 +12,7 @@ class SupplyMovement extends Model
     use SoftDeletes;
 
     protected $guarded = ['id'];
-    protected $hidden = ['id', 'supply_stock_id', 'deleted_at', 'updated_at'];
+    protected $hidden = ['id', 'supply_stock_id', 'supply_charge_item_id', 'deleted_at', 'updated_at'];
 
     protected static function boot()
     {
@@ -26,5 +26,10 @@ class SupplyMovement extends Model
     public function supplyStock(): BelongsTo
     {
         return $this->belongsTo(SupplyStock::class);
+    }
+
+    public function supplyChargeItem(): BelongsTo
+    {
+        return $this->belongsTo(SupplyChargeItem::class);
     }
 }
