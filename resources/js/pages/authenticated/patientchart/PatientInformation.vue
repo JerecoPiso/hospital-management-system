@@ -423,8 +423,6 @@
       </form>
     </Dialog>
 
-    <!-- <p class="text-xs text-slate-400 -mt-3">Last measured {{ formatDateTime(latestVitalSignsMeasuredAt) }}</p> -->
-
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Left Column -->
