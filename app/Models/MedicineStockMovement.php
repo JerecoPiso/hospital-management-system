@@ -12,7 +12,7 @@ class MedicineStockMovement extends Model
     use SoftDeletes;
 
     protected $guarded = ['id'];
-    protected $hidden = ['id', 'medicine_id', 'deleted_at', 'updated_at'];
+    protected $hidden = ['id', 'medicine_id', 'prescription_item_id', 'deleted_at', 'updated_at'];
 
     protected static function boot()
     {
@@ -26,5 +26,10 @@ class MedicineStockMovement extends Model
     public function medicineStock(): BelongsTo
     {
         return $this->belongsTo(MedicineStock::class);
+    }
+
+    public function prescriptionItem(): BelongsTo
+    {
+        return $this->belongsTo(PrescriptionItem::class);
     }
 }
