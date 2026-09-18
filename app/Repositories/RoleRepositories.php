@@ -8,8 +8,9 @@ use App\Models\RoleAccess;
 class RoleRepositories
 {
     public function list($filter = [])
-    {
-        $query = Role::withCount('users')->whereNot('id', Role::SUPER_ADMIN)->orderBy('id', 'desc');
+    {   
+        // ->whereNot('id', Role::SUPER_ADMIN)
+        $query = Role::withCount('users')->orderBy('id', 'desc');
 
         return api_list($query, $filter, ['name', 'description']);
     }

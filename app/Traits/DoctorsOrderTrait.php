@@ -12,9 +12,9 @@ trait DoctorsOrderTrait
         try {
             $filters = [];
             if ($request->has('patient_case_pid') || filled($request->input('patient_case_pid'))) {
-                $order = $this->patientCaseRepo->searchByPid($request->input('patient_case_pid'));
-                if ($order) {
-                    $filters['patient_case_id'] = $order->id;
+                $case = $this->patientCaseRepo->searchByPid($request->input('patient_case_pid'));
+                if ($case) {
+                    $filters['patient_case_id'] = $case->id;
                 }
             }
             $orders = $this->doctorsOrderRepo->list($filters);

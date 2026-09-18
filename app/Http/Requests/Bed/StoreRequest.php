@@ -18,6 +18,7 @@ class StoreRequest extends FormRequest
         return [
             "room_pid" => "required|string|exists:rooms,pid",
             "bed_number" => "required|string",
+            "price" => "nullable|numeric|min:0",
             "status" => "nullable|in:available,occupied,cleaning,maintenance",
         ];
     }
