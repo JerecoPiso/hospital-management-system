@@ -91,15 +91,15 @@
                         <button type="button" title="View as prescription (Rx)" @click="openRx(data)" class="p-1.5 rounded-md text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors duration-150 cursor-pointer">
                             <FaFilePrescription size="18" />
                         </button>
-                        <button v-if="can('prescriptions', 'update')" type="button" title="Mark as dispensed" :disabled="data.status === 'done' || data.status === 'picked-up'" @click="setStatus(data, 'done')"
+                        <button v-if="can('prescriptions', 'update')" type="button" title="Mark as dispensed" :disabled="data.status === 'done' || data.status === 'picked-up' || data.status === 'cancelled'" @click="setStatus(data, 'done')"
                             class="px-2 py-1 rounded-md text-xs font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 transition-colors duration-150 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
                             Dispense
                         </button>
-                        <button v-if="can('prescriptions', 'update')" type="button" title="Mark as picked-up" :disabled="data.status === 'picked-up' || data.status === 'requested'" @click="setStatus(data, 'picked-up')"
+                        <button v-if="can('prescriptions', 'update')" type="button" title="Mark as picked-up" :disabled="data.status === 'picked-up' || data.status === 'requested' || data.status === 'cancelled'" @click="setStatus(data, 'picked-up')"
                             class="px-2 py-1 rounded-md text-xs font-medium text-sky-700 bg-sky-50 hover:bg-sky-100 transition-colors duration-150 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
                             Picked-up
                         </button>
-                        <button v-if="can('prescriptions', 'update')" type="button" title="Cancel prescription" :disabled="data.status === 'cancelled'" @click="setStatus(data, 'cancelled')"
+                        <button v-if="can('prescriptions', 'update')" type="button" title="Cancel prescription" :disabled="data.status === 'cancelled' || data.status === 'done' || data.status === 'picked-up'" @click="setStatus(data, 'cancelled')"
                             class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
                             <BiXCircle size="18" />
                         </button>
