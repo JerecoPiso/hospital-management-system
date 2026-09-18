@@ -28,6 +28,24 @@ trait SupplyChargeTrait
         }
     }
 
+    public function update($supply_charge_pid, StoreRequest $request)
+    {
+        try {
+            $validated = $request->validated();
+            $supplyCharge = $this->supplyChargeRepo->searchByPid($supply_charge_pid);
+            if (!$supplyCharge) {
+                return api_response([], false, "Supply charge not found", 404);
+            }
+            $supplyCharge = $this->supplyChargeRepo->update($supplyCharge->id, $validated);
+            if (!$supplyCharge) {
+                return api_response([], false, "Supply charge not updated", 500);
+            }
+            return api_response(["supply_charge" => $supplyCharge], true, "Success", 200);
+        } catch (\Exception $e) {
+            return api_response([], false, $e->getMessage(), $e->getCode() ?: 500);
+        }
+    }
+
     public function view($supply_charge_pid)
     {
         try {

@@ -13,12 +13,12 @@
             <GiMedicalPack class="text-white" size="17" />
           </div>
           <div>
-            <h2 class="text-base font-semibold text-slate-800">Charge Supplies</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Deducts stock automatically from the earliest-expiring batch first</p>
+            <h2 class="text-base font-semibold text-slate-800">{{ isUpdate ? "Edit Supply Charge" : "Charge Supplies" }}</h2>
+            <p class="text-xs text-slate-400 mt-0.5">{{ isUpdate ? "Updating re-deducts stock for the new items" : "Deducts stock automatically from the earliest-expiring batch first" }}</p>
           </div>
         </div>
       </template>
-      <form @submit.prevent="create" class="flex flex-col gap-5 pt-2">
+      <form @submit.prevent="isUpdate ? update() : create()" class="flex flex-col gap-5 pt-2">
         <div class="grid grid-cols-1 gap-x-4 gap-y-4">
           <div class="col-span-1 flex flex-col gap-1.5">
             <label class="text-sm font-medium text-slate-700">Charge Date <span class="text-red-400">*</span></label>
@@ -71,7 +71,7 @@
 
         <div class="flex gap-2 pt-1">
           <Button type="button" label="Cancel" severity="secondary" outlined fluid @click="modalOpen = false" />
-          <Button type="submit" label="Save Charge" fluid class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" />
+          <Button type="submit" :label="isUpdate ? 'Update Charge' : 'Save Charge'" fluid class="bg-linear-to-r from-emerald-500 to-teal-600 border-0" />
         </div>
       </form>
     </Dialog>
@@ -151,17 +151,28 @@
         </template>
       </Column>
 
-      <Column header="Actions" class="w-16">
+      <Column header="Actions" class="w-24">
         <template #body="{ data }">
-          <button
-            v-if="can('supply-charges', 'delete')"
-            type="button"
-            title="Delete charge"
-            @click="archive(data.pid)"
-            class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer"
-          >
-            <BiTrash size="18" />
-          </button>
+          <div class="flex items-center gap-1">
+            <!-- <button
+              v-if="can('supply-charges', 'update')"
+              type="button"
+              title="Edit charge"
+              @click="edit(data.pid)"
+              class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
+            >
+              <BiEdit size="18" />
+            </button> -->
+            <button
+              v-if="can('supply-charges', 'delete')"
+              type="button"
+              title="Delete charge"
+              @click="archive(data.pid)"
+              class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer"
+            >
+              <BiTrash size="18" />
+            </button>
+          </div>
         </template>
       </Column>
     </DataTable>
@@ -172,7 +183,7 @@
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { BsPlusCircle } from "vue-icons-plus/bs";
-import { BiTrash } from "vue-icons-plus/bi";
+import { BiEdit, BiTrash } from "vue-icons-plus/bi";
 import { GiMedicalPack } from "vue-icons-plus/gi";
 import { useSupplyChargeStore } from "@/store/patientchart/SupplyCharges";
 import { usePatientCaseStore } from "@/store/patients/PatientCase";
@@ -200,6 +211,7 @@ const patientName = computed(() => `${patient.value?.firstname ?? ""} ${patient.
 const supplyOptionLabel = (data: Supply) => `${data.name}${data.unit ? " (" + data.unit + ")" : ""}`;
 
 const modalOpen = ref<boolean>(false);
+const isUpdate = ref<boolean>(false);
 const chargeDateModel = ref<Date | null>(null);
 
 const defaultItem = (): SupplyChargeItem => ({ supply_pid: "", quantity: null, remarks: "" });
@@ -215,6 +227,7 @@ watch(modalOpen, (open) => {
   if (!open) {
     Object.assign(info, defaultInfo());
     chargeDateModel.value = null;
+    isUpdate.value = false;
   }
 });
 watch(chargeDateModel, (val) => {
@@ -269,9 +282,43 @@ const create = async () => {
   }
 };
 
+const edit = async (pid: string) => {
+  try {
+    await supplyChargeStore.view(pid);
+    const full = supplyChargeStore.supplyCharge;
+    Object.assign(info, {
+      pid: full.pid,
+      patient_case_pid: patientCasePid.value || "",
+      charge_date: full.charge_date,
+      remarks: full.remarks || "",
+      items: (full.items || []).map((item) => ({
+        supply_pid: item.supply?.pid || "",
+        quantity: item.quantity,
+        remarks: item.remarks || "",
+      })),
+    });
+    chargeDateModel.value = full.charge_date ? new Date(full.charge_date) : null;
+    isUpdate.value = true;
+    modalOpen.value = true;
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Failed to retrieve supply charge");
+  }
+};
+
+const update = async () => {
+  try {
+    await supplyChargeStore.update(info);
+    toast.success("Supply charge updated successfully");
+    modalOpen.value = false;
+    await refresh();
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Failed to update supply charge");
+  }
+};
+
 const archive = (pid: string) => {
   showConfirm({
-    message: "Are you sure you want to delete this supply charge? This will not restore the deducted stock.",
+    message: "Are you sure you want to delete this supply charge? The deducted stock will be returned.",
     header: "Delete Confirmation",
     onAccept: async () => {
       try {

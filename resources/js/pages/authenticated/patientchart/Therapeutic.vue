@@ -208,7 +208,7 @@
               <FaFilePrescription size="18" />
             </button>
             <button
-              v-if="can('prescriptions', 'update')"
+              v-if="can('prescriptions', 'update') && data.status !== DONE"
               type="button"
               title="Edit prescription"
               @click="edit(data.pid)"
@@ -248,6 +248,7 @@ import { useConfirmToast } from "@/composables/confirm";
 import { useAppToast } from "@/composables/toast";
 import { usePermission } from "@/composables/permission";
 import { useListStore } from "@/store/List";
+const DONE = 'done';
 const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
 const { can } = usePermission();
