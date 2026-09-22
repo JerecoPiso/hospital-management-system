@@ -208,7 +208,7 @@
               <FaFilePrescription size="18" />
             </button>
             <button
-              v-if="can('prescriptions', 'update') && (data.status !== DONE || data.status !== PICKEDUP)"
+              v-if="can('prescriptions', 'update') && (data.status !== DONE && data.status !== PICKEDUP)"
               type="button"
               title="Edit prescription"
               @click="edit(data.pid)"
