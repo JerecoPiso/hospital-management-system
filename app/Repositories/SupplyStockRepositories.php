@@ -4,6 +4,8 @@ namespace App\Repositories;
 
 use App\Models\Supply;
 use App\Models\SupplyStock;
+use App\Models\SupplyMovement;
+use Illuminate\Support\Facades\DB;
 
 class SupplyStockRepositories
 {
@@ -35,17 +37,30 @@ class SupplyStockRepositories
         }
     }
 
+    /**
+     * The opening quantity of a new batch is logged as an IN movement so the
+     * movement ledger accounts for every unit that enters stock.
+     */
     public function store($data)
     {
         try {
-            $data = $this->resolveSupplyId($data);
-            $supplyStock = SupplyStock::create($data);
-            return $supplyStock->load('supply');
+            return DB::transaction(function () use ($data) {
+                $data = $this->resolveSupplyId($data);
+                $supplyStock = SupplyStock::create($data);
+
+                $this->recordMovement($supplyStock, (int) $supplyStock->quantity, 'Stock added' . ($supplyStock->batch_number ? " (batch {$supplyStock->batch_number})" : ''));
+
+                return $supplyStock->load('supply');
+            });
         } catch (\Exception $e) {
             throw new \Exception("An error has occured! " . $e->getMessage());
         }
     }
 
+    /**
+     * A manual quantity edit is logged as an IN (increase) or OUT (decrease)
+     * adjustment for the difference, keeping the ledger in step with the batch.
+     */
     public function update($supply_stock_id, $data)
     {
         try {
@@ -53,14 +68,39 @@ class SupplyStockRepositories
                 return null;
             }
 
-            $data = $this->resolveSupplyId($data);
-            $supplyStock = SupplyStock::findOrFail($supply_stock_id);
-            $supplyStock->update($data);
+            return DB::transaction(function () use ($supply_stock_id, $data) {
+                $data = $this->resolveSupplyId($data);
+                $supplyStock = SupplyStock::lockForUpdate()->findOrFail($supply_stock_id);
+                $previousQuantity = (int) $supplyStock->quantity;
 
-            return $supplyStock->load('supply');
+                $supplyStock->update($data);
+
+                $this->recordMovement($supplyStock, (int) $supplyStock->quantity - $previousQuantity, 'Stock adjusted' . ($supplyStock->batch_number ? " (batch {$supplyStock->batch_number})" : ''));
+
+                return $supplyStock->load('supply');
+            });
         } catch (\Exception $e) {
             throw new \Exception("An error has occured! " . $e->getMessage());
         }
+    }
+
+    /**
+     * IN movements carry the batch's purchase price. OUT adjustments are priced
+     * at 0 so they don't count as charged income on the movements page.
+     */
+    private function recordMovement(SupplyStock $supplyStock, int $change, string $usedFor)
+    {
+        if ($change === 0) {
+            return;
+        }
+
+        SupplyMovement::create([
+            'supply_stock_id' => $supplyStock->id,
+            'type' => $change > 0 ? 'IN' : 'OUT',
+            'quantity' => abs($change),
+            'price' => $change > 0 ? ($supplyStock->purchase_price ?? 0) : 0,
+            'used_for' => $usedFor,
+        ]);
     }
 
     private function resolveSupplyId($data)

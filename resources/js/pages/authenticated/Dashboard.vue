@@ -24,6 +24,53 @@
     </div>
   </div>
 
+  <!-- Inventory Alerts -->
+  <div v-if="inventoryCards.length" class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-7">
+    <div v-for="card in inventoryCards" :key="card.key" class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3 bg-linear-to-r from-slate-50 to-white">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" :style="{ backgroundColor: card.bgColor }">
+            <component :is="card.icon" :style="{ color: card.color }" size="18" />
+          </div>
+          <div class="min-w-0">
+            <h3 class="text-sm font-bold text-slate-800">{{ card.title }}</h3>
+            <p class="text-xs text-slate-400 mt-0.5">{{ card.subtitle }}</p>
+          </div>
+        </div>
+        <span class="text-xs font-semibold px-2.5 py-1 rounded-full shrink-0" :class="card.items.length ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'">
+          {{ card.items.length }} {{ card.items.length === 1 ? "batch" : "batches" }}
+        </span>
+      </div>
+
+      <div v-if="loading" class="p-5 space-y-3">
+        <div v-for="n in 3" :key="n" class="h-9 bg-slate-100 rounded animate-pulse"></div>
+      </div>
+      <div v-else-if="!card.items.length" class="py-10 flex flex-col items-center justify-center text-slate-400 gap-2">
+        <component :is="card.icon" size="26" class="opacity-40" />
+        <p class="text-sm">{{ card.emptyText }}</p>
+      </div>
+      <ul v-else class="divide-y divide-slate-100 max-h-72 overflow-y-auto">
+        <li v-for="item in card.items" :key="item.pid" class="px-5 py-3 flex items-center justify-between gap-3 hover:bg-slate-50 transition-colors duration-150">
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-slate-800 truncate">{{ item.name }}</p>
+            <p class="text-xs text-slate-400">
+              Batch {{ item.batch_number || "—" }}
+              <template v-if="card.kind === 'expiry'"> &bull; {{ item.quantity }} {{ item.unit_type || "units" }} left</template>
+            </p>
+          </div>
+          <div v-if="card.kind === 'reorder'" class="text-right shrink-0">
+            <p class="text-sm font-bold" :class="item.quantity === 0 ? 'text-red-500' : 'text-amber-600'">{{ item.quantity }} {{ item.unit_type || "" }}</p>
+            <p class="text-xs text-slate-400">reorder at {{ item.reorder_level }}</p>
+          </div>
+          <div v-else class="text-right shrink-0">
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full" :class="expiryBadgeClass(item.days_left ?? 0)">{{ expiryLabel(item.days_left ?? 0) }}</span>
+            <p class="text-xs text-slate-400 mt-1">{{ formatDate(item.expiration_date || "") }}</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
   <!-- Charts Row -->
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-7">
     <!-- Bar Chart -->
@@ -398,6 +445,7 @@ import { useSupplyMovementStore } from "@/store/SupplyMovement";
 import { usePermission } from "@/composables/permission";
 import { useApiTable, type ApiTableMeta } from "@/composables/apiTable";
 import { storeToRefs } from "pinia";
+import { DashboardStockAlert } from "@/interface/Interfaces";
 
 const dashboardStore = useDashboardStore();
 const { loading, summary } = storeToRefs(dashboardStore);
@@ -500,6 +548,27 @@ const supplyTab = useMovementTab(
   () => supplyMovementStore.meta
 );
 const supplyTotalIncome = computed(() => supplyMovementStore.meta.total_income ?? 0);
+
+const expiryLabel = (daysLeft: number) => {
+  if (daysLeft < 0) return `Expired ${Math.abs(daysLeft)}d ago`;
+  if (daysLeft === 0) return "Expires today";
+  return `${daysLeft} day${daysLeft === 1 ? "" : "s"} left`;
+};
+const expiryBadgeClass = (daysLeft: number) =>
+  daysLeft <= 30 ? "bg-red-50 text-red-600 border border-red-100" : "bg-amber-50 text-amber-600 border border-amber-100";
+
+// Lists come back null when the user can't view that stock module, so those cards are skipped.
+const inventoryCards = computed(() => {
+  const alerts = summary.value.inventory_alerts;
+  const days = alerts?.near_expiry_days ?? 90;
+  const cards = [
+    { key: "medicine_reorder", kind: "reorder", title: "Medicine Reorder", subtitle: "Batches at or below reorder level", emptyText: "All medicine stocks are above reorder level", items: alerts?.medicine_reorder, icon: GiMedicines, bgColor: "#fef3c7", color: "#d97706" },
+    { key: "supply_reorder", kind: "reorder", title: "Supply Reorder", subtitle: "Batches at or below reorder level", emptyText: "All supply stocks are above reorder level", items: alerts?.supply_reorder, icon: GiMedicalPack, bgColor: "#fef3c7", color: "#d97706" },
+    { key: "medicine_near_expiry", kind: "expiry", title: "Medicine Near Expiry", subtitle: `Expired or expiring within ${days} days`, emptyText: "No medicine batches expiring soon", items: alerts?.medicine_near_expiry, icon: GiMedicines, bgColor: "#fee2e2", color: "#dc2626" },
+    { key: "supply_near_expiry", kind: "expiry", title: "Supply Near Expiry", subtitle: `Expired or expiring within ${days} days`, emptyText: "No supply batches expiring soon", items: alerts?.supply_near_expiry, icon: GiMedicalPack, bgColor: "#fee2e2", color: "#dc2626" },
+  ];
+  return cards.filter((card) => Array.isArray(card.items)).map((card) => ({ ...card, items: card.items as DashboardStockAlert[] }));
+});
 
 const changeLabel = (change: number, suffix: string) => {
   const sign = change > 0 ? "+" : "";

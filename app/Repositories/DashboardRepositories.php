@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardRepositories
 {
+    private const NEAR_EXPIRY_DAYS = 90;
+
     public function getStats()
     {
         $startOfThisMonth = Carbon::now()->startOfMonth();
@@ -119,6 +121,67 @@ class DashboardRepositories
             })->toArray();
     }
 
+    /**
+     * Reorder and near-expiry alerts per stock batch. Reorder uses the same rule
+     * as the Low Stock Alerts stat (quantity at or below the batch's reorder
+     * level). Near expiry covers batches that still hold stock and expire within
+     * NEAR_EXPIRY_DAYS, including ones already expired. Each side is only
+     * returned to users allowed to view that stock module.
+     */
+    public function getInventoryAlerts()
+    {
+        $user = auth()->user();
+        $canMedicine = $user?->hasPermission('medicine-stocks', 'view') ?? false;
+        $canSupply = $user?->hasPermission('supply-stocks', 'view') ?? false;
+
+        return [
+            'near_expiry_days' => self::NEAR_EXPIRY_DAYS,
+            'medicine_reorder' => $canMedicine ? $this->reorderAlerts(MedicineStock::class, 'medicine') : null,
+            'supply_reorder' => $canSupply ? $this->reorderAlerts(SupplyStock::class, 'supply') : null,
+            'medicine_near_expiry' => $canMedicine ? $this->nearExpiryAlerts(MedicineStock::class, 'medicine') : null,
+            'supply_near_expiry' => $canSupply ? $this->nearExpiryAlerts(SupplyStock::class, 'supply') : null,
+        ];
+    }
+
+    private function reorderAlerts(string $stockModel, string $itemRelation): array
+    {
+        return $stockModel::with($itemRelation)
+            ->whereColumn('quantity', '<=', 'reorder_level')
+            ->orderByRaw('quantity - reorder_level')
+            ->get()
+            ->map(fn($stock) => [
+                'pid' => $stock->pid,
+                'name' => $stock->{$itemRelation}->name ?? '—',
+                'batch_number' => $stock->batch_number,
+                'unit_type' => $stock->unit_type,
+                'quantity' => (int) $stock->quantity,
+                'reorder_level' => (int) $stock->reorder_level,
+            ])
+            ->all();
+    }
+
+    private function nearExpiryAlerts(string $stockModel, string $itemRelation): array
+    {
+        $today = Carbon::today();
+
+        return $stockModel::with($itemRelation)
+            ->where('quantity', '>', 0)
+            ->whereNotNull('expiration_date')
+            ->whereDate('expiration_date', '<=', $today->copy()->addDays(self::NEAR_EXPIRY_DAYS))
+            ->orderBy('expiration_date')
+            ->get()
+            ->map(fn($stock) => [
+                'pid' => $stock->pid,
+                'name' => $stock->{$itemRelation}->name ?? '—',
+                'batch_number' => $stock->batch_number,
+                'unit_type' => $stock->unit_type,
+                'quantity' => (int) $stock->quantity,
+                'expiration_date' => Carbon::parse($stock->expiration_date)->toDateString(),
+                'days_left' => (int) $today->diffInDays(Carbon::parse($stock->expiration_date)->startOfDay(), false),
+            ])
+            ->all();
+    }
+
     public function getSummary()
     {
         return [
@@ -127,6 +190,7 @@ class DashboardRepositories
             'patient_type_distribution' => $this->getPatientTypeDistribution(),
             'recent_admissions' => $this->getRecentAdmissions(),
             'recent_users' => $this->getRecentUsers(),
+            'inventory_alerts' => $this->getInventoryAlerts(),
         ];
     }
 
