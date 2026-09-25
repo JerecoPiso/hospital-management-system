@@ -72,7 +72,10 @@
                 <td class="whitespace-nowrap">{{ row.is_first_of_case ? row.case_number || "" : "" }}</td>
                 <td class="font-semibold text-slate-800 uppercase">{{ row.is_first_of_case ? row.patient_name : "" }}</td>
                 <td>{{ row.medicine || "" }}</td>
-                <td class="text-center">{{ row.stocks ?? "" }}</td>
+                <td class="text-center">
+                  <span v-if="row.stocks !== null && row.stock_is_estimate" class="italic text-slate-400" title="Estimated: this dispense was recorded before stock snapshots were saved">~{{ row.stocks }}</span>
+                  <template v-else>{{ row.stocks ?? "" }}</template>
+                </td>
                 <td class="text-center">{{ row.medicine ? row.out_pcs : "" }}</td>
                 <td class="text-right"><Peso v-if="row.amount !== null" :value="row.amount" /></td>
                 <td class="text-right"><Peso v-if="row.dispense_balance !== null" :value="row.dispense_balance" /></td>
@@ -97,6 +100,7 @@
           </tfoot>
         </table>
       </div>
+      <p v-if="rows.some((row) => row.stock_is_estimate)" class="mt-2 text-sm italic text-slate-400">~ Estimated stock: dispensed before stock snapshots were recorded.</p>
     </div>
   </div>
 </template>

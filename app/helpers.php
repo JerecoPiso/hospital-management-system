@@ -3,6 +3,13 @@
 if (!function_exists('api_response')) {
     function api_response($data = [], $success = true, $message = 'Success', $code = 200)
     {
+        // Callers pass $e->getCode() straight through; database exceptions return a
+        // string SQLSTATE (e.g. "42S22") and others may return 0, neither of which
+        // is a valid HTTP status.
+        if (!is_int($code) || $code < 100 || $code > 599) {
+            $code = 500;
+        }
+
         return response()->json([
             'success' => $success,
             'message' => $message,

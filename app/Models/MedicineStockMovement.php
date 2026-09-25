@@ -20,7 +20,27 @@ class MedicineStockMovement extends Model
 
         static::creating(function ($medicineStockMovement) {
             $medicineStockMovement->pid = $medicineStockMovement->pid ?? Str::uuid()->toString();
+            $medicineStockMovement->stock_before ??= static::stockBeforeFor($medicineStockMovement);
         });
+    }
+
+    /**
+     * Every caller saves the batch's new quantity before creating its movement,
+     * so the medicine's current total already includes this movement; undo it
+     * to get the total just before. For a dispense spanning several batches,
+     * the first movement therefore holds the stock before the whole dispense.
+     */
+    private static function stockBeforeFor(self $movement): ?int
+    {
+        $medicineId = MedicineStock::withTrashed()->whereKey($movement->medicine_stock_id)->value('medicine_id');
+        if (!$medicineId) {
+            return null;
+        }
+
+        $currentTotal = (int) MedicineStock::where('medicine_id', $medicineId)->sum('quantity');
+        $quantity = (int) $movement->quantity;
+
+        return $movement->type === 'IN' ? $currentTotal - $quantity : $currentTotal + $quantity;
     }
 
     public function medicineStock(): BelongsTo

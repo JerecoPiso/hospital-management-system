@@ -21,6 +21,13 @@ export const useDashboardStore = defineStore("dashboard", () => {
         patient_type_distribution: [],
         recent_admissions: [],
         recent_users: [],
+        inventory_alerts: {
+            near_expiry_days: 90,
+            medicine_reorder: null,
+            supply_reorder: null,
+            medicine_near_expiry: null,
+            supply_near_expiry: null,
+        },
     });
 
     const read = async () => {

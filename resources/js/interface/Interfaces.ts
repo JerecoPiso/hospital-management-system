@@ -575,6 +575,7 @@ export interface DispenseMedicineStocksReportRow {
     date: string | null;
     medicine: string | null;
     stocks: number | null;
+    stock_is_estimate: boolean;
     out_pcs: number;
     amount: number | null;
     dispense_balance: number | null;
@@ -778,10 +779,31 @@ export interface DashboardRecentUser {
     joined_at: string;
 }
 
+export interface DashboardStockAlert {
+    pid: string;
+    name: string;
+    batch_number: string | null;
+    unit_type: string | null;
+    quantity: number;
+    reorder_level?: number;
+    expiration_date?: string;
+    days_left?: number;
+}
+
+// A list is null when the user may not view that stock module.
+export interface DashboardInventoryAlerts {
+    near_expiry_days: number;
+    medicine_reorder: DashboardStockAlert[] | null;
+    supply_reorder: DashboardStockAlert[] | null;
+    medicine_near_expiry: DashboardStockAlert[] | null;
+    supply_near_expiry: DashboardStockAlert[] | null;
+}
+
 export interface DashboardSummary {
     stats: DashboardStats;
     weekly_admissions: DashboardWeeklyAdmission[];
     patient_type_distribution: DashboardPatientTypeDistribution[];
     recent_admissions: DashboardRecentAdmission[];
     recent_users: DashboardRecentUser[];
+    inventory_alerts: DashboardInventoryAlerts;
 }

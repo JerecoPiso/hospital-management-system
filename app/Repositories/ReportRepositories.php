@@ -35,12 +35,13 @@ class ReportRepositories
      * by patient_case_id), with each case's summed doctor professional fees shown
      * on its first row.
      *
-     * STOCKS is the medicine's on-hand quantity just before the dispense. It is
-     * rebuilt by walking backwards from the current stock through every later
-     * event: other dispenses, plus ledger movements not tied to a prescription
-     * item (deliveries, station distributions, manual adjustments). Movements
-     * tied to prescription items are skipped because the dispense rows already
-     * represent them, and restored (deleted) items net to zero.
+     * STOCKS is the medicine's on-hand quantity just before the dispense, read
+     * from the stock_before snapshot saved on the dispense's first OUT movement.
+     * Older dispenses without a snapshot fall back to an estimate rebuilt by
+     * walking backwards from the current stock through every later event:
+     * other dispenses, plus ledger movements not tied to a prescription item
+     * (deliveries, station distributions, manual adjustments). Those rows are
+     * flagged with stock_is_estimate.
      */
     public function dispenseMedicineStocks(array $filter = []): array
     {
@@ -207,14 +208,18 @@ class ReportRepositories
             ->whereHas('prescription', fn($q) => $q->whereIn('status', self::DISPENSED_STATUSES))
             ->get();
 
-        $firstOutAt = MedicineStockMovement::whereIn('prescription_item_id', $items->pluck('id'))
+        // The first OUT movement of a dispense (lowest id) is when it happened, and
+        // its stock_before snapshot is the stock before the whole dispense, even
+        // when FEFO split it across several batches.
+        $firstOut = MedicineStockMovement::whereIn('prescription_item_id', $items->pluck('id'))
             ->where('type', 'OUT')
-            ->selectRaw('prescription_item_id, MIN(created_at) as dispensed_at')
-            ->groupBy('prescription_item_id')
-            ->pluck('dispensed_at', 'prescription_item_id');
+            ->orderBy('id')
+            ->get(['prescription_item_id', 'stock_before', 'created_at'])
+            ->unique('prescription_item_id')
+            ->keyBy('prescription_item_id');
 
         return $items
-            ->map(function ($item) use ($firstOutAt) {
+            ->map(function ($item) use ($firstOut) {
                 $quantity = (int) round((float) ($item->quantity ?? 0));
                 if ($quantity <= 0) {
                     return null;
@@ -227,7 +232,8 @@ class ReportRepositories
                     'medicine' => $item->medicine->name ?? '—',
                     'out_pcs' => $quantity,
                     'price' => (float) $item->price,
-                    'dispensed_at' => Carbon::parse($firstOutAt[$item->id] ?? $item->prescription->prescription_date),
+                    'dispensed_at' => Carbon::parse($firstOut[$item->id]->created_at ?? $item->prescription->prescription_date),
+                    'saved_stock_before' => $firstOut[$item->id]->stock_before ?? null,
                 ];
             })
             ->filter()
@@ -283,6 +289,21 @@ class ReportRepositories
                 $balance += $event['undo'];
             }
         }
+
+        // Prefer the stock snapshot saved on the dispense's movement; the
+        // reconstruction above only stands in for dispenses recorded before
+        // stock_before existed (or that never produced a movement).
+        $dispenses = $dispenses->map(function ($row) {
+            if ($row['saved_stock_before'] === null) {
+                return $row + ['stock_is_estimate' => true];
+            }
+
+            return array_merge($row, [
+                'stock_before' => (int) $row['saved_stock_before'],
+                'stock_after' => (int) $row['saved_stock_before'] - $row['out_pcs'],
+                'stock_is_estimate' => false,
+            ]);
+        });
     }
 
     private function reportRow(?PatientCase $case, ?array $dispense, ?float $doctorFee, bool $isFirstOfCase): array
@@ -300,6 +321,7 @@ class ReportRepositories
             'date' => $dispense ? $dispense['dispensed_at']->format('Y-m-d H:i:s') : null,
             'medicine' => $dispense['medicine'] ?? null,
             'stocks' => $dispense['stock_before'] ?? null,
+            'stock_is_estimate' => $dispense['stock_is_estimate'] ?? false,
             'out_pcs' => $dispense['out_pcs'] ?? 0,
             'amount' => $dispense['price'] ?? null,
             'dispense_balance' => $dispense ? round($dispense['stock_after'] * $dispense['price'], 2) : null,
