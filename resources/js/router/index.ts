@@ -84,6 +84,14 @@ const router = createRouter({
                     ],
                 },
                 {
+                    path: "reports",
+                    component: RouterView,
+                    children: [
+                        { path: "dispense-medicine-stocks", name: "DispenseMedicineStocksReport", component: () => import("../pages/authenticated/reports/DispenseMedicineStocksReport.vue"), meta: { module: "dispense-medicine-stocks-report" } },
+                        { path: "patient-invoices", name: "PatientInvoiceReport", component: () => import("../pages/authenticated/reports/PatientInvoiceReport.vue"), meta: { module: "patient-invoice-report" } },
+                    ],
+                },
+                {
                     path: "settings",
                     component: RouterView,
                     children: [

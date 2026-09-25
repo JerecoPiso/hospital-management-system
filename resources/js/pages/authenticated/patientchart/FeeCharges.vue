@@ -87,6 +87,34 @@
       </form>
     </Dialog>
 
+    <Dialog v-model:visible="doctorFeeModalOpen" modal :style="{ width: '32vw' }" :breakpoints="{ '1199px': '70vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
+      <template #header>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-linear-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-sm">
+            <BsPersonBadge class="text-white" size="16" />
+          </div>
+          <div>
+            <h2 class="text-base font-semibold text-slate-800">{{ isDoctorFeeUpdate ? "Edit Professional Fee" : "Charge Professional Fee" }}</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Bill a doctor's professional fee to this patient case</p>
+          </div>
+        </div>
+      </template>
+      <form @submit.prevent="isDoctorFeeUpdate ? updateDoctorFee() : createDoctorFee()" class="flex flex-col gap-5 pt-2">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-slate-700">Doctor <span class="text-red-400">*</span></label>
+          <Select v-model="doctorFeeInfo.doctor_pid" :options="doctors" :optionLabel="doctorOptionLabel" optionValue="pid" placeholder="Select doctor" filter fluid class="text-sm" emptyMessage="No doctors found" />
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm font-medium text-slate-700">Professional Fee <span class="text-red-400">*</span></label>
+          <InputNumber v-model="doctorFeeInfo.professional_fee" mode="currency" currency="PHP" locale="en-PH" :min="0" fluid class="text-sm" />
+        </div>
+        <div class="flex gap-2 pt-1">
+          <Button type="button" label="Cancel" severity="secondary" outlined fluid @click="doctorFeeModalOpen = false" />
+          <Button type="submit" :label="isDoctorFeeUpdate ? 'Update Fee' : 'Save Fee'" fluid class="bg-linear-to-r from-indigo-500 to-violet-600 border-0" />
+        </div>
+      </form>
+    </Dialog>
+
     <!-- Header -->
     <div class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-linear-to-r from-slate-50 to-white">
       <div class="flex items-center gap-3">
@@ -101,17 +129,28 @@
           </p>
         </div>
       </div>
-      <button
-        v-if="can('fee-charges', 'create')"
-        type="button"
-        @click="openCreate"
-        :disabled="!patientCasePid"
-        title="This patient has no case record yet"
-        class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        <BsPlusCircle size="16" />
-        Charge Fees
-      </button>
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          @click="openPfList"
+          :disabled="!patientCasePid"
+          class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-medium shadow-sm active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <BsPersonBadge size="16" />
+          Professional Fees
+        </button>
+        <button
+          v-if="can('fee-charges', 'create')"
+          type="button"
+          @click="openCreate"
+          :disabled="!patientCasePid"
+          title="This patient has no case record yet"
+          class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <BsPlusCircle size="16" />
+          Charge Fees
+        </button>
+      </div>
     </div>
 
     <!-- Table -->
@@ -189,18 +228,104 @@
         </template>
       </Column>
     </DataTable>
+
+    <!-- Professional Fees -->
+    <Dialog v-model:visible="pfListModalOpen" modal :style="{ width: '60vw' }" :breakpoints="{ '1199px': '90vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
+      <template #header>
+        <div class="flex flex-1 items-center justify-between gap-3 pr-2">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-linear-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-sm">
+              <BsPersonBadge class="text-white" size="16" />
+            </div>
+            <div>
+              <h2 class="text-base font-semibold text-slate-800">Professional Fees</h2>
+              <p class="text-xs text-slate-400 mt-0.5">Doctors' professional fees charged to this patient case</p>
+            </div>
+          </div>
+          <button
+            v-if="can('fee-charges', 'create')"
+            type="button"
+            @click="openCreateDoctorFee"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 bg-linear-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white text-sm font-medium shadow-md active:scale-95"
+          >
+            <BsPlusCircle size="16" />
+            Add PF
+          </button>
+        </div>
+      </template>
+    <DataTable
+      :value="doctorFees"
+      paginator
+      :rows="10"
+      :rowsPerPageOptions="[10, 15, 25, 50]"
+      responsiveLayout="scroll"
+      tableStyle="min-width: 45rem"
+      :pt="{ table: { class: 'text-sm' }, thead: { class: 'bg-slate-50' }, bodyRow: { class: 'hover:bg-slate-50 transition-colors duration-150 border-b border-slate-100' } }"
+    >
+      <template #empty>
+        <div class="flex flex-col items-center justify-center py-10 text-slate-400">
+          <BsPersonBadge size="32" class="mb-3 opacity-30" />
+          <p class="text-sm font-medium">No professional fees charged</p>
+          <p class="text-xs mt-1">Click "Add PF" to record one</p>
+        </div>
+      </template>
+
+      <Column header="Date" class="w-40">
+        <template #body="{ data }"><span class="text-slate-600 text-sm">{{ formatDateTime(data.created_at) }}</span></template>
+      </Column>
+
+      <Column header="Doctor">
+        <template #body="{ data }"><span class="text-slate-700 text-sm">{{ doctorName(data.doctor) }}</span></template>
+      </Column>
+
+      <Column header="Added By" class="w-44">
+        <template #body="{ data }"><span class="text-slate-700 text-sm">{{ `${data.added_by?.firstname ?? ""} ${data.added_by?.lastname ?? ""}`.trim() || "—" }}</span></template>
+      </Column>
+
+      <Column header="Professional Fee" class="w-40">
+        <template #body="{ data }"><span class="text-slate-800 text-sm font-semibold">₱{{ Number(data.professional_fee).toFixed(2) }}</span></template>
+      </Column>
+
+      <Column header="Actions" class="w-24">
+        <template #body="{ data }">
+          <span v-if="data.invoice_item" class="text-xs font-medium text-slate-400">Invoiced</span>
+          <div v-else class="flex items-center gap-1">
+            <button
+              v-if="can('fee-charges', 'update')"
+              type="button"
+              title="Edit professional fee"
+              @click="editDoctorFee(data.pid)"
+              class="p-1.5 rounded-md text-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-150 cursor-pointer"
+            >
+              <BiEdit size="18" />
+            </button>
+            <button
+              v-if="can('fee-charges', 'delete')"
+              type="button"
+              title="Delete professional fee"
+              @click="archiveDoctorFee(data.pid)"
+              class="p-1.5 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150 cursor-pointer"
+            >
+              <BiTrash size="18" />
+            </button>
+          </div>
+        </template>
+      </Column>
+    </DataTable>
+    </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { BsPlusCircle, BsCashCoin } from "vue-icons-plus/bs";
+import { BsPlusCircle, BsCashCoin, BsPersonBadge } from "vue-icons-plus/bs";
 import { BiEdit, BiTrash } from "vue-icons-plus/bi";
 import { useFeeChargeStore } from "@/store/patientchart/FeeCharges";
+import { useDoctorFeeStore } from "@/store/patientchart/DoctorFees";
 import { usePatientCaseStore } from "@/store/patients/PatientCase";
 import { useFeeScheduleStore } from "@/store/FeeSchedule";
-import { FeeCharge, FeeChargeItem, FeeSchedule } from "@/interface/Interfaces";
+import { DoctorFee, FeeCharge, FeeChargeItem, FeeSchedule, User } from "@/interface/Interfaces";
 import { useConfirmToast } from "@/composables/confirm";
 import { useAppToast } from "@/composables/toast";
 import { usePermission } from "@/composables/permission";
@@ -212,6 +337,7 @@ const route = useRoute();
 const feeChargeStore = useFeeChargeStore();
 const patientCaseStore = usePatientCaseStore();
 const feeScheduleStore = useFeeScheduleStore();
+const doctorFeeStore = useDoctorFeeStore();
 
 const patientCasePid = computed(() => route.params.patient_case_pid as string | undefined);
 const currentCase = computed(() => patientCaseStore.patientCase);
@@ -267,6 +393,15 @@ const refresh = async () => {
     await feeChargeStore.read(patientCasePid.value);
   } catch (err: any) {
     toast.error(err.response?.data?.message || "Failed to retrieve fee charges");
+  }
+};
+
+const refreshDoctorFees = async () => {
+  if (!patientCasePid.value) return;
+  try {
+    await doctorFeeStore.read(patientCasePid.value);
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Failed to retrieve professional fees");
   }
 };
 
@@ -330,6 +465,95 @@ const update = async () => {
   } catch (err: any) {
     toast.error(err.response?.data?.message || "Failed to update fee charge");
   }
+};
+
+// Professional fees
+const doctors = computed<User[]>(() => doctorFeeStore.doctors);
+const doctorFees = computed<DoctorFee[]>(() => doctorFeeStore.doctorFees);
+const doctorName = (doctor?: User) => (doctor ? `Dr. ${doctor.firstname ?? ""} ${doctor.lastname ?? ""}`.trim() : "—");
+const doctorOptionLabel = (doctor: User) => `${doctorName(doctor)}${doctor.license_no ? ` (Lic. ${doctor.license_no})` : ""}`;
+
+const pfListModalOpen = ref<boolean>(false);
+const doctorFeeModalOpen = ref<boolean>(false);
+const isDoctorFeeUpdate = ref<boolean>(false);
+const defaultDoctorFeeInfo = (): DoctorFee => ({ pid: "", patient_case_pid: "", doctor_pid: "", professional_fee: null });
+const doctorFeeInfo = reactive<DoctorFee>(defaultDoctorFeeInfo());
+
+watch(doctorFeeModalOpen, (open) => {
+  if (!open) {
+    Object.assign(doctorFeeInfo, defaultDoctorFeeInfo());
+    isDoctorFeeUpdate.value = false;
+  }
+});
+
+const openPfList = async () => {
+  if (!patientCasePid.value) return;
+  pfListModalOpen.value = true;
+  await refreshDoctorFees();
+  if (!doctors.value.length) {
+    doctorFeeStore.readDoctors().catch(() => toast.error("Failed to retrieve doctors"));
+  }
+};
+
+const openCreateDoctorFee = () => {
+  if (!patientCasePid.value) return;
+  doctorFeeModalOpen.value = true;
+};
+
+const createDoctorFee = async () => {
+  try {
+    doctorFeeInfo.patient_case_pid = patientCasePid.value || "";
+    await doctorFeeStore.create(doctorFeeInfo);
+    toast.success("Professional fee charged successfully");
+    doctorFeeModalOpen.value = false;
+    await refreshDoctorFees();
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Failed to charge professional fee");
+  }
+};
+
+const editDoctorFee = async (pid: string) => {
+  try {
+    await doctorFeeStore.view(pid);
+    const full = doctorFeeStore.doctorFee;
+    Object.assign(doctorFeeInfo, {
+      pid: full.pid,
+      patient_case_pid: patientCasePid.value || "",
+      doctor_pid: full.doctor?.pid || "",
+      professional_fee: Number(full.professional_fee),
+    });
+    isDoctorFeeUpdate.value = true;
+    doctorFeeModalOpen.value = true;
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Failed to retrieve professional fee");
+  }
+};
+
+const updateDoctorFee = async () => {
+  try {
+    await doctorFeeStore.update(doctorFeeInfo);
+    toast.success("Professional fee updated successfully");
+    doctorFeeModalOpen.value = false;
+    await refreshDoctorFees();
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Failed to update professional fee");
+  }
+};
+
+const archiveDoctorFee = (pid: string) => {
+  showConfirm({
+    message: "Are you sure you want to delete this professional fee?",
+    header: "Delete Confirmation",
+    onAccept: async () => {
+      try {
+        await doctorFeeStore.archive(pid);
+        toast.success("Professional fee deleted successfully");
+        await refreshDoctorFees();
+      } catch (err: any) {
+        toast.error(err.response?.data?.message || "Failed to delete professional fee");
+      }
+    },
+  });
 };
 
 const archive = (pid: string) => {

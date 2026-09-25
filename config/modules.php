@@ -53,4 +53,6 @@ return [
     ['key' => 'radiology-orders', 'label' => 'Radiology Orders'],
     ['key' => 'fee-charges', 'label' => 'Patient Fee Charges'],
     ['key' => 'invoices', 'label' => 'Invoices & Billing'],
+    ['key' => 'dispense-medicine-stocks-report', 'label' => 'Report: Dispense Medicine Stocks'],
+    ['key' => 'patient-invoice-report', 'label' => 'Report: Patient Invoices (Cash In)'],
 ];
