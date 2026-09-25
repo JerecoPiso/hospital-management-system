@@ -211,10 +211,10 @@ import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import { useRouter, useRoute } from "vue-router";
-import { MdDashboard, MdLayers, MdLocationOn, MdSwapVert, MdMedicalServices } from "vue-icons-plus/md";
+import { MdDashboard, MdLayers, MdLocationOn, MdSwapVert, MdMedicalServices, MdAssessment } from "vue-icons-plus/md";
 import { FiUsers, FiSettings, FiUserPlus, FiActivity } from "vue-icons-plus/fi";
 import { GiMedicalPack, GiMedicines, GiTestTubes, GiMicroscope } from "vue-icons-plus/gi";
-import { FaUsers, FaBuilding, FaBed, FaUtensils, FaCapsules, FaBookMedical, FaFlask, FaXRay, FaMoneyBillWave } from "vue-icons-plus/fa";
+import { FaUsers, FaBuilding, FaBed, FaUtensils, FaCapsules, FaBookMedical, FaFlask, FaXRay, FaMoneyBillWave, FaPills, FaFileInvoiceDollar } from "vue-icons-plus/fa";
 import { BsFillDoorOpenFill, BsCashCoin } from "vue-icons-plus/bs";
 import { BiCategoryAlt, BiBox, BiFoodMenu } from "vue-icons-plus/bi";
 import { PiUsersThreeFill } from "vue-icons-plus/pi";
@@ -335,6 +335,15 @@ const navItems = [
     children: [
       { name: "FeeCategories", label: "Categories", icon: BsCashCoin, module: "fee-categories" },
       { name: "FeeSchedules", label: "Schedules", icon: FaMoneyBillWave, module: "fee-schedules" },
+    ],
+  },
+  {
+    name: "Reports",
+    label: "Reports",
+    icon: MdAssessment,
+    children: [
+      { name: "DispenseMedicineStocksReport", label: "Dispense Medicine Stocks", icon: FaPills, module: "dispense-medicine-stocks-report" },
+      { name: "PatientInvoiceReport", label: "Patient Invoices (Cash In)", icon: FaFileInvoiceDollar, module: "patient-invoice-report" },
     ],
   },
 

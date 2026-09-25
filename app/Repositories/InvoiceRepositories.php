@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\DoctorFee;
 use App\Models\FeeChargeItem;
 use App\Models\Invoice;
 use App\Models\LabRequest;
@@ -58,8 +59,8 @@ class InvoiceRepositories
 
     /**
      * Aggregates every not-yet-invoiced, priced charge recorded against the
-     * case (lab requests, radiology orders, fee charge items, prescription
-     * items, supply charge items) into a single new invoice + line items, so
+     * case (lab requests, radiology orders, fee charge items, doctor
+     * professional fees, prescription items, supply charge items) into a single new invoice + line items, so
      * billing staff don't have to manually re-enter what's already been
      * ordered/charged elsewhere in the chart. Each source is linked to its
      * invoice item via the polymorphic billable relation so it can't be
@@ -157,6 +158,24 @@ class InvoiceRepositories
                     'quantity' => $item->quantity,
                     'unit_price' => $item->unit_fee,
                     'subtotal' => round($item->quantity * $item->unit_fee, 2),
+                ]);
+            });
+
+        DoctorFee::where('patient_case_id', $patientCaseId)
+            ->whereDoesntHave('invoiceItem')
+            ->where('professional_fee', '>', 0)
+            ->with('doctor')
+            ->get()
+            ->each(function ($fee) use ($items) {
+                $doctorName = trim(($fee->doctor->firstname ?? '') . ' ' . ($fee->doctor->lastname ?? ''));
+                $items->push([
+                    'billable_type' => DoctorFee::class,
+                    'billable_id' => $fee->id,
+                    'category' => 'Professional Fee',
+                    'description' => $doctorName ? "Professional fee - Dr. {$doctorName}" : 'Professional fee',
+                    'quantity' => 1,
+                    'unit_price' => $fee->professional_fee,
+                    'subtotal' => $fee->professional_fee,
                 ]);
             });
 

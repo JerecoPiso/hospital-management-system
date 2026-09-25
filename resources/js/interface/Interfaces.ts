@@ -575,6 +575,81 @@ export interface FeeCharge {
     items: FeeChargeItem[];
 }
 
+export interface DoctorFee {
+    pid?: string;
+    patient_case_pid: string;
+    patient_case?: PatientCase;
+    doctor_pid: string;
+    doctor?: User;
+    added_by?: User;
+    professional_fee: number | any;
+    invoice_item?: InvoiceItem | null;
+    created_at?: string;
+}
+
+export interface DispenseMedicineStocksReportRow {
+    patient_case_pid: string | null;
+    case_number: string | null;
+    patient_name: string;
+    is_first_of_case: boolean;
+    date: string | null;
+    medicine: string | null;
+    stocks: number | null;
+    out_pcs: number;
+    amount: number | null;
+    dispense_balance: number | null;
+    doctor_fee: number | null;
+    sold_amount: number;
+}
+
+export interface DispenseMedicineStocksReport {
+    rows: DispenseMedicineStocksReportRow[];
+    totals: {
+        out_pcs: number;
+        sold_amount: number;
+        doctor_fee: number;
+        grand_total: number;
+    };
+}
+
+export interface PatientInvoiceReportSection {
+    category: string;
+    label: string;
+    items: { description: string; quantity: number; amount: number }[];
+    subtotal: number;
+}
+
+export interface PatientInvoiceReportCase {
+    patient_case_pid: string | null;
+    case_number: string | null;
+    case_type: string | null;
+    case_type_label: string;
+    patient_name: string;
+    patient_type: string | null;
+    patient_type_name: string | null;
+    invoice_numbers: string[];
+    sections: PatientInvoiceReportSection[];
+    subtotal: number;
+    discount: number;
+    tax: number;
+    total: number;
+    paid: number;
+    balance: number;
+}
+
+export interface PatientInvoiceReport {
+    cases: PatientInvoiceReportCase[];
+    totals: {
+        by_type: { label: string; total: number }[];
+        by_section: { label: string; total: number }[];
+        discount: number;
+        tax: number;
+        grand_total: number;
+        paid: number;
+        balance: number;
+    };
+}
+
 export interface InvoiceItem {
     pid?: string;
     category?: string;
