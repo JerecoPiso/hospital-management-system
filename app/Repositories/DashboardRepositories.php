@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardRepositories
 {
-    private const NEAR_EXPIRY_DAYS = 90;
+    private const NEAR_EXPIRY_DAYS = 30;
 
     public function getStats()
     {
