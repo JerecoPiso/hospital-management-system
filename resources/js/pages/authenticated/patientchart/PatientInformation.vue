@@ -220,6 +220,75 @@
       </div>
     </Dialog>
 
+    <!-- All Charges Dialog -->
+    <Dialog v-model:visible="chargesModalOpen" modal :style="{ width: '55vw' }" :breakpoints="{ '1199px': '90vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
+      <template #header>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
+            <FiList class="text-white" size="15" />
+          </div>
+          <div>
+            <h2 class="text-base font-semibold text-slate-800">All Charges</h2>
+            <p class="text-xs text-slate-400 mt-0.5">{{ patientCase?.case_number || "—" }} &bull; Doctor's fees, medicines, supplies, laboratory, radiology and fee charges</p>
+          </div>
+        </div>
+      </template>
+      <div class="flex flex-col gap-4 pt-2">
+        <div v-if="chargesLoading" class="text-sm text-slate-400 py-6 text-center">Loading charges...</div>
+        <div v-else-if="!charges.length" class="text-sm text-slate-400 italic py-6 text-center">No charges recorded for this case.</div>
+        <template v-else>
+          <div class="border border-slate-200 rounded-lg overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-100">
+                  <th class="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Description</th>
+                  <th class="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Date</th>
+                  <th class="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Qty</th>
+                  <th class="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Unit Price</th>
+                  <th class="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Subtotal</th>
+                  <th class="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Billing</th>
+                </tr>
+              </thead>
+              <tbody v-for="group in chargesByCategory" :key="group.category">
+                <tr class="bg-emerald-50/60">
+                  <td colspan="4" class="px-4 py-1.5 text-xs font-bold text-emerald-700 uppercase tracking-wide">{{ group.category }}</td>
+                  <td class="px-4 py-1.5 text-right text-xs font-bold text-emerald-700">₱{{ group.total.toFixed(2) }}</td>
+                  <td></td>
+                </tr>
+                <tr v-for="(item, idx) in group.items" :key="`${group.category}-${idx}`" class="border-b border-slate-100 last:border-0">
+                  <td class="px-4 py-2.5 text-slate-700">{{ item.description }}</td>
+                  <td class="px-4 py-2.5 text-slate-500 whitespace-nowrap">{{ formatDate(item.date) }}</td>
+                  <td class="px-4 py-2.5 text-right text-slate-600">{{ item.quantity }}</td>
+                  <td class="px-4 py-2.5 text-right text-slate-600">₱{{ Number(item.unit_price || 0).toFixed(2) }}</td>
+                  <td class="px-4 py-2.5 text-right text-slate-800 font-medium">₱{{ Number(item.subtotal || 0).toFixed(2) }}</td>
+                  <td class="px-4 py-2.5 whitespace-nowrap">
+                    <span v-if="item.invoice_number" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">{{ item.invoice_number }}</span>
+                    <span v-else class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100">Unbilled</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="flex flex-col gap-1.5 rounded-lg bg-slate-50 border border-slate-200 p-4 text-sm">
+            <div class="flex justify-between text-emerald-600">
+              <span>Billed</span><span>₱{{ chargesBilledTotal.toFixed(2) }}</span>
+            </div>
+            <div class="flex justify-between text-amber-600">
+              <span>Unbilled</span><span>₱{{ (chargesTotal - chargesBilledTotal).toFixed(2) }}</span>
+            </div>
+            <div class="flex justify-between text-slate-800 font-bold pt-1.5 border-t border-slate-200">
+              <span>Total Charges</span><span>₱{{ chargesTotal.toFixed(2) }}</span>
+            </div>
+          </div>
+        </template>
+
+        <div class="flex gap-2 pt-1">
+          <Button type="button" label="Close" severity="secondary" outlined fluid @click="chargesModalOpen = false" />
+        </div>
+      </div>
+    </Dialog>
+
     <!-- Bed Assignment Dialog -->
     <Dialog v-model:visible="bedModal" modal :style="{ width: '38vw' }" :breakpoints="{ '1199px': '75vw', '575px': '95vw' }" :pt="{ header: { class: 'border-b border-slate-100 pb-4' } }">
       <template #header>
@@ -945,16 +1014,26 @@
             <p class="text-xs text-slate-400">Charges recorded for this case</p>
           </div>
         </div>
-        <button
-          v-if="can('invoices', 'create')"
-          type="button"
-          @click="generateInvoice"
-          :disabled="generating"
-          class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          <BsPlusCircle size="16" />
-          {{ generating ? "Generating..." : "Generate Invoice" }}
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            @click="openCharges"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium shadow-sm transition-colors"
+          >
+            <FiList size="15" />
+            View All Charges
+          </button>
+          <button
+            v-if="can('invoices', 'create')"
+            type="button"
+            @click="generateInvoice"
+            :disabled="generating"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm font-medium shadow-md hover:shadow-lg active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <BsPlusCircle size="16" />
+            {{ generating ? "Generating..." : "Generate Invoice" }}
+          </button>
+        </div>
       </div>
 
       <div v-if="invoicesLoading" class="p-8 text-center text-sm text-slate-400">Loading invoices...</div>
@@ -1027,9 +1106,8 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, watch, markRaw } from "vue";
-import { useRoute } from "vue-router";
-import { FiUser, FiUsers, FiCalendar, FiEdit2, FiPrinter, FiMapPin, FiHeart, FiActivity, FiThermometer, FiDroplet, FiFileText, FiCreditCard, FiEye, FiLogOut } from "vue-icons-plus/fi";
-import { FaTextHeight, FaWeight } from "vue-icons-plus/fa";
+import { useRoute } from "vue-router";import { FiUser, FiUsers, FiCalendar, FiEdit2, FiPrinter, FiMapPin, FiHeart, FiActivity, FiThermometer, FiDroplet, FiFileText, FiCreditCard, FiEye, FiLogOut, FiList } from "vue-icons-plus/fi";
+import { FaTextHeight, FaWeight, FaBed } from "vue-icons-plus/fa";
 import { BsJournalMedical, BsPlusCircle } from "vue-icons-plus/bs";
 import { BiEdit, BiTrash } from "vue-icons-plus/bi";
 import { usePatientCaseStore } from "@/store/patients/PatientCase";
@@ -1661,6 +1739,45 @@ const viewingItemsByCategory = computed(() => {
 const openItems = (inv) => {
   viewingInvoice.value = inv;
   itemsModalOpen.value = true;
+};
+
+// All charges (billed and unbilled) recorded against the case
+const chargesModalOpen = ref(false);
+const chargesLoading = ref(false);
+const charges = ref([]);
+
+const chargeCategoryOrder = ["Professional Fee", "Medicine", "Supply", "Laboratory", "Radiology", "Fee"];
+
+const chargesByCategory = computed(() => {
+  const groups = [];
+  charges.value.forEach((item) => {
+    const category = item.category || "Other";
+    let group = groups.find((g) => g.category === category);
+    if (!group) {
+      group = { category, items: [], total: 0 };
+      groups.push(group);
+    }
+    group.items.push(item);
+    group.total += Number(item.subtotal || 0);
+  });
+  const rank = (c) => (chargeCategoryOrder.includes(c) ? chargeCategoryOrder.indexOf(c) : chargeCategoryOrder.length);
+  return groups.sort((a, b) => rank(a.category) - rank(b.category));
+});
+
+const chargesTotal = computed(() => charges.value.reduce((sum, item) => sum + Number(item.subtotal || 0), 0));
+const chargesBilledTotal = computed(() => charges.value.filter((item) => item.invoice_number).reduce((sum, item) => sum + Number(item.subtotal || 0), 0));
+
+const openCharges = async () => {
+  if (!patientCasePid.value) return;
+  chargesModalOpen.value = true;
+  chargesLoading.value = true;
+  try {
+    charges.value = await invoiceStore.charges(patientCasePid.value);
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Failed to retrieve charges");
+  } finally {
+    chargesLoading.value = false;
+  }
 };
 
 const openPayment = (inv) => {
