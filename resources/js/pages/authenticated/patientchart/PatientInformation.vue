@@ -1274,7 +1274,9 @@ onMounted(async () => {
       toast.error(err.response?.data?.message || "Failed to load ICD codes");
     }
   }
-  await loadInvoices()
+  if (can("invoices", "view")) {
+    await loadInvoices();
+  }
 });
 
 // SOAP Notes
