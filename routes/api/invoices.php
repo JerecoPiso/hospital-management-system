@@ -8,6 +8,7 @@ Route::middleware(['auth:sanctum'])->prefix('invoices')
     ->group(function (): void {
         Route::get('/', 'list')->middleware('permission:invoices,view');
         Route::post('/generate', 'generate')->middleware('permission:invoices,create');
+        Route::get('/charges', 'charges')->middleware('permission:invoices,view');
         Route::get('/{pid}', 'view')->middleware('permission:invoices,view');
         Route::post('/{pid}/payments', 'pay')->middleware('permission:invoices,update');
     });

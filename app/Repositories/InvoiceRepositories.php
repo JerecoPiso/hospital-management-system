@@ -107,16 +107,55 @@ class InvoiceRepositories
         }
     }
 
-    private function collectBillableItems($patientCaseId): Collection
+    /**
+     * Lists every priced charge recorded against the case, billed or not,
+     * tagged with the invoice (if any) it has already been billed under.
+     */
+    public function charges($patientCasePid)
+    {
+        try {
+            $patientCase = PatientCase::where('pid', $patientCasePid)->firstOrFail();
+
+            return $this->collectBillableItems($patientCase->id, true)
+                ->map(function ($item) {
+                    unset($item['billable_type'], $item['billable_id']);
+                    return $item;
+                })
+                ->values();
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
+
+    private function collectBillableItems($patientCaseId, bool $includeBilled = false): Collection
     {
         $items = collect();
 
+        // When listing all charges, keep already-invoiced sources and attach
+        // their invoice; otherwise only pull sources not yet invoiced.
+        $billing = function ($query) use ($includeBilled) {
+            return $includeBilled
+                ? $query->with('invoiceItem.invoice')
+                : $query->whereDoesntHave('invoiceItem');
+        };
+        $meta = function ($source) use ($includeBilled) {
+            if (!$includeBilled) {
+                return [];
+            }
+            $invoice = $source->invoiceItem?->invoice;
+            return [
+                'date' => $source->created_at,
+                'invoice_pid' => $invoice?->pid,
+                'invoice_number' => $invoice?->invoice_number,
+            ];
+        };
+
         LabRequest::where('patient_case_id', $patientCaseId)
             ->where('status', '!=', 'cancelled')
-            ->whereDoesntHave('invoiceItem')
+            ->tap($billing)
             ->with('labTest')
             ->get()
-            ->each(function ($request) use ($items) {
+            ->each(function ($request) use ($items, $meta) {
                 $items->push([
                     'billable_type' => LabRequest::class,
                     'billable_id' => $request->id,
@@ -125,15 +164,15 @@ class InvoiceRepositories
                     'quantity' => 1,
                     'unit_price' => $request->price,
                     'subtotal' => $request->price,
-                ]);
+                ] + $meta($request));
             });
 
         RadiologyOrder::where('patient_case_id', $patientCaseId)
             ->where('status', '!=', 'cancelled')
-            ->whereDoesntHave('invoiceItem')
+            ->tap($billing)
             ->with('procedure')
             ->get()
-            ->each(function ($order) use ($items) {
+            ->each(function ($order) use ($items, $meta) {
                 $items->push([
                     'billable_type' => RadiologyOrder::class,
                     'billable_id' => $order->id,
@@ -142,14 +181,14 @@ class InvoiceRepositories
                     'quantity' => 1,
                     'unit_price' => $order->price,
                     'subtotal' => $order->price,
-                ]);
+                ] + $meta($order));
             });
 
         FeeChargeItem::whereHas('feeCharge.patientCase', fn($q) => $q->where('id', $patientCaseId))
-            ->whereDoesntHave('invoiceItem')
+            ->tap($billing)
             ->with('feeSchedule')
             ->get()
-            ->each(function ($item) use ($items) {
+            ->each(function ($item) use ($items, $meta) {
                 $items->push([
                     'billable_type' => FeeChargeItem::class,
                     'billable_id' => $item->id,
@@ -158,15 +197,15 @@ class InvoiceRepositories
                     'quantity' => $item->quantity,
                     'unit_price' => $item->unit_fee,
                     'subtotal' => round($item->quantity * $item->unit_fee, 2),
-                ]);
+                ] + $meta($item));
             });
 
         DoctorFee::where('patient_case_id', $patientCaseId)
-            ->whereDoesntHave('invoiceItem')
+            ->tap($billing)
             ->where('professional_fee', '>', 0)
             ->with('doctor')
             ->get()
-            ->each(function ($fee) use ($items) {
+            ->each(function ($fee) use ($items, $meta) {
                 $doctorName = trim(($fee->doctor->firstname ?? '') . ' ' . ($fee->doctor->lastname ?? ''));
                 $items->push([
                     'billable_type' => DoctorFee::class,
@@ -176,17 +215,17 @@ class InvoiceRepositories
                     'quantity' => 1,
                     'unit_price' => $fee->professional_fee,
                     'subtotal' => $fee->professional_fee,
-                ]);
+                ] + $meta($fee));
             });
 
         PrescriptionItem::whereHas('prescription', function ($q) use ($patientCaseId) {
             $q->where('patient_case_id', $patientCaseId)->where('status', '!=', 'cancelled');
         })
-            ->whereDoesntHave('invoiceItem')
+            ->tap($billing)
             ->where('price', '>', 0)
             ->with('medicine')
             ->get()
-            ->each(function ($item) use ($items) {
+            ->each(function ($item) use ($items, $meta) {
                 $quantity = $item->quantity ?: 1;
                 $items->push([
                     'billable_type' => PrescriptionItem::class,
@@ -196,15 +235,15 @@ class InvoiceRepositories
                     'quantity' => $quantity,
                     'unit_price' => $item->price,
                     'subtotal' => round($quantity * $item->price, 2),
-                ]);
+                ] + $meta($item));
             });
 
         SupplyChargeItem::whereHas('supplyCharge.patientCase', fn($q) => $q->where('id', $patientCaseId))
-            ->whereDoesntHave('invoiceItem')
+            ->tap($billing)
             ->where('price', '>', 0)
             ->with('supply')
             ->get()
-            ->each(function ($item) use ($items) {
+            ->each(function ($item) use ($items, $meta) {
                 $items->push([
                     'billable_type' => SupplyChargeItem::class,
                     'billable_id' => $item->id,
@@ -213,7 +252,7 @@ class InvoiceRepositories
                     'quantity' => $item->quantity,
                     'unit_price' => $item->price,
                     'subtotal' => round($item->quantity * $item->price, 2),
-                ]);
+                ] + $meta($item));
             });
 
         return $items;

@@ -29,6 +29,17 @@ trait InvoiceTrait
         }
     }
 
+    public function charges(Request $request)
+    {
+        try {
+            $request->validate(['patient_case_pid' => 'required|string']);
+            $charges = $this->invoiceRepo->charges($request->patient_case_pid);
+            return api_response($charges, true, "Success", 200);
+        } catch (\Exception $e) {
+            return api_response([], false, $e->getMessage(), $e->getCode() ?: 500);
+        }
+    }
+
     public function view($invoice_pid)
     {
         try {

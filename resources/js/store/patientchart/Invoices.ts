@@ -18,6 +18,10 @@ export const useInvoiceStore = defineStore("invoice", () => {
         const response = await axios.get(`${baseUrl}api/invoices/${pid}`);
         invoice.value = response.data.data;
     }
+    const charges = async (patient_case_pid: string) => {
+        const response = await axios.get(`${baseUrl}api/invoices/charges`, { params: { patient_case_pid } });
+        return response.data.data as any[];
+    }
     const generate = async (patient_case_pid: string) => {
         const response = await axios.post(`${baseUrl}api/invoices/generate`, { patient_case_pid });
         return response.data.data.invoice as Invoice;
@@ -29,6 +33,7 @@ export const useInvoiceStore = defineStore("invoice", () => {
     return {
         read,
         view,
+        charges,
         generate,
         pay,
         invoices,
