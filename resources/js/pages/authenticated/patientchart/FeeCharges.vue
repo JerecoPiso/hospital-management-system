@@ -234,7 +234,7 @@
       <template #header>
         <div class="flex flex-1 items-center justify-between gap-3 pr-2">
           <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-lg bg-linear-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-sm">
+            <div class="w-9 h-9 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-sm">
               <BsPersonBadge class="text-white" size="16" />
             </div>
             <div>
@@ -246,7 +246,7 @@
             v-if="can('fee-charges', 'create')"
             type="button"
             @click="openCreateDoctorFee"
-            class="flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 bg-linear-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white text-sm font-medium shadow-md active:scale-95"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white text-sm font-medium shadow-md active:scale-95"
           >
             <BsPlusCircle size="16" />
             Add PF
