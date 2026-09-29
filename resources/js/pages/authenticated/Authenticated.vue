@@ -212,7 +212,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import { useRouter, useRoute } from "vue-router";
 import { MdDashboard, MdLayers, MdLocationOn, MdSwapVert, MdMedicalServices, MdAssessment } from "vue-icons-plus/md";
-import { FiUsers, FiSettings, FiUserPlus, FiActivity } from "vue-icons-plus/fi";
+import { FiUsers, FiSettings, FiUserPlus, FiActivity, FiSliders } from "vue-icons-plus/fi";
 import { GiMedicalPack, GiMedicines, GiTestTubes, GiMicroscope } from "vue-icons-plus/gi";
 import { FaUsers, FaBuilding, FaBed, FaUtensils, FaCapsules, FaBookMedical, FaFlask, FaXRay, FaMoneyBillWave, FaPills, FaFileInvoiceDollar } from "vue-icons-plus/fa";
 import { BsFillDoorOpenFill, BsCashCoin } from "vue-icons-plus/bs";
@@ -368,6 +368,7 @@ const navItems = [
       { name: "PatientTypes", label: "Patient Types", icon: BiCategoryAlt, module: "patient-types" },
       { name: "PertinentSignsAndSymptoms", label: "Signs & Symptoms", icon: FiActivity, module: "pertinent-signs-and-symptoms-lists" },
       { name: "Icds", label: "ICD Codes", icon: FaBookMedical, module: "icds" },
+      { name: "SystemSettings", label: "System Settings", icon: FiSliders, module: "settings" },
     ],
   },
 ];

@@ -329,7 +329,8 @@ import { DoctorFee, FeeCharge, FeeChargeItem, FeeSchedule, User } from "@/interf
 import { useConfirmToast } from "@/composables/confirm";
 import { useAppToast } from "@/composables/toast";
 import { usePermission } from "@/composables/permission";
-
+import { useSettingStore } from "@/store/Setting";
+const settingStore = useSettingStore();
 const { showConfirm } = useConfirmToast();
 const toast = useAppToast();
 const { can } = usePermission();
@@ -352,7 +353,6 @@ const unitFeeFor = (pid?: string) => feeSchedules.value.find((f) => f.pid === pi
 const modalOpen = ref<boolean>(false);
 const isUpdate = ref<boolean>(false);
 const chargeDateModel = ref<Date | null>(null);
-
 const defaultItem = (): FeeChargeItem => ({ fee_schedule_pid: "", quantity: 1, remarks: "" });
 const defaultInfo = (): FeeCharge => ({
   patient_case_pid: "",
@@ -406,6 +406,8 @@ const refreshDoctorFees = async () => {
 };
 
 onMounted(async () => {
+  // Default PF is optional; don't block the page if it can't be loaded
+  await settingStore.getByName('professional_fee').catch(() => {});
   await Promise.all([loadContext(), feeScheduleStore.read()]);
   await refresh();
 });
@@ -472,11 +474,11 @@ const doctors = computed<User[]>(() => doctorFeeStore.doctors);
 const doctorFees = computed<DoctorFee[]>(() => doctorFeeStore.doctorFees);
 const doctorName = (doctor?: User) => (doctor ? `Dr. ${doctor.firstname ?? ""} ${doctor.lastname ?? ""}`.trim() : "—");
 const doctorOptionLabel = (doctor: User) => `${doctorName(doctor)}${doctor.license_no ? ` (Lic. ${doctor.license_no})` : ""}`;
-
+const professionalfee = computed(() => settingStore.pf);
 const pfListModalOpen = ref<boolean>(false);
 const doctorFeeModalOpen = ref<boolean>(false);
 const isDoctorFeeUpdate = ref<boolean>(false);
-const defaultDoctorFeeInfo = (): DoctorFee => ({ pid: "", patient_case_pid: "", doctor_pid: "", professional_fee: null });
+const defaultDoctorFeeInfo = (): DoctorFee => ({ pid: "", patient_case_pid: "", doctor_pid: "", professional_fee: professionalfee.value || null });
 const doctorFeeInfo = reactive<DoctorFee>(defaultDoctorFeeInfo());
 
 watch(doctorFeeModalOpen, (open) => {
@@ -497,6 +499,8 @@ const openPfList = async () => {
 
 const openCreateDoctorFee = () => {
   if (!patientCasePid.value) return;
+  // Re-apply defaults on open: doctorFeeInfo was built before the PF setting finished loading
+  Object.assign(doctorFeeInfo, defaultDoctorFeeInfo());
   doctorFeeModalOpen.value = true;
 };
 

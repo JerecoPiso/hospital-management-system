@@ -8,12 +8,20 @@ use App\Models\Patient;
 use App\Models\PatientCase;
 use App\Models\SupplyStock;
 use App\Models\User;
+use App\Models\Setting;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class DashboardRepositories
 {
-    private const NEAR_EXPIRY_DAYS = 30;
+    private int $nearExpiryDays;
+
+    public function __construct(SettingRepositories $settingRepo)
+    {
+        // Read from the `expiry_day` setting, defaulting to 30 days.
+        $days = (int) $settingRepo->getValue('expiry_day', Setting::DEFAULTS['expiry_day']);
+        $this->nearExpiryDays = $days > 0 ? $days : Setting::DEFAULTS['expiry_day'];
+    }
 
     public function getStats()
     {
@@ -125,7 +133,7 @@ class DashboardRepositories
      * Reorder and near-expiry alerts per stock batch. Reorder uses the same rule
      * as the Low Stock Alerts stat (quantity at or below the batch's reorder
      * level). Near expiry covers batches that still hold stock and expire within
-     * NEAR_EXPIRY_DAYS, including ones already expired. Each side is only
+     * the `expiry_day` setting (default 30 days), including ones already expired. Each side is only
      * returned to users allowed to view that stock module.
      */
     public function getInventoryAlerts()
@@ -135,7 +143,7 @@ class DashboardRepositories
         $canSupply = $user?->hasPermission('supply-stocks', 'view') ?? false;
 
         return [
-            'near_expiry_days' => self::NEAR_EXPIRY_DAYS,
+            'near_expiry_days' => $this->nearExpiryDays,
             'medicine_reorder' => $canMedicine ? $this->reorderAlerts(MedicineStock::class, 'medicine') : null,
             'supply_reorder' => $canSupply ? $this->reorderAlerts(SupplyStock::class, 'supply') : null,
             'medicine_near_expiry' => $canMedicine ? $this->nearExpiryAlerts(MedicineStock::class, 'medicine') : null,
@@ -167,7 +175,7 @@ class DashboardRepositories
         return $stockModel::with($itemRelation)
             ->where('quantity', '>', 0)
             ->whereNotNull('expiration_date')
-            ->whereDate('expiration_date', '<=', $today->copy()->addDays(self::NEAR_EXPIRY_DAYS))
+            ->whereDate('expiration_date', '<=', $today->copy()->addDays($this->nearExpiryDays))
             ->orderBy('expiration_date')
             ->get()
             ->map(fn($stock) => [
