@@ -17,6 +17,7 @@ return [
     ['key' => 'nurses-notes', 'label' => "Nurses' Notes"],
     ['key' => 'soaps', 'label' => 'SOAP Notes'],
     ['key' => 'icds', 'label' => 'ICD Codes'],
+    ['key' => 'settings', 'label' => 'System Settings'],
     ['key' => 'pertinent-signs-and-symptoms', 'label' => 'Pertinent Signs & Symptoms'],
     ['key' => 'pertinent-signs-and-symptoms-lists', 'label' => 'Signs & Symptoms List'],
     ['key' => 'history-and-physical-examination-form-one', 'label' => 'H&P Examination Form 1'],

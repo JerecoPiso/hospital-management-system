@@ -47,6 +47,7 @@ require __DIR__ . '/api/radiologyProcedures.php';
 require __DIR__ . '/api/reports.php';
 require __DIR__ . '/api/roles.php';
 require __DIR__ . '/api/rooms.php';
+require __DIR__ . '/api/settings.php';
 require __DIR__ . '/api/soaps.php';
 require __DIR__ . '/api/stations.php';
 require __DIR__ . '/api/supplies.php';

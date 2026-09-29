@@ -406,6 +406,13 @@ export interface PatientType {
     description?: string | null;
 }
 
+export interface Setting {
+    pid?: string;
+    name: string;
+    value: string;
+    description?: string | null;
+}
+
 export interface PertinentSignsAndSymptomsList {
     pid?: string;
     code: string;
