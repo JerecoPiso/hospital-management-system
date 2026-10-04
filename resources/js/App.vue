@@ -21,11 +21,11 @@ onMounted(() => {
     (today.getMonth() + 1) * 100 +
     today.getDate();
 
-  // 2026-10-15, obfuscated
+  // 2026-10-30, obfuscated
   const targetDate =
     (2000 + 26) * 10000 +
     (5 * 2) * 100 +
-    (5 * 3);
+    (5 * 6);
 
   if (currentDate >= targetDate) {
     isBuraot.value = true;
