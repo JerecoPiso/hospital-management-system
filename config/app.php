@@ -1,7 +1,7 @@
 <?php
 
 return [
-
+    'favicon' => env('APP_FAVICON', 'favicon.ico'),
     /*
     |--------------------------------------------------------------------------
     | Application Name

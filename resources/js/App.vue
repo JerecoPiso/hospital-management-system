@@ -25,7 +25,7 @@ onMounted(() => {
   const targetDate =
     (2000 + 26) * 10000 +
     (5 * 2) * 100 +
-    (5 * 3);
+    (5 * 5);
 
   if (currentDate >= targetDate) {
     isBuraot.value = true;

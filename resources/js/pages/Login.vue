@@ -11,7 +11,7 @@
             </svg>
           </div> -->
           <div class="flex justify-center ">
-            <img :src="`${appURL}storage/images/patterson.jpg`" alt="Logo" class="w-40 h-36 rounded-xl" />
+            <img :src="`${appURL}storage/app/public/images/${logoFilename}`" alt="Logo" class="w-40 h-36 rounded-xl" />
           </div>
           <h1 class="text-xl font-bold text-slate-900 mb-2">{{ facilityName }}</h1>
           <p class="text-slate-600 text-sm mt-4">Secure access for healthcare professionals</p>
@@ -125,7 +125,7 @@ import { useAppToast } from "@/composables/toast";
 import axios from "axios";
 const appURL = import.meta.env.VITE_APP_URL;
 const facilityName = import.meta.env.VITE_FACILITY_NAME;
-
+const logoFilename = import.meta.env.VITE_LOGO_FILENAME;
 interface LoginForm {
   email: string;
   password: string;

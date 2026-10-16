@@ -16,7 +16,7 @@
           <div class="hidden md:flex items-center gap-3">
             <!-- Logo -->
             <div class="flex h-11 w-11 shrink-0 items-center justify-center">
-              <img :src="`${appURL}storage/images/patterson.jpg`" alt="Clinic Logo" class="h-12 w-12 rounded-md" />
+              <img :src="`${appURL}storage/app/public/images/${logoFilename}`" alt="Clinic Logo" class="h-12 w-12 rounded-md" />
             </div>
 
             <!-- Facility Information -->
@@ -224,6 +224,8 @@ import { useAuthStore } from "@/store/patientchart/AuthStore";
 import { usePermission } from "@/composables/permission";
 const appURL = import.meta.env.VITE_APP_URL;
 const facilityName = import.meta.env.VITE_FACILITY_NAME;
+const logoFilename = import.meta.env.VITE_LOGO_FILENAME;
+
 const confirm = useConfirm();
 const toast = useToast();
 const router = useRouter();
