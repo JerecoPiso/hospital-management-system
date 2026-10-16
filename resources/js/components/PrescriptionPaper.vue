@@ -90,7 +90,6 @@ import { computed, ref } from "vue";
 import { Prescription, PrescriptionItem } from "@/interface/Interfaces";
 const appURL = import.meta.env.VITE_APP_URL;
 const logoFilename = import.meta.env.VITE_LOGO_FILENAME;
-
 const props = withDefaults(
   defineProps<{
     prescription: Prescription | null;
