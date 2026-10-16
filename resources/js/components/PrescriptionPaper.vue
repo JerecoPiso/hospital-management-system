@@ -3,7 +3,7 @@
     <div ref="paperRef" class="rx-paper">
       <!-- Letterhead -->
       <div class="flex w-full justify-center align-middle">
-        <img :src="`${appURL}storage/images/patterson.jpg`" alt="Logo" class="rx-logo" />
+        <img :src="`${appURL}storage/app/public/images/${logoFilename}`" alt="Logo" class="rx-logo" />
       </div>
       <div class="rx-letterhead">
         <div class="rx-clinic">
@@ -89,7 +89,7 @@
 import { computed, ref } from "vue";
 import { Prescription, PrescriptionItem } from "@/interface/Interfaces";
 const appURL = import.meta.env.VITE_APP_URL;
-const appURL = import.meta.env.VITE_APP_URL;
+const logoFilename = import.meta.env.VITE_LOGO_FILENAME;
 const props = withDefaults(
   defineProps<{
     prescription: Prescription | null;
