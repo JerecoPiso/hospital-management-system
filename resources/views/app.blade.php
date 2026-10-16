@@ -8,7 +8,7 @@
         <link
             rel="icon"
             type="image/x-icon"
-            href="{{ asset('favicon.ico') }}"
+            href="{{ asset(config('app.favicon')) }}"
         >
         @vite('resources/css/app.css')
     </head>
