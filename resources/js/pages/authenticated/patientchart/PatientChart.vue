@@ -6,20 +6,27 @@
     <header class="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
       <div class="flex items-center justify-between px-4 md:px-8 py-4">
         <!-- Logo & Title -->
-       
-        <div class="hidden md:flex items-center gap-3">
-          <!-- Logo -->
-          <div class="flex h-11 w-11 shrink-0 items-center justify-center">
-              <img :src="`${appURL}storage/images/patterson.jpg`" alt="Clinic Logo" class="h-12 w-12 rounded-md" />
-          </div>
+        <div class="flex items-center gap-3">
+          <button @click="sidebarOpen = !sidebarOpen" class="md:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors">
+            <svg class="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
 
-          <!-- Facility Information -->
-          <div class="flex flex-col justify-center leading-tight">
-            <h1 class="text-sm font-bold tracking-wide text-slate-700">
-              {{ facilityName }}
-            </h1>
+          <div class="hidden md:flex items-center gap-3">
+            <!-- Logo -->
+            <div class="flex h-11 w-11 shrink-0 items-center justify-center">
+              <img :src="`${appURL}storage/app/public/images/${logoFilename}`" alt="Clinic Logo" class="h-12 w-12 rounded-md" />
+            </div>
 
-            <!-- <span class="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-teal-600"> Eye Care Center </span> -->
+            <!-- Facility Information -->
+            <div class="flex flex-col justify-center leading-tight">
+              <h1 class="text-sm font-bold tracking-wide text-slate-700">
+                {{ facilityName }}
+              </h1>
+
+              <!-- <span class="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-teal-600"> Eye Care Center </span> -->
+            </div>
           </div>
         </div>
 
@@ -222,6 +229,8 @@ const route = useRoute();
 const { can } = usePermission();
 const appURL = import.meta.env.VITE_APP_URL;
 const facilityName = import.meta.env.VITE_FACILITY_NAME;
+const logoFilename = import.meta.env.VITE_LOGO_FILENAME;
+
 const userDisplayName = computed(() => {
   const user = auth.user;
   if (!user) return "Guest";
@@ -264,11 +273,11 @@ const navItems = [
     name: "PatientInformation",
     icon: BiSolidUserAccount,
   },
-  {
-    name: "PatientForms",
-    label: "Patient Forms",
-    icon: FaFileMedicalAlt,
-  },
+  // {
+  //  name: "PatientForms",
+  //  label: "Patient Forms",
+  //  icon: FaFileMedicalAlt,
+  // },
   {
     name: "VitalSigns",
     label: "Vital Signs",

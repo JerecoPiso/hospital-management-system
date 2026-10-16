@@ -89,6 +89,7 @@
 import { computed, ref } from "vue";
 import { Prescription, PrescriptionItem } from "@/interface/Interfaces";
 const appURL = import.meta.env.VITE_APP_URL;
+const appURL = import.meta.env.VITE_APP_URL;
 const props = withDefaults(
   defineProps<{
     prescription: Prescription | null;

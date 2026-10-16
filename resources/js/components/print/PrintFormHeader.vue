@@ -62,6 +62,7 @@
 import { computed } from "vue";
 import { PatientCase } from "@/interface/Interfaces";
 const appURL = import.meta.env.VITE_APP_URL;
+const logoFilename = import.meta.env.VITE_LOGO_FILENAME;
 
 const props = withDefaults(
   defineProps<{
