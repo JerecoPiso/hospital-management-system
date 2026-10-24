@@ -107,7 +107,7 @@ const props = withDefaults(
 
 const paperRef = ref<HTMLElement | null>(null);
 
-const patient = computed(() => props.prescription?.patient_case?.patient ?? props.prescription?.patientCase?.patient);
+const patient = computed(() => props.prescription?.patient_case?.patient ?? props.prescription?.patient_case?.patient);
 const patientName = computed(() => {
   const p = patient.value;
   if (!p) return "—";
@@ -131,7 +131,7 @@ const ageSex = computed(() => {
   return parts.join(" / ") || "—";
 });
 
-const caseNumber = computed(() => props.prescription?.patient_case?.case_number ?? props.prescription?.patientCase?.case_number ?? "—");
+const caseNumber = computed(() => props.prescription?.patient_case?.case_number ?? props.prescription?.patient_case?.case_number ?? "—");
 
 const prescriptionDate = computed(() => {
   const value = props.prescription?.prescription_date;
@@ -242,7 +242,7 @@ body { margin: 0; padding: 24px; font-family: "Segoe UI", Roboto, Helvetica, Ari
   font-size: 20px;
   font-weight: 700;
   letter-spacing: 0.5px;
-  
+
 }
 .rx-clinic-line {
   margin: 2px 0 0;
