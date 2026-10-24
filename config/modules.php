@@ -20,6 +20,7 @@ return [
     ['key' => 'settings', 'label' => 'System Settings'],
     ['key' => 'pertinent-signs-and-symptoms', 'label' => 'Pertinent Signs & Symptoms'],
     ['key' => 'pertinent-signs-and-symptoms-lists', 'label' => 'Signs & Symptoms List'],
+    ['key' => 'examination-options', 'label' => 'Examination Options'],
     ['key' => 'history-and-physical-examination-form-one', 'label' => 'H&P Examination Form 1'],
     ['key' => 'history-and-physical-examination-form-two', 'label' => 'H&P Examination Form 2'],
     ['key' => 'prescriptions', 'label' => 'Prescriptions'],

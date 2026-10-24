@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { HistoryAndPhysicalExaminationFormTwo } from "@/interface/Interfaces";
+import { ExaminationOption, HistoryAndPhysicalExaminationFormTwo } from "@/interface/Interfaces";
 import axios from "axios";
 export const useHistoryAndPhysicalExaminationFormTwoStore = defineStore("historyAndPhysicalExaminationFormTwo", () => {
     const baseUrl = import.meta.env.VITE_APP_API_URL;
@@ -8,34 +8,28 @@ export const useHistoryAndPhysicalExaminationFormTwoStore = defineStore("history
     const history = ref<HistoryAndPhysicalExaminationFormTwo>({
         pid: "",
         patient_case_pid: "",
-        general_appearance: "",
+        findings: [],
         general_appearance_others: "",
-        skin: "",
         skin_others: "",
-        heent: "",
         heent_others: "",
-        neck: "",
         neck_others: "",
-        chest_lungs: "",
         chest_lungs_others: "",
-        cardiovascular: "",
         cardiovascular_others: "",
-        abdomen: "",
         abdomen_others: "",
-        genitourinary: "",
         genitourinary_others: "",
-        rectal: "",
         rectal_others: "",
-        musculoskeletal: "",
         musculoskeletal_others: "",
-        neurological: "",
         neurological_others: "",
-        psychiatric_mental_status: "",
         psychiatric_mental_status_others: "",
         assessment_impression: "",
         plan_recommendations: "",
         remarks: ""
     })
+    const examinationOptions = ref<ExaminationOption[]>([])
+    const readOptions = async () => {
+        const response = await axios.get(`${baseUrl}api/history-and-physical-examination-form-two/options`);
+        examinationOptions.value = response.data.data;
+    }
     const create = async (data: HistoryAndPhysicalExaminationFormTwo) => {
         await axios.post(`${baseUrl}api/history-and-physical-examination-form-two`, data);
         read(data.patient_case_pid);
@@ -62,9 +56,11 @@ export const useHistoryAndPhysicalExaminationFormTwoStore = defineStore("history
         archive,
         create,
         read,
+        readOptions,
         view,
         update,
         histories,
-        history
+        history,
+        examinationOptions
     }
 })

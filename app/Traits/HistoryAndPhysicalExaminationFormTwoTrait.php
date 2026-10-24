@@ -23,6 +23,14 @@ trait HistoryAndPhysicalExaminationFormTwoTrait
             return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
         }
     }
+    public function options()
+    {
+        try {
+            return api_response($this->historyFormTwoRepo->examinationOptions(), true, "Success", 200);
+        } catch (\Exception $e) {
+            return api_response([], false,  $e->getMessage(), $code = $e->getCode() ?: 500);
+        }
+    }
     public function store(StoreRequest $request)
     {
         try {

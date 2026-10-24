@@ -153,21 +153,14 @@ export interface HistoryAndPhysicalExaminationFormOne {
     patient_case?: PatientCase;
     chief_complaint: string;
     history_of_present_illness: string;
-    past_medical_history?: string;
+    findings?: string[];
     past_medical_history_others?: string;
-    past_surgical_history?: string;
-    past_surgical_history_history?: string;
-    hospitalization_history?: string;
+    past_surgical_history_others?: string;
     hospitalization_history_others?: string;
-    medication_history?: string;
     medication_history_others?: string;
-    allergies?: string;
     allergies_others?: string;
-    family_history?: string;
     family_history_others?: string;
-    social_history?: string;
     social_history_others?: string;
-    immunization_history?: string;
     immunization_history_others?: string;
     review_of_systems?: string;
     remarks?: string;
@@ -177,29 +170,18 @@ export interface HistoryAndPhysicalExaminationFormTwo {
     pid?: string;
     patient_case_pid: string;
     patient_case?: PatientCase;
-    general_appearance?: string;
+    findings?: string[];
     general_appearance_others?: string;
-    skin?: string;
     skin_others?: string;
-    heent?: string;
     heent_others?: string;
-    neck?: string;
     neck_others?: string;
-    chest_lungs?: string;
     chest_lungs_others?: string;
-    cardiovascular?: string;
     cardiovascular_others?: string;
-    abdomen?: string;
     abdomen_others?: string;
-    genitourinary?: string;
     genitourinary_others?: string;
-    rectal?: string;
     rectal_others?: string;
-    musculoskeletal?: string;
     musculoskeletal_others?: string;
-    neurological?: string;
     neurological_others?: string;
-    psychiatric_mental_status?: string;
     psychiatric_mental_status_others?: string;
     assessment_impression?: string;
     plan_recommendations?: string;
@@ -419,6 +401,14 @@ export interface PertinentSignsAndSymptomsList {
     name: string;
     status?: boolean;
     others?: string | null;
+}
+
+export interface ExaminationOption {
+    pid?: string;
+    type: string;
+    code: string;
+    description: string;
+    active?: boolean;
 }
 
 export interface Icd {
