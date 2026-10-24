@@ -13,6 +13,7 @@
             </svg>
           </button>
 <<<<<<< HEAD
+<<<<<<< HEAD
 
           <div class="hidden md:flex items-center gap-3">
             <!-- Logo -->
@@ -27,6 +28,8 @@
               </h1>
 
 =======
+=======
+>>>>>>> b01e3868871f53c57c4985cab81e797a667ceb08
 
           <div class="hidden md:flex items-center gap-3">
             <!-- Logo -->
@@ -40,7 +43,10 @@
                 {{ facilityName }}
               </h1>
 
+<<<<<<< HEAD
 >>>>>>> main
+=======
+>>>>>>> b01e3868871f53c57c4985cab81e797a667ceb08
               <!-- <span class="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-teal-600"> Eye Care Center </span> -->
             </div>
           </div>
