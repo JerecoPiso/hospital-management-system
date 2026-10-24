@@ -26,8 +26,10 @@
                         <label class="text-sm font-semibold text-slate-700">{{ field.label }}</label>
                         <div v-if="optionsByType[field.key]?.length" class="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-1.5">
                             <div v-for="option in optionsByType[field.key]" :key="option.pid" class="flex items-start gap-2">
-                                <Checkbox v-model="historyInfo.findings" :inputId="`finding-${option.pid}`" :value="option.pid" />
-                                <label :for="`finding-${option.pid}`" class="text-sm text-slate-600 leading-tight cursor-pointer">{{ option.description }}</label>
+                                <Checkbox v-model="historyInfo.findings" :inputId="`finding-${option.pid}`" :value="option.pid"
+                                    :disabled="isOptionDisabled(field.key, option)" @change="onFindingChange(field.key, option)" />
+                                <label :for="`finding-${option.pid}`" class="text-sm leading-tight"
+                                    :class="isOptionDisabled(field.key, option) ? 'text-slate-400 cursor-not-allowed' : 'text-slate-600 cursor-pointer'">{{ option.description }}</label>
                             </div>
                         </div>
                         <p v-else class="text-xs text-slate-400 italic">No options configured</p>
@@ -235,6 +237,23 @@ const optionsByType = computed<Record<string, ExaminationOption[]>>(() => {
         return groups;
     }, {} as Record<string, ExaminationOption[]>);
 });
+
+// "Essentially normal" excludes every other finding within the same section
+const isEssentiallyNormal = (option: ExaminationOption) => /essentially normal/i.test(option.description ?? "");
+
+const isNormalSelected = (type: string) =>
+    (optionsByType.value[type] ?? []).some((option) => isEssentiallyNormal(option) && (historyInfo.findings ?? []).includes(option.pid as string));
+
+const isOptionDisabled = (type: string, option: ExaminationOption) => !isEssentiallyNormal(option) && isNormalSelected(type);
+
+const onFindingChange = (type: string, option: ExaminationOption) => {
+    const findings = historyInfo.findings ?? [];
+    if (!isEssentiallyNormal(option) || !findings.includes(option.pid as string)) return;
+    const otherPids = (optionsByType.value[type] ?? [])
+        .filter((other) => !isEssentiallyNormal(other))
+        .map((other) => other.pid as string);
+    historyInfo.findings = findings.filter((pid) => !otherPids.includes(pid));
+};
 
 onMounted(async () => {
     await Promise.all([read(), readOptions()]);
