@@ -38,6 +38,7 @@ class DatabaseSeeder extends Seeder
             BedSeeder::class,
             StationSeeder::class,
             PertinentSignsAndSymptomsListSeeder::class,
+            ExaminationOptionSeeder::class,
         ]);
     }
 }

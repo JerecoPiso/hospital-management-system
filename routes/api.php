@@ -15,6 +15,7 @@ require __DIR__ . '/api/dashboard.php';
 require __DIR__ . '/api/diets.php';
 require __DIR__ . '/api/doctorFees.php';
 require __DIR__ . '/api/doctorsOrder.php';
+require __DIR__ . '/api/examinationOptions.php';
 require __DIR__ . '/api/feeCategories.php';
 require __DIR__ . '/api/feeCharges.php';
 require __DIR__ . '/api/feeSchedules.php';

@@ -36,10 +36,16 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div v-for="field in historyFields" :key="field.key" class="flex flex-col gap-1.5">
-                        <label class="text-sm font-medium text-slate-700">{{ field.label }}</label>
-                        <InputText v-model="(historyInfo as any)[field.key]" fluid class="text-sm" placeholder="Findings..." />
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div v-for="field in historyFields" :key="field.key" class="flex flex-col gap-2 rounded-lg border border-slate-200 p-3">
+                        <label class="text-sm font-semibold text-slate-700">{{ field.label }}</label>
+                        <div v-if="optionsByType[field.key]?.length" class="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-1.5">
+                            <div v-for="option in optionsByType[field.key]" :key="option.pid" class="flex items-start gap-2">
+                                <Checkbox v-model="historyInfo.findings" :inputId="`finding-${option.pid}`" :value="option.pid" />
+                                <label :for="`finding-${option.pid}`" class="text-sm text-slate-600 leading-tight cursor-pointer">{{ option.description }}</label>
+                            </div>
+                        </div>
+                        <p v-else class="text-xs text-slate-400 italic">No options configured</p>
                         <InputText v-model="(historyInfo as any)[field.othersKey]" fluid class="text-sm" placeholder="Others, please specify..." />
                     </div>
                 </div>
@@ -173,7 +179,8 @@ import { BsPlusCircle } from 'vue-icons-plus/bs';
 import { FaBookMedical } from 'vue-icons-plus/fa';
 import { BiEdit, BiTrash } from 'vue-icons-plus/bi';
 import { useHistoryAndPhysicalExaminationFormOneStore } from '@/store/patientchart/HistoryAndPhysicalExaminationFormOne';
-import { HistoryAndPhysicalExaminationFormOne } from '@/interface/Interfaces';
+import { ExaminationOption, HistoryAndPhysicalExaminationFormOne } from '@/interface/Interfaces';
+import Checkbox from 'primevue/checkbox';
 import { useConfirmToast } from '@/composables/confirm';
 import { useAppToast } from '@/composables/toast';
 import { usePermission } from '@/composables/permission';
@@ -187,7 +194,7 @@ const patientCasePid = computed(() => route.params.patient_case_pid as string | 
 
 const historyFields = [
     { key: 'past_medical_history', othersKey: 'past_medical_history_others', label: 'Past Medical History' },
-    { key: 'past_surgical_history', othersKey: 'past_surgical_history_history', label: 'Past Surgical History' },
+    { key: 'past_surgical_history', othersKey: 'past_surgical_history_others', label: 'Past Surgical History' },
     { key: 'hospitalization_history', othersKey: 'hospitalization_history_others', label: 'Hospitalization History' },
     { key: 'medication_history', othersKey: 'medication_history_others', label: 'Medication History' },
     { key: 'allergies', othersKey: 'allergies_others', label: 'Allergies' },
@@ -201,21 +208,14 @@ const emptyHistory = (): HistoryAndPhysicalExaminationFormOne => ({
     patient_case_pid: "",
     chief_complaint: "",
     history_of_present_illness: "",
-    past_medical_history: "",
+    findings: [],
     past_medical_history_others: "",
-    past_surgical_history: "",
-    past_surgical_history_history: "",
-    hospitalization_history: "",
+    past_surgical_history_others: "",
     hospitalization_history_others: "",
-    medication_history: "",
     medication_history_others: "",
-    allergies: "",
     allergies_others: "",
-    family_history: "",
     family_history_others: "",
-    social_history: "",
     social_history_others: "",
-    immunization_history: "",
     immunization_history_others: "",
     review_of_systems: "",
     remarks: ""
@@ -226,13 +226,35 @@ const history = computed<HistoryAndPhysicalExaminationFormOne>(() => historyStor
 const historyInfo = reactive<HistoryAndPhysicalExaminationFormOne>(emptyHistory());
 const historyModal = ref<boolean>(false);
 const isUpdate = ref<boolean>(false);
+// Findings already saved on the entry being edited, kept so options deactivated since still show up
+const savedFindings = ref<ExaminationOption[]>([]);
+
+const optionsByType = computed<Record<string, ExaminationOption[]>>(() => {
+    const options = [...historyStore.examinationOptions];
+    savedFindings.value.forEach((saved) => {
+        if (!options.some((option) => option.pid === saved.pid)) options.push(saved);
+    });
+    return options.reduce((groups, option) => {
+        (groups[option.type] ??= []).push(option);
+        return groups;
+    }, {} as Record<string, ExaminationOption[]>);
+});
 
 onMounted(async () => {
-    await read();
+    await Promise.all([read(), readOptions()]);
 });
+
+const readOptions = async () => {
+    try {
+        await historyStore.readOptions();
+    } catch (err: any) {
+        toast.error(err.response?.data?.message || "Failed to retrieve examination options");
+    }
+};
 
 const resetForm = () => {
     Object.assign(historyInfo, emptyHistory());
+    savedFindings.value = [];
     isUpdate.value = false;
 };
 
@@ -269,7 +291,12 @@ const create = async () => {
 const view = async (pid: string) => {
     try {
         await historyStore.view(pid);
-        Object.assign(historyInfo, emptyHistory(), history.value, { patient_case_pid: patientCasePid.value || "" });
+        // The API returns findings as option objects; the form works with their pids
+        savedFindings.value = (history.value.findings ?? []) as unknown as ExaminationOption[];
+        Object.assign(historyInfo, emptyHistory(), history.value, {
+            patient_case_pid: patientCasePid.value || "",
+            findings: savedFindings.value.map((option) => option.pid as string),
+        });
         isUpdate.value = true;
         historyModal.value = true;
     } catch (err: any) {

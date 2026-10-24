@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -32,5 +33,15 @@ class HistoryAndPhysicalExaminationFormTwo extends Model
     public function patientCase(): BelongsTo
     {
         return $this->belongsTo(PatientCase::class);
+    }
+
+    public function findings(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            ExaminationOption::class,
+            'history_and_physical_examination_form_two_findings',
+            'history_and_physical_examination_form_two_id',
+            'examination_option_id'
+        )->using(HistoryAndPhysicalExaminationFormTwoFinding::class)->withTrashed()->withTimestamps();
     }
 }

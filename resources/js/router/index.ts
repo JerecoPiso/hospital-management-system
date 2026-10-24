@@ -103,6 +103,7 @@ const router = createRouter({
                         { path: "stations", name: "Stations", component: () => import("../pages/authenticated/settings/Stations.vue"), meta: { module: "stations" } },
                         { path: "patient-types", name: "PatientTypes", component: () => import("../pages/authenticated/settings/PatientTypes.vue"), meta: { module: "patient-types" } },
                         { path: "pertinent-signs-and-symptoms", name: "PertinentSignsAndSymptoms", component: () => import("../pages/authenticated/settings/PertinentSignsAndSymptoms.vue"), meta: { module: "pertinent-signs-and-symptoms-lists" } },
+                        { path: "examination-options", name: "ExaminationOptions", component: () => import("../pages/authenticated/settings/ExaminationOptions.vue"), meta: { module: "examination-options" } },
                         { path: "icds", name: "Icds", component: () => import("../pages/authenticated/settings/Icds.vue"), meta: { module: "icds" } },
                         { path: "system", name: "SystemSettings", component: () => import("../pages/authenticated/settings/SystemSettings.vue"), meta: { module: "settings" } },
                         { path: "roles", name: "Roles", component: () => import("../pages/authenticated/settings/Roles.vue"), meta: { module: "roles" } },

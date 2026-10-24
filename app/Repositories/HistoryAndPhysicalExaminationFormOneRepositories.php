@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\ExaminationOption;
 use App\Models\HistoryAndPhysicalExaminationFormOne;
 use App\Models\PatientCase;
 use Illuminate\Support\Facades\DB;
@@ -11,7 +12,7 @@ class HistoryAndPhysicalExaminationFormOneRepositories
 
     public function list($filter = [])
     {
-        $history = HistoryAndPhysicalExaminationFormOne::with(['user', 'patientCase.patient'])->orderBy('id', 'desc');
+        $history = HistoryAndPhysicalExaminationFormOne::with(['user', 'patientCase.patient', 'findings'])->orderBy('id', 'desc');
 
         if (!empty($filter['patient_case_id'])) {
             $history->where('patient_case_id', $filter['patient_case_id']);
@@ -24,7 +25,7 @@ class HistoryAndPhysicalExaminationFormOneRepositories
     {
         try {
 
-            $history = HistoryAndPhysicalExaminationFormOne::where('pid', $pid)->first();
+            $history = HistoryAndPhysicalExaminationFormOne::with('findings')->where('pid', $pid)->first();
 
             if (!$history) {
                 return [];
@@ -43,9 +44,13 @@ class HistoryAndPhysicalExaminationFormOneRepositories
                 $patientCase = PatientCase::where('pid', $data['patient_case_pid'])->firstOrFail();
                 unset($data['patient_case_pid']);
                 $data['patient_case_id'] = $patientCase->id;
+                $findings = $data['findings'] ?? [];
+                unset($data['findings']);
 
                 $history = HistoryAndPhysicalExaminationFormOne::create($data);
-                return $history->load(['patientCase.patient']);
+                $this->syncFindings($history, $findings);
+
+                return $history->load(['patientCase.patient', 'findings']);
             });
         } catch (\Exception $e) {
             throw new \Exception("An error has occured! " . $e->getMessage());
@@ -60,19 +65,43 @@ class HistoryAndPhysicalExaminationFormOneRepositories
                 return null;
             }
 
-            $history = HistoryAndPhysicalExaminationFormOne::findOrFail($history_id);
+            return DB::transaction(function () use ($history_id, $data) {
+                $history = HistoryAndPhysicalExaminationFormOne::findOrFail($history_id);
 
-            if (!empty($data['patient_case_pid'])) {
-                $data['patient_case_id'] = PatientCase::where('pid', $data['patient_case_pid'])->firstOrFail()->id;
-            }
-            unset($data['patient_case_pid']);
+                if (!empty($data['patient_case_pid'])) {
+                    $data['patient_case_id'] = PatientCase::where('pid', $data['patient_case_pid'])->firstOrFail()->id;
+                }
+                unset($data['patient_case_pid']);
 
-            $history->update($data);
+                // Only touch findings when the request sent them
+                if (array_key_exists('findings', $data)) {
+                    $this->syncFindings($history, $data['findings'] ?? []);
+                    unset($data['findings']);
+                }
 
-            return $history;
+                $history->update($data);
+
+                return $history->load('findings');
+            });
         } catch (\Exception $e) {
             throw new \Exception("An error has occured! " . $e->getMessage());
         }
+    }
+
+    public function examinationOptions()
+    {
+        return ExaminationOption::where('active', true)
+            ->whereIn('type', ExaminationOption::FORM_ONE_TYPES)
+            ->orderBy('type', 'asc')
+            ->orderBy('id', 'asc')
+            ->get()
+            ->toArray();
+    }
+
+    private function syncFindings(HistoryAndPhysicalExaminationFormOne $history, array $optionPids)
+    {
+        $optionIds = ExaminationOption::withTrashed()->whereIn('pid', $optionPids)->pluck('id')->all();
+        $history->findings()->sync($optionIds);
     }
 
     public function delete($data)

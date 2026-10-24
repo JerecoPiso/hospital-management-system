@@ -16,7 +16,7 @@
           <div class="hidden md:flex items-center gap-3">
             <!-- Logo -->
             <div class="flex h-11 w-11 shrink-0 items-center justify-center">
-              <img :src="`${appURL}storage/images/patterson.jpg`" alt="Clinic Logo" class="h-12 w-12 rounded-md" />
+              <img :src="`${appURL}storage/app/public/images/${logoFilename}`" alt="Clinic Logo" class="h-12 w-12 rounded-md" />
             </div>
 
             <!-- Facility Information -->
@@ -135,11 +135,11 @@
 
       <!-- Sidebar -->
       <aside
-        class="fixed w-64 min-h-[calc(100vh-4rem)] md:min-h-[90vh] md:static inset-y-0 left-0 z-30 bg-white border-r border-slate-200 transform transition-transform duration-300 mt-16 md:mt-0 md:translate-x-0"
+        class="fixed top-20 left-0 z-30 flex flex-col w-64 h-[calc(100dvh-5rem)] bg-white border-r border-slate-200 transform transition-transform duration-300 md:sticky md:self-start md:shrink-0 md:translate-x-0"
         :class="[sidebarOpen ? 'translate-x-0' : '-translate-x-full', { 'md:w-20': !sidebarExpanded }]"
       >
         <!-- Added sidebar header with toggle button -->
-        <div class="p-6 border-b border-slate-200 flex items-center justify-between">
+        <div class="shrink-0 p-6 border-b border-slate-200 flex items-center justify-between">
           <h2 v-if="sidebarExpanded" class="text-sm font-bold text-slate-900 uppercase tracking-wider">Menu</h2>
           <button @click="sidebarExpanded = !sidebarExpanded" class="p-2 hover:bg-slate-100 rounded-lg transition-colors hidden md:flex items-center justify-center">
             <svg class="w-5 h-5 text-slate-700 transition-transform" :class="{ 'rotate-180': !sidebarExpanded }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,7 +147,7 @@
             </svg>
           </button>
         </div>
-        <nav class="p-4 space-y-2">
+        <nav class="flex-1 min-h-0 overflow-y-auto p-4 space-y-2">
           <template v-for="item in visibleNavItems" :key="item.name">
             <!-- Parent link with submenu -->
             <div v-if="item.children">
@@ -192,8 +192,8 @@
           </template>
         </nav>
         <!-- Added sidebar footer with additional info -->
-        <div class="fixed bottom-0 left-0 right-0 p-4 border-t border-slate-200 bg-slate-50">
-          <p class="text-xs text-slate-600 text-center">{{ facilityName }}</p>
+        <div class="shrink-0 p-4 border-t border-slate-200 bg-slate-50">
+          <p class="text-xs text-slate-600 text-center">{{facilityName}}</p>
         </div>
       </aside>
 
@@ -212,7 +212,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import { useRouter, useRoute } from "vue-router";
 import { MdDashboard, MdLayers, MdLocationOn, MdSwapVert, MdMedicalServices, MdAssessment } from "vue-icons-plus/md";
-import { FiUsers, FiSettings, FiUserPlus, FiActivity, FiSliders } from "vue-icons-plus/fi";
+import { FiUsers, FiSettings, FiUserPlus, FiActivity, FiSliders, FiClipboard } from "vue-icons-plus/fi";
 import { GiMedicalPack, GiMedicines, GiTestTubes, GiMicroscope } from "vue-icons-plus/gi";
 import { FaUsers, FaBuilding, FaBed, FaUtensils, FaCapsules, FaBookMedical, FaFlask, FaXRay, FaMoneyBillWave, FaPills, FaFileInvoiceDollar } from "vue-icons-plus/fa";
 import { BsFillDoorOpenFill, BsCashCoin } from "vue-icons-plus/bs";
@@ -224,6 +224,8 @@ import { useAuthStore } from "@/store/patientchart/AuthStore";
 import { usePermission } from "@/composables/permission";
 const appURL = import.meta.env.VITE_APP_URL;
 const facilityName = import.meta.env.VITE_FACILITY_NAME;
+const logoFilename = import.meta.env.VITE_LOGO_FILENAME;
+
 const confirm = useConfirm();
 const toast = useToast();
 const router = useRouter();
@@ -367,6 +369,7 @@ const navItems = [
       { name: "Stations", label: "Stations", icon: MdLocationOn, module: "stations" },
       { name: "PatientTypes", label: "Patient Types", icon: BiCategoryAlt, module: "patient-types" },
       { name: "PertinentSignsAndSymptoms", label: "Signs & Symptoms", icon: FiActivity, module: "pertinent-signs-and-symptoms-lists" },
+      { name: "ExaminationOptions", label: "Examination Options", icon: FiClipboard, module: "examination-options" },
       { name: "Icds", label: "ICD Codes", icon: FaBookMedical, module: "icds" },
       { name: "SystemSettings", label: "System Settings", icon: FiSliders, module: "settings" },
     ],
