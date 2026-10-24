@@ -16,22 +16,6 @@
           <div class="hidden md:flex items-center gap-3">
             <!-- Logo -->
             <div class="flex h-11 w-11 shrink-0 items-center justify-center">
-              <img :src="`${appURL}storage/images/patterson.jpg`" alt="Clinic Logo" class="h-12 w-12 rounded-md" />
-            </div>
-
-            <!-- Facility Information -->
-            <div class="flex flex-col justify-center leading-tight">
-              <h1 class="text-sm font-bold tracking-wide text-slate-700">
-                {{ facilityName }}
-              </h1>
-
-=======
-=======
->>>>>>> b01e3868871f53c57c4985cab81e797a667ceb08
-
-          <div class="hidden md:flex items-center gap-3">
-            <!-- Logo -->
-            <div class="flex h-11 w-11 shrink-0 items-center justify-center">
               <img :src="`${appURL}storage/app/public/images/${logoFilename}`" alt="Clinic Logo" class="h-12 w-12 rounded-md" />
             </div>
 
@@ -40,11 +24,6 @@
               <h1 class="text-sm font-bold tracking-wide text-slate-700">
                 {{ facilityName }}
               </h1>
-
-<<<<<<< HEAD
->>>>>>> main
-=======
->>>>>>> b01e3868871f53c57c4985cab81e797a667ceb08
               <!-- <span class="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-teal-600"> Eye Care Center </span> -->
             </div>
           </div>
